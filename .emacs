@@ -21,7 +21,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (yasnippet-snippets which-key use-package spell-fu projectile ox-pandoc org-pomodoro org-bullets magit lispy golden-ratio general flycheck flx evil-surround evil-numbers evil-commentary elpy color-theme-sanityinc-tomorrow))))
+    (persp-projectile counsel-projectile perspective yasnippet-snippets which-key use-package spell-fu projectile ox-pandoc org-pomodoro org-bullets magit lispy golden-ratio general flycheck flx evil-surround evil-numbers evil-commentary elpy color-theme-sanityinc-tomorrow))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

@@ -24,6 +24,7 @@
    - [[https://www.youtube.com/watch?v=49kBWM3RQQ8&list=PL9KxKa8NpFxIcNQa9js7dQQIHc81b0-Xg&index=1][Using Emacs videos]]
    - Originally inspaired by based on [[https://huytd.github.io/emacs-from-scratch.html#orgf713fce][this]] implementation 
    - Kwrooijen's [[https://github.com/kwrooijen/.emacs.d][implementation]]. Uses evil, use-package, and many abo-abo. 
+   - Emacs Adventures [[https://github.com/amolgawai/emacsadventures/tree/92578a5b5bf71ccc7f2e1859edefaa97d8d51df1/config][robust emacs config]] 
    - [[https://sam217pa.github.io/2016/09/23/keybindings-strategies-in-emacs/][Key bindings article]] 
 
 * Package Configuration 
@@ -161,15 +162,46 @@
    :ensure t)
  #+end_src
 
+** Perspective
+  #+begin_src emacs-lisp
+  (use-package perspective
+    :ensure t
+    :config 
+    (persp-mode))
+  #+end_src
+
 ** Projectile
  #+begin_src emacs-lisp
- (use-package projectile
-   :ensure t
-   :init
-   (setq projectile-require-project-root nil)
-   (setq projectile-completion-system 'ivy)
-   :config
-   (projectile-mode 1))
+    (use-package projectile
+      :ensure t
+      :init
+      (setq projectile-require-project-root nil)
+      (setq projectile-completion-system 'ivy)
+      :config
+      (projectile-mode 1))
+
+    (use-package counsel-projectile
+     :ensure t
+     :config
+     (counsel-projectile-mode))
+
+   (use-package persp-projectile
+     :ensure t
+     :after projectile
+     :config
+     ;; from amolgawai
+     ;; (setq wg-morph-on nil ;; switch off animation
+     ;;       persp-autokill-buffer-on-remove 'kill-weak
+     ;;       persp-auto-save-opt 0
+     ;;       persp-auto-resume-time -1
+     ;;       persp-nil-hidden t
+     ;;       persp-add-buffer-on-find-file t
+     ;;       persp-add-buffer-on-after-change-major-mode t
+     ;;       persp-hook-up-emacs-buffer-completion t
+     ;;       ;; persp-state-default-file (locate-user-emacs-file "perspectives/default.persp"))
+     ;;       persp-state-default-file (expand-file-name "perspectives/default.persp" user-emacs-directory))
+     ;; (add-hook 'kill-emacs-hook #'persp-state-save)
+     (persp-mode t))
  #+end_src
 
  #+RESULTS:
@@ -466,17 +498,24 @@
 	       "fs"  '(save-buffer :which-key "save buffer")
 	       ;;projects
 	       "p"   '(:ignore t :which-key "project")
-	       "pp"  '(projectile-switch-project :which-key "switch project")
-	       "pf"  '(projectile-find-file :which-key "find project file")
+	       "pc"  '(:keymap projectile-command-map :which-key "commands")
+	       "pp"  '(projectile-persp-switch-project :which-key "switch project")
+	       "pb"  '(counsel-projectile-switch-to-buffer :which-key "find project file")
+	       "pf"  '(counsel-projectile-find-file :which-key "find project file")
 	       "pg"  '(projectile-grep :which-key "grep project")
 	       "pk"  '(projectile-kill-buffers :which-key "kill all buffers in project")
-	       ;; "p/"  '(counsel-git :which-key "find file in git dir")
+	       ;; eval
+	       "e"   '(:ignore t :which-key "evaluate")
+	       "ee"  '(eval-last-sexp :which-key "last expression")
+	       "eb"  '(eval-buffer :which-key "buffer")
+	       "er"  '(eval-region :which-key "region")
 	       ;; Buffers
 	       "b"   '(:ignore t :which-key "buffers")
 	       "bb"  '(ivy-switch-buffer :which-key "buffers list")
 	       "bs"  '(ak-go-to-scratch :which-key "open scratch")
 	       "bn"  '(switch-to-next-buffer :which-key "next buffer")
 	       "bp"  '(switch-to-prev-buffer :which-key "prev buffer")
+	       ;; "bd"  '(kill-buffer :which-key "delete buffer")
 	       "bd"  '(kill-this-buffer :which-key "delete buffer")
 	       "bk"  '(evil-delete-buffer :which-key "delete buffer and window")
 	       ;; Window
@@ -489,6 +528,10 @@
 	       "w-"  '(split-window-below :which-key "split bottom")
 	       "wx"  '(delete-window :which-key "delete window")
 	       "wg"  '(golden-ratio :which-key "golden ratio")
+	       ;; Perspective (v for view)
+	       "vn"  '(persp-next :which-key "previous next")
+	       "vp"  '(persp-prev :which-key "previous perspective")
+	       "vc"  '(:keymap perspective-map :which-key "commands")
 	       ;; Org
 	       "o"   '(:ignore t :which-key "org")
 	       "ob"  '(insert-bable :Which-key "insert bable")
@@ -512,8 +555,8 @@
 	       "ts"  '(flyspell-mode :which-key "toggle flyspell")
 	       ;; Flycheck
 	       "c"   '(:ignore t :which-key "code check")
-	       "cn"  '(flycheck-next-error :which-key "toggle line numbers")
-	       "cN"  '(flycheck-previous-error :which-key "toggle line numbers")
+	       "cn"  '(flycheck-next-error :which-key "next error")
+	       "cN"  '(flycheck-previous-error :which-key "previous error")
 	       ;; Others
 	       "at"  '(new-eshell :which-key "eshell"))
 	     (general-define-key
@@ -578,3 +621,19 @@
 
   #+RESULTS:
   : ak-go-to-scratch
+
+*** delete buffer and remove from history. Keep window
+  #+begin_src emacs-lisp
+  (defun ak-ivy-kill-buffer (buf)
+    (interactive)
+    (if (get-buffer buf)
+        (kill-buffer buf)
+      (setq recentf-list (delete (cdr (assoc buf ivy--virtual-buffers)) recentf-list))))
+  #+end_src
+
+  #+RESULTS:
+  : ak-ivy-kill-current-buffer
+
+*** testing area
+  #+begin_src emacs-lisp
+  #+end_src
