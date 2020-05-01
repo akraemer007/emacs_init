@@ -2,23 +2,25 @@
   use cust or custpath to denote where windows / mac specific actions are made
 
 ** TODO Planned Tweaks
-   - [ ] hydra for winner
+   - [ ] Custom paths
+   - [ ] Treemacs
+   - [ ] Shackle
+   - [ ] Make sure next buffer and last buffer only do real files
+   - [ ] hydra for windows
    - [ ] fix ediff
-   - [ ] make this an org file
    - [ ] org make todotype selection easier
    - [ ] Default new todo bullet to TODO not inprogress
    - [ ] magit path reset
-   - [ ] magit consider j and k 
    - [ ] Figure out pomodoro
-   - [ ] figure out lispy
-   - [ ] move w/ evil in agenda
-   - [ ] autopep8
-   - [ ] spell-fu ;; why not in melpa? aspell w/ wierd packman install
+   - [X] figure out lispy
    - [ ] add hooks more elegantly
-   - [ ] Custom paths
    - [ ] babel installs
    - [ ] R
    - [ ] vim bracket buffer movement
+   - [X] move w/ evil in agenda
+   - [X] magit consider j and k 
+   - [X] spell-fu ;; why not in melpa? aspell w/ wierd packman install
+   - [X] make this an org file
 
 ** Inspiration + links
    - [[https://www.youtube.com/watch?v=49kBWM3RQQ8&list=PL9KxKa8NpFxIcNQa9js7dQQIHc81b0-Xg&index=1][Using Emacs videos]]
@@ -41,14 +43,12 @@
  (tooltip-mode     -1)
  (blink-cursor-mode 0)
  (setq initial-scratch-message nil)
- (setq inhibit-startup-message t)
  (setq ring-bell-function 'ignore)
  (setq redisplay-dont-pause t ;; Scrolling smoothness
    scroll-margin 1
    scroll-step 1
    scroll-conservatively 10000
    scroll-preserve-screen-position 1)
- (setq temporary-file-directory "c:/emacs/.emacs.d/tmp/") ;; custpath Don't save flycheck locally
  (setq temporary-file-directory "c:/emacs/.emacs.d/tmp/") ;; custpath Don't save flycheck locally
  ;; set meta & super keys ;;cust
  (setq w32-pass-lwindow-to-system nil)
@@ -354,6 +354,17 @@
 
  #+RESULTS:
 
+ #+begin_src emacs-lisp
+(use-package org-download
+  :ensure t
+  :config
+  ;; add support to dired
+  (add-hook 'dired-mode-hook 'org-download-enable))
+ #+end_src
+
+ #+RESULTS:
+ : t
+
 ** Babel
  #+begin_src emacs-lisp
  (org-babel-do-load-languages
@@ -412,23 +423,52 @@
  )
  #+end_src
 
+** hy
+ #+begin_src emacs-lisp
+ (use-package hy-mode
+   :defer t
+   :init (add-hook 'hy-mode-hook 'lispy-mode))
+ #+end_src
+
+ #+RESULTS:
+ | lispy-mode |
+
 ** Lispy
  #+begin_src emacs-lisp
- ;; Lispy
- (use-package lispy
-   :ensure t
-   :defer t
-   :init
-     (add-hook 'lisp-mode-hook 'lispy-mode)
-     (add-hook 'emacs-lisp-mode-hook 'lispy-mode)
-   )
+   ;; Lispy
+   ;;(use-package lisp;; y
+   ;;   :ensure t
+   ;;   :defer t
+   ;;   :init
+   ;;     (general-add-hook '(hy-mode-hook lisp-mode-hook emacs-lisp-mode-hook) #'lispy-mode)
+   ;;     ;; (add-hook 'hy-mode-hook #'lispy-mode)
+   ;;     ;; (add-hook 'lisp-mode-hook #'lispy-mode)
+   ;;     ;; (add-hook 'emacs-lisp-mode-hook #'lispy-mode)
+   ;;)
 
- ;; (use-package lispyville
- ;;   :ensure t
- ;;   :defer t
- ;;   :init
- ;;     (add-hook 'lispy-mode-hook #'lispyville-mode)
- ;;   )
+   (use-package lispyville
+     :ensure t
+     :defer t
+     :init
+       (general-add-hook '(emacs-lisp-mode-hook hy-mode-hook lisp-mode-hook) #'lispyville-mode))
+     :config
+       (lispyville-set-key-theme '(additional prettify text-objects atom-motions additional-motions commentary slurp/barf-cp wrap additional))
+ #+end_src
+
+ #+RESULTS:
+
+** Tramp
+   - Snippet taken from here https://www.emacswiki.org/emacs/Tramp_on_Windows
+   - create saved session in putty then use the name like shown below
+   - run the following in eshell: "find-file /plink:bort:~/" Need to figure out how to get this to run in counsel-find file or get an easier way to access the vanilla find-file
+ #+begin_src emacs-lisp
+   (use-package tramp
+     :ensure t
+     :defer t
+     :init
+      (when (eq window-system 'w32)
+	(setq tramp-default-method "plink")
+	(setenv "PATH" (concat "c:/Program Files/PuTTY/" ";" (getenv "PATH")))))
  #+end_src
 
 ** eshell
@@ -449,11 +489,16 @@
  #+end_src
 
 ** Checks
-*** Spell-fu
+*** Spelling
+    install instructions from [[https://www.reddit.com/r/emacs/comments/8by3az/how_to_set_up_sell_check_for_emacs_in_windows/][this reddit page]]. User thrillsd instructions using mysys2. 
   #+begin_src emacs-lisp
-  (use-package spell-fu
-    :ensure t)
+    ;; (use-package spell-fu
+    ;;   :ensure t)
+    (setq-default ispell-program-name "C:/msys64/mingw64/bin/aspell.exe") 
   #+end_src
+
+  #+RESULTS:
+  : C:/msys64/mingw64/bin/aspell.exe
 
 *** Flycheck
   #+begin_src emacs-lisp
@@ -479,11 +524,11 @@
  #+begin_src emacs-lisp
    ;; Custom keybinding
    (use-package general
-     :ensure t 
+     :ensure t
      :config (general-evil-setup) ;; let's me use general-*map keys
 	     (general-nvmap
 	       ;; replaces C-c with ,
-	       "," (general-simulate-keys "C-c"))
+	       "," (general-simulate-key "C-c"))
 	     (general-define-key
 	       :states '(normal visual insert emacs)
 	       :prefix "SPC"
@@ -507,6 +552,7 @@
 	       ;; eval
 	       "e"   '(:ignore t :which-key "evaluate")
 	       "ee"  '(eval-last-sexp :which-key "last expression")
+	       "eE"  '(eval-expression :which-key "expression")
 	       "eb"  '(eval-buffer :which-key "buffer")
 	       "er"  '(eval-region :which-key "region")
 	       ;; Buffers
@@ -553,6 +599,7 @@
 	       "tL"  '(visual-line-mode :which-key "toggle line wrap")
 	       "tc"  '(flycheck-mode :which-key "toggle flycheck")
 	       "ts"  '(flyspell-mode :which-key "toggle flyspell")
+	       "tj"  '(json-pretty-print-buffer :which-key "toggle json pretty-print")
 	       ;; Flycheck
 	       "c"   '(:ignore t :which-key "code check")
 	       "cn"  '(flycheck-next-error :which-key "next error")
@@ -570,8 +617,8 @@
 	       "H"  '(winner-undo :which-key "winner undo")
 	       "L"  '(winner-redo :which-key "winner redo")
 	       ;; Vim  number increment
-	       "C-="  '(evil-numbers/inc-at-pt :wich-key "increment num")
-	       "C--"  '(evil-numbers/dec-at-pt :wich-key "decrement num"))
+	       "C-="  '(evil-numbers/inc-at-pt :which-key "increment num")
+	       "C--"  '(evil-numbers/dec-at-pt :which-key "decrement num"))
 	     ;; org agenda (more options here: https://github.com/Somelauw/evil-org-mode/blob/master/evil-org-agenda.el)
 	     (general-define-key
 		:keymaps 'org-agenda-mode-map
@@ -637,3 +684,4 @@
 *** testing area
   #+begin_src emacs-lisp
   #+end_src
+  
