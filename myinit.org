@@ -62,6 +62,7 @@
  #+end_src
 
 ** Winner
+   Undo / redo window / setup
  #+begin_src emacs-lisp
  (use-package winner
    :init (setq winner-boring-buffers
@@ -77,6 +78,20 @@
            "*Ibuffer*"))
    :config (winner-mode 1))
  #+end_src
+
+** Shackle
+   Manage popups
+ #+begin_src emacs-lisp
+   (use-package shackle
+     :ensure t
+     :defer t
+     :config
+     ;; (setq shackle-default-rule '(:select t))
+     (shackle-mode t))
+ #+end_src
+
+ #+RESULTS:
+ : t
 
 ** Files
    Stop files from saving temporary files everywhere
@@ -136,25 +151,29 @@
  #+end_src
 
 ** Ivy, Counsel, Swiper
+   - Hide star buffers w/ ivy-ignore buffers. Use C-c C-a to toggle back. Ref [[https://github.com/abo-abo/swiper/issues/644][here]].
  #+begin_src emacs-lisp
- (use-package ivy
-   :ensure t
-   :init
-   (setq ivy-use-virtual-buffers t
-	 enable-recursive-minibuffers t
-	 ivy-re-builders-alist
-	 '((swiper . regexp-quote)
-           (t      . ivy--regex-fuzzy)))
-   :config
-   (ivy-mode 1))
+   (use-package ivy
+     :ensure t
+     :init
+     (setq ivy-use-virtual-buffers t
+	   enable-recursive-minibuffers t
+	   ivy-re-builders-alist
+	   '((swiper . regexp-quote)
+	     (t      . ivy--regex-fuzzy)))
+     :config
+     (setq ivy-ignore-buffers '("\\` " "\\`\\*")) ;; hide star buffers note above
+     (ivy-mode 1))
 
- ;; fuzzy matching for ivy
- (use-package flx
-   :ensure t)
+   ;; fuzzy matching for ivy
+   (use-package flx
+     :ensure t)
 
- (use-package counsel
-   :ensure t)
+   (use-package counsel
+     :ensure t)
  #+end_src
+
+ #+RESULTS:
 
 ** Magit
  #+begin_src emacs-lisp
@@ -427,7 +446,7 @@
  #+begin_src emacs-lisp
  (use-package hy-mode
    :defer t
-   :init (add-hook 'hy-mode-hook 'lispy-mode))
+   :init (add-hook 'hy-mode-hook 'lispyville-mode))
  #+end_src
 
  #+RESULTS:
@@ -535,7 +554,7 @@
 	       :non-normal-prefix "M-SPC"
 	       "/"  '(swiper :which-key "swiper") ; You'll need counsel package for this ;; consider counsel-git-grep
 	       "\\"  '(counsel-rg :which-key "ripgrep") ; You'll need counsel package for this ;; consider counsel-git-grep
-	       "TAB" '(switch-to-prev-buffer :which-key "previous buffer")
+	       "TAB" '(spacemacs/alternate-window :which-key "alternate buffer")
 	       "SPC" '(counsel-M-x :which-key "M-x")
 	       "f"   '(:ignore t :which-key "files")
 	       "ff"  '(counsel-find-file :which-key "find files")
@@ -669,17 +688,20 @@
   #+RESULTS:
   : ak-go-to-scratch
 
-*** delete buffer and remove from history. Keep window
+*** Alternate buffers
+    Stolen from SPC-TAB spacemacs
   #+begin_src emacs-lisp
-  (defun ak-ivy-kill-buffer (buf)
-    (interactive)
-    (if (get-buffer buf)
-        (kill-buffer buf)
-      (setq recentf-list (delete (cdr (assoc buf ivy--virtual-buffers)) recentf-list))))
+    (defun spacemacs/alternate-window (&optional window)
+      (interactive)
+      (let ((current-buffer (window-buffer window)))
+        ;; if no window is found in the windows history, `switch-to-buffer' will
+        ;; default to calling `other-buffer'
+	(switch-to-buffer
+	 (cl-find-if (lambda (buffer)
+		       (not (eq buffer current-buffer)))
+		     (mapcar #'car (window-prev-buffers window)))
+	 nil t)))
   #+end_src
-
-  #+RESULTS:
-  : ak-ivy-kill-current-buffer
 
 *** testing area
   #+begin_src emacs-lisp
