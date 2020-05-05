@@ -3,9 +3,13 @@
    - [ ] Fix Agenda / use [[https://github.com/alphapapa/org-super-agenda][org-super-agenda]]
    - [ ] Org Blog w/ [[https://ox-hugo.scripter.co/][ox-hugo]]. [[https://www.reddit.com/r/orgmode/comments/gcex8p/creating_a_blog_with_orgmode/][Reddit Post]]
    - [ ] LSP instead of elpy
+   - [ ] gitgutter
+   - [ ] customize telephone line [[https://www.reddit.com/r/emacs/comments/7e7xzg/telephoneline_theming_question/][colors]] to match theme
    - [ ] Figure out where & how windows knows where my emacs is
+   - [ ] PDF-viewer
    - [ ] Move org-files to dropbox
-   - [ ] Treemacs
+   - [ ] Treemacs (do I need this?)
+   - [ ] ace by abo-abo?
    - [ ] hydra for windows
    - [ ] fix ediff
    - [ ] org make todotype selection easier
@@ -17,6 +21,7 @@
    - [ ] R
    - [ ] Config Shackle (do I need to? I feel like I've been able to supress a lot as of late)
    - [ ] vim bracket buffer movement
+   - [X] [[https://www.reddit.com/r/emacs/comments/4n0n8o/what_is_the_best_emacs_mode_line_package/][some sort of mode line]]. [[https://github.com/dbordak/telephone-line][Telephone-line]] looks promising
    - [X] Tramp: Fix ivy "c:" problem, or just make custom function around it
    - [X] Custom paths
    - [X] figure out lispy (I just went w/ lispyville)
@@ -83,6 +88,35 @@
 
  #+RESULTS:
  : t
+
+** Font
+ #+begin_src emacs-lisp
+ (set-face-attribute 'default nil :family "Consolas" :height 110)
+ #+end_src
+
+** Theme
+ #+begin_src emacs-lisp
+ (use-package color-theme-sanityinc-tomorrow
+   :ensure t
+   :config
+   (load-theme 'sanityinc-tomorrow-eighties t))
+ #+end_src
+
+** telephone-line (powerline packag)
+#+begin_src emacs-lisp
+  (use-package telephone-line
+    :ensure t
+    :config
+    (setq telephone-line-primary-right-separator 'telephone-line-abs-left
+      telephone-line-secondary-right-separator 'telephone-line-abs-hollow-left)
+    (setq telephone-line-height 18
+      telephone-line-evil-use-short-tag t)
+    (telephone-line-mode t))
+#+end_src
+
+#+RESULTS:
+: t
+
 ** Winner
    Undo / redo window / setup
  #+begin_src emacs-lisp
@@ -153,19 +187,6 @@
 
  (use-package evil-numbers
    :ensure t)
- #+end_src
-
-** Font
- #+begin_src emacs-lisp
- (set-face-attribute 'default nil :family "Consolas" :height 110)
- #+end_src
-
-** Theme
- #+begin_src emacs-lisp
- (use-package color-theme-sanityinc-tomorrow
-   :ensure t
-   :config
-   (load-theme 'sanityinc-tomorrow-eighties t))
  #+end_src
 
 ** Golden Ratio
@@ -407,21 +428,9 @@
  ;; put viz inline by default
  (setq org-startup-with-inline-images t)
 
-
- (defun insert-bable ()
-   "Insert src_sections for viz in orgmode."
-   (interactive)
-   (insert "#+begin_src "
-           (read-string "Enter Language (R, python, lisp): ")
-           (if (equal (read-string "Return Viz (y/n) ") "y")
-               " :results output graphics :file img.png"
-             ""))
-   (insert "\n \n#+end_src"))
-
  (use-package ox-pandoc
    :ensure t
-   :defer t
-   )
+   :defer t)
  ;;End Orgmode;;
  #+end_src
 
@@ -485,7 +494,7 @@
      :init
        (general-add-hook '(emacs-lisp-mode-hook hy-mode-hook lisp-mode-hook) #'lispyville-mode))
      :config
-       (lispyville-set-key-theme '(additional prettify text-objects atom-motions additional-motions commentary slurp/barf-cp additional-wrap additional))
+       (lispyville-set-key-theme '(additional prettify text-objects atom-motions additional-motions commentary slurp/barf-cp additional-wrap))
  #+end_src
 
  #+RESULTS:
@@ -622,7 +631,7 @@
 	       "vv"  '(ivy-switch-view :which-key "switch view")
 	       ;; Org
 	       "o"   '(:ignore t :which-key "org")
-	       "ob"  '(insert-bable :Which-key "insert bable")
+	       "ob"  '(ak-insert-bable :Which-key "insert bable")
 	       "oo"  '(air-pop-to-org-agenda :which-key "Open Agenda")
 	       "oc"  '(org-capture :which-key "Org Capture")
 	       ;; org-pomodoro
@@ -725,6 +734,22 @@
 		     (mapcar #'car (window-prev-buffers window)))
 	 nil t)))
   #+end_src
+
+*** Insert Bable
+#+begin_src emacs-lisp
+ (defun ak-insert-bable ()
+   "Insert src_sections for viz in orgmode."
+   (interactive)
+   (insert "#+begin_src "
+           (read-string "Enter Language (R, python, lisp): ")
+           (if (equal (read-string "Return Viz (y/n) ") "y")
+               " :results output graphics :file img.png"
+             ""))
+   (insert "\n \n#+end_src"))
+#+end_src
+
+#+RESULTS:
+: ak-insert-bable
 
 *** testing area
   #+begin_src emacs-lisp
