@@ -1,12 +1,12 @@
 * Notes
-  use cust or custpath to denote where windows / mac specific actions are made
-
 ** TODO Planned Tweaks
-   - [ ] Custom paths
-   - [ ] Fix Agenda
-   - [ ] Treemacs
+   - [ ] Fix Agenda / use [[https://github.com/alphapapa/org-super-agenda][org-super-agenda]]
+   - [ ] Org Blog w/ [[https://ox-hugo.scripter.co/][ox-hugo]]. [[https://www.reddit.com/r/orgmode/comments/gcex8p/creating_a_blog_with_orgmode/][Reddit Post]]
+   - [ ] Tramp: Fix ivy "c:" problem, or just make custom function around it
    - [ ] LSP instead of elpy
-   - [ ] Config Shackle
+   - [ ] Figure out where & how windows knows where my emacs is
+   - [ ] Move org-files to dropbox
+   - [ ] Treemacs
    - [ ] hydra for windows
    - [ ] fix ediff
    - [ ] org make todotype selection easier
@@ -16,46 +16,25 @@
    - [ ] add hooks more elegantly
    - [ ] babel installs
    - [ ] R
+   - [ ] Config Shackle (do I need to? I feel like I've been able to supress a lot as of late)
    - [ ] vim bracket buffer movement
+   - [X] Custom paths
    - [X] figure out lispy (I just went w/ lispyville)
    - [X] Make sure next buffer and last buffer only do real files
    - [X] move w/ evil in agenda
    - [X] magit consider j and k 
    - [X] spell-fu ;; why not in melpa? aspell w/ wierd packman install
    - [X] make this an org file
-
 ** Inspiration + links
    - [[https://www.youtube.com/watch?v=49kBWM3RQQ8&list=PL9KxKa8NpFxIcNQa9js7dQQIHc81b0-Xg&index=1][Using Emacs videos]]
    - Originally inspaired by based on [[https://huytd.github.io/emacs-from-scratch.html#orgf713fce][this]] implementation 
    - Kwrooijen's [[https://github.com/kwrooijen/.emacs.d][implementation]]. Uses evil, use-package, and many abo-abo. 
    - Emacs Adventures [[https://github.com/amolgawai/emacsadventures/tree/92578a5b5bf71ccc7f2e1859edefaa97d8d51df1/config][robust emacs config]] 
-   - [[https://sam217pa.github.io/2016/09/23/keybindings-strategies-in-emacs/][Key bindings article]] 
+   - [[https://sam217pa.github.io/2016/09/23/keybindings-strategies-in-emacs/][Key bindings article]]
+   - [[https://blog.aaronbieber.com/2016/09/24/an-agenda-for-life-with-org-mode.html][Aaron Bieber]] the guy who convinced me to try Evil. I steal from his Agenda setup
 
 * Package Configuration 
 ** Paths
-- [X] (setq backup-directory-alist '(("." . "c:/emacs/.emacs.d/backups"))) ;; custpath
-  - (concat ak/custpath-emacsd "backups")
-- [X] (with-eval-after-load 'org (setq org-agenda-files '("c:/emacs/notes/"))) ;; cust
-  - ak/custpath-org-notes
-- [X] (setq temporary-file-directory "c:/emacs/.emacs.d/tmp/") ;; custpath Don't save flycheck locally
-  - (concat ak/custpath-emacsd "tmp")
-- [X] ( "t" "To-do" entry (file+headline "c:/emacs/notes/gtd.org" "Inbox") ;; cust
-  - (concat ak/custpath-org-notes "gtd.org")
-- [X] ( "c" "To-do Link" entry (file+headline "c:/emacs/notes/gtd.org" "Inbox") ;; cust
-  - (concat ak/custpath-org-notes "gtd.org")
-- [X] ( "m" "Meeting" entry (file+headline "c:/emacs/notes/meetings.org" "Meeting Notes")
-  - (concat ak/custpath-org-notes "meetings.org")
-- [X] "c"  '((lambda () (interactive) (find-file "c:/emacs/.emacs.d/myinit.org")) :which-key "open .emacs")
-  - (concat ak/custpath-emacsd "myinit.org")
-- [X] "o"  '((lambda () (interactive) (find-file "c:/emacs/notes/gtd.org")) :which-key "open org")
-  - (concat ak/custpath-org-notes "gtd.org")
-- [X] "n"  '((lambda () (interactive) (find-file "c:/emacs/notes/notes.org")) :which-key "open notes")
-  - (concat ak/custpath-org-notes "notes.org")
-- [X] (pyvenv-activate "C:/Users/akraemer/Anaconda3/envs/py37")
-  - ak/custpath-py-default-env
-- [X] (setq flycheck-python-flake8-executable "c:/Users/akraemer/Anaconda3/Scripts/flake8.exe") ;;custpath ;; note that flake8 config is in c:/Users/akraemer/.flake8
-  - ak/custpath-flake8
-- [X] putty
 #+begin_src emacs-lisp
   (setq workstation 'catapult) ;; options: catapult
 
@@ -143,10 +122,12 @@
  (use-package files
    :init
    ;; Backup ~ files in seperate directory
-   (setq backup-directory-alist '(("." . (concat ak/custpath-emacsd "backups"))))
+   (setq backup-directory-alist `(("." . ,(concat ak/custpath-emacsd "backups"))))
    ;; No confirmation when creating new buffer
    (setq confirm-nonexistent-file-or-buffer nil))
  #+end_src
+
+ #+RESULTS:
 
 ** Evil
  #+begin_src emacs-lisp
@@ -302,12 +283,12 @@
        `(;; Note the backtick here, it's required so that the defvar based tempaltes will work!
 	 ;;http://comments.gmane.org/gmane.emacs.orgmode/106890
 
-	 ("t" "To-do" entry (file+headline (concat ak/custpath-org-notes "gtd.org") "Inbox")
+	 ("t" "To-do" entry (file+headline ,(concat ak/custpath-org-notes "gtd.org") "Inbox")
 	   "** TODO [#%^{priority}] %^{Task Description}" :prepend t)
-	 ("c" "To-do Link" entry (file+headline (concat ak/custpath-org-notes "gtd.org") "Inbox")
+	 ("c" "To-do Link" entry (file+headline ,(concat ak/custpath-org-notes "gtd.org") "Inbox")
 	   "** TODO [#%^{priority}] %A \n:PROPERTIES:\n:Created: %U\n:Source: %a\n:END:\n%?"
 	   :prepend t)
-	 ("m" "Meeting" entry (file+headline (concat ak/custpath-org-notes "meetings.org") "Meeting Notes")
+	 ("m" "Meeting" entry (file+headline ,(concat ak/custpath-org-notes "meetings.org") "Meeting Notes")
 	  ,my/org-meeting-template)
    ))
 
@@ -601,6 +582,7 @@
 	       "ff"  '(counsel-find-file :which-key "find files")
 	       "fr"  '(counsel-recentf :which-key "recent files")
 	       "fs"  '(save-buffer :which-key "save buffer")
+	       "ft"  '(ak/ivy-tramp-find-file :which-key "find tramp files")
 	       ;;projects
 	       "p"   '(:ignore t :which-key "project")
 	       "pc"  '(:keymap projectile-command-map :which-key "commands")
@@ -621,7 +603,6 @@
 	       "bs"  '(ak-go-to-scratch :which-key "open scratch")
 	       "bn"  '(switch-to-next-buffer :which-key "next buffer")
 	       "bp"  '(switch-to-prev-buffer :which-key "prev buffer")
-	       ;; "bd"  '(kill-buffer :which-key "delete buffer")
 	       "bd"  '(kill-this-buffer :which-key "delete buffer")
 	       "bk"  '(evil-delete-buffer :which-key "delete buffer and window")
 	       ;; Window
@@ -634,6 +615,7 @@
 	       "w-"  '(split-window-below :which-key "split bottom")
 	       "wx"  '(delete-window :which-key "delete window")
 	       "wg"  '(golden-ratio :which-key "golden ratio")
+	       "wd"  '(evil-window-delete :which-key "delete window")
 	       ;; v for view
 	       "v"   '(:ignore t :which-key "view")
 	       "vc"  '(ivy-push-view :which-key "create view")
@@ -746,7 +728,15 @@
 
 *** testing area
   #+begin_src emacs-lisp
+    (defun ak/ivy-tramp-find-file ()
+      "find-file with Tramp. Ex: '/plink:bort:~/'. See tramp note to setup"
+      (interactive)
+      (let ((tramp-path (concat "/" tramp-default-method ":")))
+	(counsel-find-file tramp-path)))
   #+end_src
+
+  #+RESULTS:
+  : ak/ivy-tramp-find-file
   
   
   
