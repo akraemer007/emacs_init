@@ -33,29 +33,29 @@
 
 * Package Configuration 
 ** Paths
-- [ ] (setq backup-directory-alist '(("." . "c:/emacs/.emacs.d/backups"))) ;; custpath
+- [X] (setq backup-directory-alist '(("." . "c:/emacs/.emacs.d/backups"))) ;; custpath
   - (concat ak/custpath-emacsd "backups")
-- [ ] (with-eval-after-load 'org (setq org-agenda-files '("c:/emacs/notes/"))) ;; cust
+- [X] (with-eval-after-load 'org (setq org-agenda-files '("c:/emacs/notes/"))) ;; cust
   - ak/custpath-org-notes
-- [ ] (setq temporary-file-directory "c:/emacs/.emacs.d/tmp/") ;; custpath Don't save flycheck locally
+- [X] (setq temporary-file-directory "c:/emacs/.emacs.d/tmp/") ;; custpath Don't save flycheck locally
   - (concat ak/custpath-emacsd "tmp")
-- [ ] ( "t" "To-do" entry (file+headline "c:/emacs/notes/gtd.org" "Inbox") ;; cust
+- [X] ( "t" "To-do" entry (file+headline "c:/emacs/notes/gtd.org" "Inbox") ;; cust
   - (concat ak/custpath-org-notes "gtd.org")
-- [ ] ( "c" "To-do Link" entry (file+headline "c:/emacs/notes/gtd.org" "Inbox") ;; cust
+- [X] ( "c" "To-do Link" entry (file+headline "c:/emacs/notes/gtd.org" "Inbox") ;; cust
   - (concat ak/custpath-org-notes "gtd.org")
-- [ ] ( "m" "Meeting" entry (file+headline "c:/emacs/notes/meetings.org" "Meeting Notes")
+- [X] ( "m" "Meeting" entry (file+headline "c:/emacs/notes/meetings.org" "Meeting Notes")
   - (concat ak/custpath-org-notes "meetings.org")
-- [ ] "c"  '((lambda () (interactive) (find-file "c:/emacs/.emacs.d/myinit.org")) :which-key "open .emacs")
+- [X] "c"  '((lambda () (interactive) (find-file "c:/emacs/.emacs.d/myinit.org")) :which-key "open .emacs")
   - (concat ak/custpath-emacsd "myinit.org")
-- [ ] "o"  '((lambda () (interactive) (find-file "c:/emacs/notes/gtd.org")) :which-key "open org")
+- [X] "o"  '((lambda () (interactive) (find-file "c:/emacs/notes/gtd.org")) :which-key "open org")
   - (concat ak/custpath-org-notes "gtd.org")
-- [ ] "n"  '((lambda () (interactive) (find-file "c:/emacs/notes/notes.org")) :which-key "open notes")
+- [X] "n"  '((lambda () (interactive) (find-file "c:/emacs/notes/notes.org")) :which-key "open notes")
   - (concat ak/custpath-org-notes "notes.org")
-- [ ] (pyvenv-activate "C:/Users/akraemer/Anaconda3/envs/py37")
+- [X] (pyvenv-activate "C:/Users/akraemer/Anaconda3/envs/py37")
   - ak/custpath-py-default-env
-- [ ] (setq flycheck-python-flake8-executable "c:/Users/akraemer/Anaconda3/Scripts/flake8.exe") ;;custpath ;; note that flake8 config is in c:/Users/akraemer/.flake8
-  - c:/Users/akraemer/Anaconda3/Scripts/flake8.exe
-- [ ] putty
+- [X] (setq flycheck-python-flake8-executable "c:/Users/akraemer/Anaconda3/Scripts/flake8.exe") ;;custpath ;; note that flake8 config is in c:/Users/akraemer/.flake8
+  - ak/custpath-flake8
+- [X] putty
 #+begin_src emacs-lisp
   (setq workstation 'catapult) ;; options: catapult
 
@@ -65,8 +65,9 @@
   (cond ((eq workstation 'catapult)
 	 (setq ak/custpath-emacsd "c:/emacs/.emacs.d/"
 	       ak/custpath-org-notes "c:/emacs/notes/"
-	       ak/custpath-py-default-env "C:/Users/akraemer/Anaconda3/envs/py37"
-	       ak/custpath-flake8 "c:/Users/akraemer/Anaconda3/Scripts/flake8.exe")))
+	       ak/custpath-py-default-env "c:/Users/akraemer/Anaconda3/envs/py37"
+	       ak/custpath-flake8 "c:/Users/akraemer/Anaconda3/Scripts/flake8.exe"
+	       ak/custpath-aspell "c:/msys64/mingw64/bin/aspell.exe")))
 #+end_src
 ** Interface adjustments
  #+begin_src emacs-lisp
@@ -83,7 +84,7 @@
    scroll-step 1
    scroll-conservatively 10000
    scroll-preserve-screen-position 1)
- (setq temporary-file-directory "c:/emacs/.emacs.d/tmp/") ;; custpath Don't save flycheck locally
+ (setq temporary-file-directory (concat ak/custpath-emacsd "tmp")) ;; Don't save flycheck locally
  ;; set meta & super keys ;;cust
  (setq w32-pass-lwindow-to-system nil)
  (setq w32-lwindow-modifier 'super) ; Left Windows key
@@ -142,7 +143,7 @@
  (use-package files
    :init
    ;; Backup ~ files in seperate directory
-   (setq backup-directory-alist '(("." . "c:/emacs/.emacs.d/backups"))) ;; custpath
+   (setq backup-directory-alist '(("." . (concat ak/custpath-emacsd "backups"))))
    ;; No confirmation when creating new buffer
    (setq confirm-nonexistent-file-or-buffer nil))
  #+end_src
@@ -259,9 +260,6 @@
  : t
 
 ** Org
-   :LOGBOOK:
-   CLOCK: [2020-05-04 Mon 15:20]--[2020-05-04 Mon 15:45] =>  0:25
-   :END:
  #+begin_src emacs-lisp
    ;; (define-key org-agenda-mode-map "J" 'air-org-agenda-next-header)
    ;; (define-key org-agenda-mode-map "K" 'air-org-agenda-previous-header)
@@ -271,7 +269,7 @@
      (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 
    (with-eval-after-load 'org (setq org-agenda-files     ;; cust
-				   '("c:/emacs/notes/")))
+				   `(,ak/custpath-org-notes)))
 
    ;; Org-Todos
    (setq evil-org-key-theme '(textobjects navigation additional insert todo))
@@ -304,12 +302,12 @@
        `(;; Note the backtick here, it's required so that the defvar based tempaltes will work!
 	 ;;http://comments.gmane.org/gmane.emacs.orgmode/106890
 
-	 ("t" "To-do" entry (file+headline "c:/emacs/notes/gtd.org" "Inbox") ;; cust
+	 ("t" "To-do" entry (file+headline (concat ak/custpath-org-notes "gtd.org") "Inbox")
 	   "** TODO [#%^{priority}] %^{Task Description}" :prepend t)
-	 ("c" "To-do Link" entry (file+headline "c:/emacs/notes/gtd.org" "Inbox") ;; cust
+	 ("c" "To-do Link" entry (file+headline (concat ak/custpath-org-notes "gtd.org") "Inbox")
 	   "** TODO [#%^{priority}] %A \n:PROPERTIES:\n:Created: %U\n:Source: %a\n:END:\n%?"
 	   :prepend t)
-	 ("m" "Meeting" entry (file+headline "c:/emacs/notes/meetings.org" "Meeting Notes")
+	 ("m" "Meeting" entry (file+headline (concat ak/custpath-org-notes "meetings.org") "Meeting Notes")
 	  ,my/org-meeting-template)
    ))
 
@@ -469,11 +467,11 @@
      (setq python-shell-interpreter "jupyter"
 	python-shell-interpreter-args "console --simple-prompt"
 	python-shell-prompt-detect-failure-warning nil)
-     (pyvenv-activate "C:/Users/akraemer/Anaconda3/envs/py37")
+     (pyvenv-activate ak/custpath-py-default-env)
    :config
      (setq elpy-modules (delq 'elpy-module-flymake elpy-modules)) ;; don't use use flymake
      (add-hook 'elpy-mode-hook 'flycheck-mode) ;; use use flycheck instead
-     (setq flycheck-python-flake8-executable "c:/Users/akraemer/Anaconda3/Scripts/flake8.exe") ;;custpath ;; note that flake8 config is in c:/Users/akraemer/.flake8
+     (setq flycheck-python-flake8-executable ak/custpath-flake8) ;; Need to install flake8 explicitly on windows
  )
  #+end_src
 
@@ -546,9 +544,7 @@
 *** Spelling
     install instructions from [[https://www.reddit.com/r/emacs/comments/8by3az/how_to_set_up_sell_check_for_emacs_in_windows/][this reddit page]]. User thrillsd instructions using mysys2. 
   #+begin_src emacs-lisp
-    ;; (use-package spell-fu
-    ;;   :ensure t)
-    (setq-default ispell-program-name "C:/msys64/mingw64/bin/aspell.exe") 
+    (setq-default ispell-program-name ak/custpath-aspell)  ;; install aspell w/ msys on windows
   #+end_src
 
   #+RESULTS:
@@ -674,9 +670,9 @@
 	       :states '(normal visual insert emacs)
 	       :prefix "C-c"
 	       ;; Quick open files
-	       "c"  '((lambda () (interactive) (find-file "c:/emacs/.emacs.d/myinit.org")) :which-key "open .emacs")
-	       "o"  '((lambda () (interactive) (find-file "c:/emacs/notes/gtd.org")) :which-key "open org")
-	       "n"  '((lambda () (interactive) (find-file "c:/emacs/notes/notes.org")) :which-key "open notes")
+	       "c"  '((lambda () (interactive) (find-file (concat ak/custpath-emacsd "myinit.org"))) :which-key "open .emacs")
+	       "o"  '((lambda () (interactive) (find-file (concat ak/custpath-org-notes "gtd.org"))) :which-key "open org")
+	       "n"  '((lambda () (interactive) (find-file (concat ak/custpath-org-notes "notes.org"))) :which-key "open notes")
 	       ;; winner undo / redo
 	       "H"  '(winner-undo :which-key "winner undo")
 	       "L"  '(winner-redo :which-key "winner redo")
