@@ -2,7 +2,6 @@
 ** TODO Planned Tweaks
    - [ ] Fix Agenda / use [[https://github.com/alphapapa/org-super-agenda][org-super-agenda]]
    - [ ] Org Blog w/ [[https://ox-hugo.scripter.co/][ox-hugo]]. [[https://www.reddit.com/r/orgmode/comments/gcex8p/creating_a_blog_with_orgmode/][Reddit Post]]
-   - [ ] Tramp: Fix ivy "c:" problem, or just make custom function around it
    - [ ] LSP instead of elpy
    - [ ] Figure out where & how windows knows where my emacs is
    - [ ] Move org-files to dropbox
@@ -18,6 +17,7 @@
    - [ ] R
    - [ ] Config Shackle (do I need to? I feel like I've been able to supress a lot as of late)
    - [ ] vim bracket buffer movement
+   - [X] Tramp: Fix ivy "c:" problem, or just make custom function around it
    - [X] Custom paths
    - [X] figure out lispy (I just went w/ lispyville)
    - [X] Make sure next buffer and last buffer only do real files
@@ -485,7 +485,7 @@
      :init
        (general-add-hook '(emacs-lisp-mode-hook hy-mode-hook lisp-mode-hook) #'lispyville-mode))
      :config
-       (lispyville-set-key-theme '(additional prettify text-objects atom-motions additional-motions commentary slurp/barf-cp wrap additional))
+       (lispyville-set-key-theme '(additional prettify text-objects atom-motions additional-motions commentary slurp/barf-cp additional-wrap additional))
  #+end_src
 
  #+RESULTS:
