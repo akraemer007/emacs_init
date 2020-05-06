@@ -33,10 +33,11 @@
 ** Inspiration + links
    - [[https://www.youtube.com/watch?v=49kBWM3RQQ8&list=PL9KxKa8NpFxIcNQa9js7dQQIHc81b0-Xg&index=1][Using Emacs videos]]
    - Originally inspaired by based on [[https://huytd.github.io/emacs-from-scratch.html#orgf713fce][this]] implementation 
-   - Kwrooijen's [[https://github.com/kwrooijen/.emacs.d][implementation]]. Uses evil, use-package, and many abo-abo. 
+   - Kwrooijen's [[https://github.com/kwrooijen/.emacs.d/tree/40e0054b012814fd1550e3c6648af4a22e73df72][implmentation]]. Uses evil, use-package, and many abo-abo. 
    - Emacs Adventures [[https://github.com/amolgawai/emacsadventures/tree/92578a5b5bf71ccc7f2e1859edefaa97d8d51df1/config][robust emacs config]] 
    - [[https://sam217pa.github.io/2016/09/23/keybindings-strategies-in-emacs/][Key bindings article]]
    - [[https://blog.aaronbieber.com/2016/09/24/an-agenda-for-life-with-org-mode.html][Aaron Bieber]] the guy who convinced me to try Evil. I steal from his Agenda setup
+   - [[https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org][This one]] is beautiful. Found it when investigating mode lines
 
 * Package Configuration 
 ** Paths
@@ -61,6 +62,7 @@
  (tool-bar-mode    -1)
  (tooltip-mode     -1)
  (blink-cursor-mode 0)
+ (fringe-mode 0)
  (setq initial-scratch-message nil)
  (setq ring-bell-function 'ignore)
  (setq redisplay-dont-pause t ;; Scrolling smoothness
@@ -91,27 +93,76 @@
 
 ** Font
  #+begin_src emacs-lisp
- (set-face-attribute 'default nil :family "Consolas" :height 110)
+   (set-face-attribute 'default nil :family "Consolas" :height 110)
  #+end_src
 
-** Theme
- #+begin_src emacs-lisp
- (use-package color-theme-sanityinc-tomorrow
-   :ensure t
-   :config
-   (load-theme 'sanityinc-tomorrow-eighties t))
- #+end_src
-
-** telephone-line (powerline packag)
+** Theme / UI / Modeline
 #+begin_src emacs-lisp
-  (use-package telephone-line
+ (use-package telephone-line
+  :init (telephone-line-mode 1))
+#+end_src
+
+#+RESULTS:
+
+ #+begin_src emacs-lisp
+    ;; (use-package color-theme-sanityinc-tomorrow
+    ;;   :ensure t
+    ;;   :config
+    ;;   (load-theme 'sanityinc-tomorrow-eighties t))
+
+   ;; (use-package doom-themes
+   ;;   :config
+   ;;   ;; Global settings (defaults)
+   ;;   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+   ;; 	doom-themes-enable-italic t) ; if nil, italics is universally disabled
+   ;;   (load-theme 'doom-nord t)
+
+   ;;   ;; Enable flashing mode-line on errors
+   ;;   (doom-themes-visual-bell-config)
+
+   ;;   ;; Enable custom neotree theme (all-the-icons must be installed!)
+   ;;   ;; (doom-themes-neotree-config)
+   ;;   ;; or for treemacs users
+   ;;   ;; (setq doom-themes-treemacs-theme "doom-colors") ; use the colorful treemacs theme
+   ;;   ;; (doom-themes-treemacs-config)
+
+   ;;   ;; Corrects (and improves) org-mode's native fontification.
+   ;;   (doom-themes-org-config))
+ #+end_src
+
+#+begin_src emacs-lisp
+  (use-package all-the-icons
+    :ensure t)
+#+end_src
+
+#+RESULTS:
+
+#+begin_src emacs-lisp
+  (use-package doom-themes
     :ensure t
-    :config
-    (setq telephone-line-primary-right-separator 'telephone-line-abs-left
-      telephone-line-secondary-right-separator 'telephone-line-abs-hollow-left)
-    (setq telephone-line-height 18
-      telephone-line-evil-use-short-tag t)
-    (telephone-line-mode t))
+    :config (load-theme 'doom-nord t))
+#+end_src
+
+#+RESULTS:
+: t
+ 
+#+begin_src emacs-lisp
+  ;; (use-package doom-modeline
+  ;;   :ensure t
+  ;;   :init (doom-modeline-mode 1))
+#+end_src
+
+#+RESULTS:
+
+#+begin_src emacs-lisp
+  ;; (use-package telephone-line
+  ;;   :ensure t
+  ;;   :config
+  ;;   (setq telephone-line-primary-right-separator 'telephone-line-abs-left
+  ;;     telephone-line-secondary-right-separator 'telephone-line-abs-hollow-left)
+  ;;   (setq telephone-line-height 18
+  ;;     telephone-line-evil-use-short-tag t)
+  ;;   (telephone-line-mode t))
 #+end_src
 
 #+RESULTS:
@@ -240,7 +291,11 @@
  #+begin_src emacs-lisp
  (use-package magit
    :ensure t)
+ (use-package evil-magit
+   :after magit)
  #+end_src
+
+ #+RESULTS:
 
 ** Projectile
  #+begin_src emacs-lisp
