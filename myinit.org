@@ -1,12 +1,18 @@
 * Notes
 ** TODO Planned Tweaks
-   - [ ] Fix Agenda / use [[https://github.com/alphapapa/org-super-agenda][org-super-agenda]]
+   - [ ] ask about org-habit going away after tweaks
+   - [ ] figure out what [[*Org][this]] setting does
+   - [ ] Use [[https://github.com/alphapapa/org-super-agenda][org-super-agenda]]
    - [ ] Org Blog w/ [[https://ox-hugo.scripter.co/][ox-hugo]]. [[https://www.reddit.com/r/orgmode/comments/gcex8p/creating_a_blog_with_orgmode/][Reddit Post]]
    - [ ] LSP instead of elpy
+   - [ ] gitgutter
+   - [ ] customize telephone line [[https://www.reddit.com/r/emacs/comments/7e7xzg/telephoneline_theming_question/][colors]] to match theme
    - [ ] Figure out where & how windows knows where my emacs is
+   - [ ] PDF-viewer
    - [ ] Move org-files to dropbox
-   - [ ] Treemacs
-   - [ ] hydra for windows
+   - [ ] Treemacs (do I need this?)
+   - [ ] ace by abo-abo?
+   - [ ] hydra for [[https://github.com/abo-abo/hydra/wiki/Emacs][outline]]
    - [ ] fix ediff
    - [ ] org make todotype selection easier
    - [ ] Default new todo bullet to TODO not inprogress
@@ -17,6 +23,9 @@
    - [ ] R
    - [ ] Config Shackle (do I need to? I feel like I've been able to supress a lot as of late)
    - [ ] vim bracket buffer movement
+   - [X] hydra for themes solved w/ counsel-load-file
+   - [X] Fix Agenda
+   - [X] [[https://www.reddit.com/r/emacs/comments/4n0n8o/what_is_the_best_emacs_mode_line_package/][some sort of mode line]]. [[https://github.com/dbordak/telephone-line][Telephone-line]] looks promising
    - [X] Tramp: Fix ivy "c:" problem, or just make custom function around it
    - [X] Custom paths
    - [X] figure out lispy (I just went w/ lispyville)
@@ -28,10 +37,11 @@
 ** Inspiration + links
    - [[https://www.youtube.com/watch?v=49kBWM3RQQ8&list=PL9KxKa8NpFxIcNQa9js7dQQIHc81b0-Xg&index=1][Using Emacs videos]]
    - Originally inspaired by based on [[https://huytd.github.io/emacs-from-scratch.html#orgf713fce][this]] implementation 
-   - Kwrooijen's [[https://github.com/kwrooijen/.emacs.d][implementation]]. Uses evil, use-package, and many abo-abo. 
+   - Kwrooijen's [[https://github.com/kwrooijen/.emacs.d/tree/40e0054b012814fd1550e3c6648af4a22e73df72][implmentation]]. Uses evil, use-package, and many abo-abo. 
    - Emacs Adventures [[https://github.com/amolgawai/emacsadventures/tree/92578a5b5bf71ccc7f2e1859edefaa97d8d51df1/config][robust emacs config]] 
    - [[https://sam217pa.github.io/2016/09/23/keybindings-strategies-in-emacs/][Key bindings article]]
    - [[https://blog.aaronbieber.com/2016/09/24/an-agenda-for-life-with-org-mode.html][Aaron Bieber]] the guy who convinced me to try Evil. I steal from his Agenda setup
+   - [[https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org][This one]] is beautiful. Found it when investigating mode lines
 
 * Package Configuration 
 ** Paths
@@ -48,6 +58,7 @@
 	       ak/custpath-flake8 "c:/Users/akraemer/Anaconda3/Scripts/flake8.exe"
 	       ak/custpath-aspell "c:/msys64/mingw64/bin/aspell.exe")))
 #+end_src
+
 ** Interface adjustments
  #+begin_src emacs-lisp
  ;;; Code:
@@ -56,6 +67,7 @@
  (tool-bar-mode    -1)
  (tooltip-mode     -1)
  (blink-cursor-mode 0)
+ (fringe-mode 0)
  (setq initial-scratch-message nil)
  (setq ring-bell-function 'ignore)
  (setq redisplay-dont-pause t ;; Scrolling smoothness
@@ -83,6 +95,35 @@
 
  #+RESULTS:
  : t
+
+** Font
+ #+begin_src emacs-lisp
+   (set-face-attribute 'default nil :family "Consolas" :height 110)
+   ;; (set-face-attribute 'default nil :family "Hack" :height 105)
+ #+end_src
+
+ #+RESULTS:
+
+** Theme / UI / Modeline
+   - Theme toggling with counsel-load-theme use C-M-n / C-M-p to preview
+#+begin_src emacs-lisp
+  (use-package doom-themes
+    :ensure t
+    :config (load-theme 'doom-nord t))
+
+;; (use-package color-theme-sanityinc-tomorrow
+;;   :ensure t
+;;   :config
+;;   (load-theme 'sanityinc-tomorrow-eighties t))
+#+end_src
+
+#+begin_src emacs-lisp
+ (use-package telephone-line
+  :init (telephone-line-mode 1))
+#+end_src
+
+#+RESULTS:
+
 ** Winner
    Undo / redo window / setup
  #+begin_src emacs-lisp
@@ -155,25 +196,12 @@
    :ensure t)
  #+end_src
 
-** Font
- #+begin_src emacs-lisp
- (set-face-attribute 'default nil :family "Consolas" :height 110)
- #+end_src
-
-** Theme
- #+begin_src emacs-lisp
- (use-package color-theme-sanityinc-tomorrow
-   :ensure t
-   :config
-   (load-theme 'sanityinc-tomorrow-eighties t))
- #+end_src
-
 ** Golden Ratio
  #+begin_src emacs-lisp
  (use-package golden-ratio
    :ensure t)
  #+end_src
-
+ 
 ** Ivy, Counsel, Swiper
    - Hide star buffers w/ ivy-ignore buffers. Use C-c C-a to toggle back. Ref [[https://github.com/abo-abo/swiper/issues/644][here]].
  #+begin_src emacs-lisp
@@ -219,7 +247,12 @@
  #+begin_src emacs-lisp
  (use-package magit
    :ensure t)
+
+ (use-package evil-magit
+   :after magit)
  #+end_src
+
+ #+RESULTS:
 
 ** Projectile
  #+begin_src emacs-lisp
@@ -241,9 +274,8 @@
  : t
 
 ** Org
+ 
  #+begin_src emacs-lisp
-   ;; (define-key org-agenda-mode-map "J" 'air-org-agenda-next-header)
-   ;; (define-key org-agenda-mode-map "K" 'air-org-agenda-previous-header)
    (use-package org-bullets
      :ensure t
      :config
@@ -254,8 +286,10 @@
 
    ;; Org-Todos
    (setq evil-org-key-theme '(textobjects navigation additional insert todo))
+   
+   ;; order priority for sorting
    (setq org-todo-keywords
-	 (quote ((sequence "NEXT(n)" "TODO(t)" "WAITING(w@/)" "IN_PROGRESS(i)" "DONE(d)"))))
+	 (quote ((sequence "IN_PROGRESS(i)" "NEXT(n)" "TODO(t)" "WAITING(w@/)" "DONE(d)"))))
 
    (setq org-refile-targets '(
 			      (nil :maxlevel . 4)             ; refile to headings in the current buffer
@@ -292,90 +326,14 @@
 	  ,my/org-meeting-template)
    ))
 
-   ;; Org-Priority
-   (setq org-lowest-priority ?D)
-   (setq org-default-priority ?D)
-   (setq org-agenda-sorting-strategy
-	 '((agenda time-up priority-down tag-up category-keep effort-up)
-	   ;; (todo user-defined-up todo-state-up priority-down effort-up)
-	   (todo todo-state-up priority-down effort-up)
-	   (tags user-defined-up)
-	   (search category-keep)))
+#+end_src
 
-   ;; Org-Agenda custom view
-   ;; https://blog.aaronbieber.com/2016/09/24/an-agenda-for-life-with-org-mode.html
-   (defun air-org-skip-subtree-if-habit ()
-     "Skip an agenda entry if it has a STYLE property equal to \"habit\"."
-     (let ((subtree-end (save-excursion (org-end-of-subtree t))))
-       (if (string= (org-entry-get nil "STYLE") "habit")
-	   subtree-end
-	 nil)))
+#+RESULTS:
+| t | To-do      | entry | (file+headline c:/emacs/notes/gtd.org Inbox) | ** TODO [#%^{priority}] %^{Task Description} | :prepend | t |
+| c | To-do Link | entry | (file+headline c:/emacs/notes/gtd.org Inbox) | ** TODO [#%^{priority}] %A                   |          |   |
 
-   (defun air-org-skip-subtree-if-priority (priority)
-     "Skip an agenda subtree if it has a priority of PRIORITY.
-   IORITY may be one of the characters ?A, ?B, or ?C."
-     (let ((subtree-end (save-excursion (org-end-of-subtree t)))
-	   (pri-value (* 1000 (- org-lowest-priority priority)))
-	   (pri-current (org-get-priority (thing-at-point 'line t))))
-       (if (= pri-value pri-current)
-	   subtree-end
-	 nil)))
-   (setq org-agenda-custom-commands
-	 '(("d" "Daily agenda and all TODOs"
-	    ((tags "PRIORITY=\"A\""
-		   ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
-		    (org-agenda-overriding-header "High-priority unfinished tasks:")))
-	     (agenda "test" ((org-agenda-ndays 1)
-			 (org-agenda-overriding-header "ALL normal priority tasks:")))
-	     (tags (or "PRIORITY=\"B\"" "PRIORITY=\"C\"")
-		   ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
-		    (org-agenda-overriding-header "Unfinished tasks:")))
-	     (alltodo ""
-		      ((org-agenda-skip-function '(or (air-org-skip-subtree-if-habit)
-						      (air-org-skip-subtree-if-priority ?A)
-						      (air-org-skip-subtree-if-priority ?B)
-						      (org-agenda-skip-if nil '(scheduled deadline))))
-		       (org-agenda-overriding-header "Eventually:"))))
-	    ;; ((org-agenda-compact-blocks t)) ;; removes = breaks
-	    )))
 
-   (defun air-org-agenda-next-header ()
-   "Jump to the next header in an agenda series."
-     (interactive)
-     (air--org-agenda-goto-header))
-
-   (defun air-org-agenda-previous-header ()
-     "Jump to the previous header in an agenda series."
-     (interactive)
-     (air--org-agenda-goto-header t))
-
-   (defun air--org-agenda-goto-header (&optional backwards)
-     "Find the next agenda series header forwards or BACKWARDS."
-     (let ((pos (save-excursion
-		  (goto-char (if backwards
-				 (line-beginning-position)
-			       (line-end-position)))
-		  (let* ((find-func (if backwards
-					'previous-single-property-change
-				      'next-single-property-change))
-			 (end-func (if backwards
-				       'max
-				     'min))
-			 (all-pos-raw (list (funcall find-func (point) 'org-agenda-structural-header)
-					    (funcall find-func (point) 'org-agenda-date-header)))
-			 (all-pos (cl-remove-if-not 'numberp all-pos-raw))
-			 (prop-pos (if all-pos (apply end-func all-pos) nil)))
-		    prop-pos))))
-       (if pos (goto-char pos))
-       (if backwards (goto-char (line-beginning-position)))))
-
-   (defun air-pop-to-org-agenda (&optional split)
-     "Visit the org agenda, in the current window or a SPLIT."
-     (interactive "P")
-     (org-agenda nil "d")
-     (when (not split)
-       (delete-other-windows)))
-
+#+begin_src emacs-lisp
    ;; Org-Pomodoro ;; https://github.com/yanivdll/.emacs.d/blob/master/config.org
    (use-package org-pomodoro
      :ensure t
@@ -384,8 +342,6 @@
      ;; (setq alert-user-configuration (quote ((((:category . "org-pomodoro")) libnotify nil))))
      )
  #+end_src
-
- #+RESULTS:
 
  #+begin_src emacs-lisp
 (use-package org-download
@@ -398,6 +354,276 @@
  #+RESULTS:
  : t
 
+** org agenda / priority
+   This section gets a bit nitty gritty. Look at the [[https://orgmode.org/worg/doc.html][Worg documentation]] for details on these settings.
+
+   Only show details for today when viewing the org agenda. I don't know which one does what, but org-agenda-show-future-repeats is allegedly the most up to date
+#+begin_src emacs-lisp
+  (setq org-habit-show-all-today t)
+  (setq org-habit-show-habits-only-for-today t)
+  (setq org-agenda-show-future-repeats 'next)
+#+end_src
+
+  Non prioritized tasks will be sorted to d
+#+begin_src emacs-lisp
+  (setq org-lowest-priority ?D)
+  (setq org-default-priority ?D)
+#+end_src
+
+  Customize the order in which tasks appear in the agenda
+#+begin_src emacs-lisp
+  (setq org-agenda-sorting-strategy
+      '((agenda habit-up deadline-up scheduled-up priority-up) ;; show habits, then time, then by priority
+	(tags todo-state-up deadline-up) ;; show todo-state then deadlines
+	(search category-keep)))
+#+end_src
+
+#+RESULTS:
+| agenda | habit-up      | deadline-up | scheduled-up | priority-up |
+| tags   | todo-state-up | deadline-up |              |             |
+| search | category-keep |             |              |             |
+
+  Custom agenda filtering functions modified from [[https://blog.aaronbieber.com/2016/09/24/an-agenda-for-life-with-org-mode.html][Aaron Bieber]]
+#+begin_src emacs-lisp
+  ;; custom agenda view and supporting functions
+  (defun air-org-skip-subtree-if-habit ()
+  "Skip an agenda entry if it has a STYLE property equal to \"habit\"."
+  (let ((subtree-end (save-excursion (org-end-of-subtree t))))
+      (if (string= (org-entry-get nil "STYLE") "habit")
+	subtree-end
+      nil)))
+
+  (defun air-org-skip-subtree-if-priority (priority)
+  "Skip an agenda subtree if it has a priority of PRIORITY.
+  PRIORITY may be one of the characters ?A, ?B, or ?C."
+  (let ((subtree-end (save-excursion (org-end-of-subtree t)))
+	(pri-value (* 1000 (- org-lowest-priority priority)))
+	(pri-current (org-get-priority (thing-at-point 'line t))))
+      (if (= pri-value pri-current)
+	subtree-end
+      nil)))
+#+end_src
+
+  Custom full screen agenda function modified from [[https://blog.aaronbieber.com/2016/09/24/an-agenda-for-life-with-org-mode.html][Aaron Bieber]]
+#+begin_src emacs-lisp
+  (defun air-pop-to-org-agenda (&optional split)
+    "Visit the org agenda, in the current window or a SPLIT."
+    (interactive "P")
+    (org-agenda nil "d")
+    (when (not split)
+    (delete-other-windows)))
+
+#+end_src
+
+  Settings for the different agenda blocks. Utilizes aairon bieber functions to prevent tasks from appearing multiple times in agenda.
+#+begin_src emacs-lisp
+  (setq org-agenda-custom-commands
+	'(("d" "Daily agenda and all TODOs"
+	   ((tags "PRIORITY=\"A\""
+		  ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+		   (org-agenda-overriding-header "High-priority unfinished tasks:")))
+	    ;; (agenda "" ;; skipped completed habits. I prefer if they stay but are ordered
+	    ;; 	  ((org-agenda-span 'day)
+	    ;; 	   (org-agenda-skip-function '(and (org-agenda-skip-entry-if 'todo '("NEXT")) (org-agenda-skip-entry-if 'regexp "habit"))) ;; hide completed habits
+	    ;; 	   (org-agenda-overriding-header "ALL normal priority tasks:")))
+	    (agenda ""
+		    ((org-agenda-span 'day)
+		     (org-agenda-overriding-header "ALL normal priority tasks:")))
+	    (tags (or "PRIORITY=\"B\"" "PRIORITY=\"C\"")
+		  ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+		   (org-agenda-overriding-header "Unfinished tasks:")))
+	    (alltodo ""
+		     ((org-agenda-skip-function '(or (air-org-skip-subtree-if-habit)
+						     (air-org-skip-subtree-if-priority ?A)
+						     (air-org-skip-subtree-if-priority ?B)
+						     (org-agenda-skip-if nil '(scheduled deadline))))
+		      (org-agenda-overriding-header "Eventually:"))))
+	   ;; ((org-agenda-compact-blocks t)) ;; removes = breaks
+	   )))
+ 
+#+end_src
+#+RESULTS:
+: air-pop-to-org-agenda
+
+** Org Super Agenda
+#+BEGIN_SRC emacs-lisp
+  ;; (use-package org-super-agenda
+  ;;   :config
+  ;;   (org-super-agenda-mode))
+#+END_SRC
+
+#+RESULTS:
+: t
+
+Definition of =my-super-agenda-groups=, my central configuration of super-agenda:
+
+#+BEGIN_SRC emacs-lisp
+  ;; (setq my-super-agenda-groups
+  ;;       '(;; Each group has an implicit boolean OR operator between its selectors.
+  ;; 	;; (:name "Today"  ; Optionally specify section name
+  ;; 	;;        :time-grid t  ; Items that appear on the time grid
+  ;; 	;;        )
+  ;; 	(:name "DEADLINES" :deadline t :order 1)
+  ;; 	(:name "Important" :priority "A" :order 2)
+  ;; 	(:priority<= "B"
+  ;; 		     ;; Show this section after "Today" and "Important", because
+  ;; 		     ;; their order is unspecified, defaulting to 0. Sections
+  ;; 		     ;; are displayed lowest-number-first.
+  ;; 		     :order 2)
+  ;; 	(:name "Habits" :habit t :order 3)
+  ;; 	(:name "Shopping" :tag "Besorgung" :order 4)
+  ;; 	       ;; Boolean AND group matches items that match all subgroups
+  ;; 	       ;;  :and (:tag "shopping" :tag "@town")
+  ;; 	       ;; Multiple args given in list with implicit OR
+  ;; 	       ;;  :tag ("food" "dinner"))
+  ;; 	       ;;  :habit t
+  ;; 	       ;;  :tag "personal")
+  ;; 	(:name "Started" :todo "STARTED" :order 6)
+  ;; 	;;(:name "Space-related (non-moon-or-planet-related)"
+  ;; 	;;       ;; Regexps match case-insensitively on the entire entry
+  ;; 	;;       :and (:regexp ("space" "NASA")
+  ;; 	;;                     ;; Boolean NOT also has implicit OR between selectors
+  ;; 	;;                     :not (:regexp "moon" :tag "planet")))
+  ;; 	(:name "BWG" :tag "@BWG" :order 7)
+  ;; 	(:todo "WAITING" :order 9)  ; Set order of this section
+  ;; 	(:name "read" :tag "2read" :order 15)
+  ;; 	;; Groups supply their own section names when none are given
+  ;; 	(:todo ("SOMEDAY" "WATCHING")
+  ;; 	       ;; Show this group at the end of the agenda (since it has the
+  ;; 	       ;; highest number). If you specified this group last, items
+  ;; 	       ;; with these todo keywords that e.g. have priority A would be
+  ;; 	       ;; displayed in that group instead, because items are grouped
+  ;; 	       ;; out in the order the groups are listed.
+  ;; 	       :order 25)
+  ;; 	(:name "reward"
+  ;; 	       :tag ("reward" "lp")
+  ;; 	       :order 100
+  ;; 	       )
+
+  ;; 	;; After the last group, the agenda will display items that didn't
+  ;; 	;; match any of these groups, with the default order position of 99
+  ;; 	)
+  ;;       )
+#+END_SRC
+
+#+RESULTS:
+| :name       | DEADLINES          | :deadline | t           | :order |   1 |
+| :name       | Important          | :priority | A           | :order |   2 |
+| :priority<= | B                  | :order    | 2           |        |     |
+| :name       | Habits             | :habit    | t           | :order |   3 |
+| :name       | Shopping           | :tag      | Besorgung   | :order |   4 |
+| :name       | Started            | :todo     | STARTED     | :order |   6 |
+| :name       | BWG                | :tag      | @BWG        | :order |   7 |
+| :todo       | WAITING            | :order    | 9           |        |     |
+| :name       | read               | :tag      | 2read       | :order |  15 |
+| :todo       | (SOMEDAY WATCHING) | :order    | 25          |        |     |
+| :name       | reward             | :tag      | (reward lp) | :order | 100 |
+
+=my-super-agenda()= is a function so that I am able to call the agenda
+interactively or within =my-org-agenda()= which is defined further
+down below.
+
+#+BEGIN_SRC emacs-lisp
+  ;; (defun my-super-agenda ()
+  ;;   "generates my super-agenda"
+  ;;   (interactive)
+  ;;   (org-super-agenda-mode)
+  ;;   (let
+  ;;       ((org-super-agenda-groups my-super-agenda-groups))
+  ;;     (org-agenda nil "a")
+  ;;     )
+  ;;   )
+#+end_src
+#+begin_src emacs-lisp
+  ;; (setq org-super-agenda-groups
+  ;;      '((:name "Next Items"
+  ;; 	      :time-grid t
+  ;; 	      :tag ("NEXT" "outbox"))
+  ;;        (:name "Important"
+  ;; 	      :priority "A")
+  ;;        (:name "Quick Picks"
+  ;; 	      :effort< "0:30")
+  ;;        (:priority<= "B"
+  ;; 		    :scheduled future
+  ;; 		    ;; :order 1)))
+#+end_src
+#+RESULTS:
+| :name       | Next Items  | :time-grid | t      | :tag   | (NEXT outbox) |
+| :name       | Important   | :priority  | A      |        |               |
+| :name       | Quick Picks | :effort<   | 0:30   |        |               |
+| :priority<= | B           | :scheduled | future | :order |             1 |
+
+#+begin_src emacs-lisp
+  ;; (org-super-agenda-mode 1) 
+  ;; (my-super-agenda)
+#+end_src
+
+#+RESULTS:
+
+#+begin_src emacs-lisp
+   ;; (let ((org-super-agenda-groups
+   ;;       '(;; Each group has an implicit boolean OR operator between its selectors.
+   ;; 	 (:name "Today"  ; Optionally specify section name
+   ;; 		:time-grid t  ; Items that appear on the time grid
+   ;; 		:todo "TODAY")  ; Items that have this TODO keyword
+   ;; 	 (:name "Important"
+   ;; 		;; Single arguments given alone
+   ;; 		:tag "bills"
+   ;; 		:priority "A")
+   ;; 	 ;; Set order of multiple groups at once
+   ;; 	 (:order-multi (2 (:name "Shopping in town"
+   ;; 				 ;; Boolean AND group matches items that match all subgroups
+   ;; 				 :and (:tag "shopping" :tag "@town"))
+   ;; 			  (:name "Food-related"
+   ;; 				 ;; Multiple args given in list with implicit OR
+   ;; 				 :tag ("food" "dinner"))
+   ;; 			  (:name "Personal"
+   ;; 				 :habit t
+   ;; 				 :tag "personal")
+   ;; 			  (:name "Space-related (non-moon-or-planet-related)"
+   ;; 				 ;; Regexps match case-insensitively on the entire entry
+   ;; 				 :and (:regexp ("space" "NASA")
+   ;; 					       ;; Boolean NOT also has implicit OR between selectors
+   ;; 					       :not (:regexp "moon" :tag "planet")))))
+   ;; 	 ;; Groups supply their own section names when none are given
+   ;; 	 (:todo "WAITING" :order 8)  ; Set order of this section
+   ;; 	 (:todo ("SOMEDAY" "TO-READ" "CHECK" "TO-WATCH" "WATCHING")
+   ;; 		;; Show this group at the end of the agenda (since it has the
+   ;; 		;; highest number). If you specified this group last, items
+   ;; 		;; with these todo keywords that e.g. have priority A would be
+   ;; 		;; displayed in that group instead, because items are grouped
+   ;; 		;; out in the order the groups are listed.
+   ;; 		:order 9)
+   ;; 	 (:priority<= "B"
+   ;; 		      ;; Show this section after "Today" and "Important", because
+   ;; 		      ;; their order is unspecified, defaulting to 0. Sections
+   ;; 		      ;; are displayed lowest-number-first.
+   ;; 		      :order 1)
+   ;; 	 ;; After the last group, the agenda will display items that didn't
+   ;; 	 ;; match any of these groups, with the default order position of 99
+   ;; 	 )))
+   ;;  (org-agenda nil "a"))
+
+  ;; (use-package org-super-agenda
+  ;;   :ensure t
+  ;;   :config
+  ;;  (setq org-super-agenda-groups '((:name "Today"
+  ;; 				  :time-grid t
+  ;; 				  :scheduled today)
+  ;; 			   (:name "Due today"
+  ;; 				  :deadline today)
+  ;; 			   (:name "Important"
+  ;; 				  :priority "A")
+  ;; 			   (:name "Overdue"
+  ;; 				  :deadline past)
+  ;; 			   (:name "Due soon"
+  ;; 				  :deadline future)
+  ;; 			   (:name "Waiting"
+  ;; 				 :todo "WAIT"))))
+#+end_src
+
+#+RESULTS:
+
 ** Babel
  #+begin_src emacs-lisp
  (org-babel-do-load-languages
@@ -407,22 +633,9 @@
  ;; put viz inline by default
  (setq org-startup-with-inline-images t)
 
-
- (defun insert-bable ()
-   "Insert src_sections for viz in orgmode."
-   (interactive)
-   (insert "#+begin_src "
-           (read-string "Enter Language (R, python, lisp): ")
-           (if (equal (read-string "Return Viz (y/n) ") "y")
-               " :results output graphics :file img.png"
-             ""))
-   (insert "\n \n#+end_src"))
-
  (use-package ox-pandoc
    :ensure t
-   :defer t
-   )
- ;;End Orgmode;;
+   :defer t)
  #+end_src
 
 ** Yasnippet
@@ -485,7 +698,7 @@
      :init
        (general-add-hook '(emacs-lisp-mode-hook hy-mode-hook lisp-mode-hook) #'lispyville-mode))
      :config
-       (lispyville-set-key-theme '(additional prettify text-objects atom-motions additional-motions commentary slurp/barf-cp additional-wrap additional))
+       (lispyville-set-key-theme '(additional prettify text-objects atom-motions additional-motions commentary slurp/barf-cp additional-wrap))
  #+end_src
 
  #+RESULTS:
@@ -622,7 +835,7 @@
 	       "vv"  '(ivy-switch-view :which-key "switch view")
 	       ;; Org
 	       "o"   '(:ignore t :which-key "org")
-	       "ob"  '(insert-bable :Which-key "insert bable")
+	       "ob"  '(ak-insert-bable :Which-key "insert bable")
 	       "oo"  '(air-pop-to-org-agenda :which-key "Open Agenda")
 	       "oc"  '(org-capture :which-key "Org Capture")
 	       ;; org-pomodoro
@@ -691,7 +904,20 @@
 
  #+RESULTS:
  : t
+** Hydras
+*** Zoom text
+    Increase text size. Probably want to change the key binding
+   #+begin_src emacs-lisp
+ (defhydra hydra-zoom (global-map "<f2>")
+  "zoom"
+  ("g" text-scale-increase "in")
+  ("l" text-scale-decrease "out"))
+#+end_src 
 
+*** org-outline
+
+*** Windows
+customize to my liking
 ** Functions
 
 *** go to scratch
@@ -725,6 +951,22 @@
 		     (mapcar #'car (window-prev-buffers window)))
 	 nil t)))
   #+end_src
+
+*** Insert Bable
+#+begin_src emacs-lisp
+ (defun ak-insert-bable ()
+   "Insert src_sections for viz in orgmode."
+   (interactive)
+   (insert "#+begin_src "
+           (read-string "Enter Language (R, python, lisp): ")
+           (if (equal (read-string "Return Viz (y/n) ") "y")
+               " :results output graphics :file img.png"
+             ""))
+   (insert "\n \n#+end_src"))
+#+end_src
+
+#+RESULTS:
+: ak-insert-bable
 
 *** testing area
   #+begin_src emacs-lisp
