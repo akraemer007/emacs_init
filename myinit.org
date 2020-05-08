@@ -1,5 +1,7 @@
 * Notes
 ** TODO Planned Tweaks
+   - [ ] ask about org-habit going away after tweaks
+   - [ ] figure out what [[*Org][this]] setting does
    - [ ] Use [[https://github.com/alphapapa/org-super-agenda][org-super-agenda]]
    - [ ] Org Blog w/ [[https://ox-hugo.scripter.co/][ox-hugo]]. [[https://www.reddit.com/r/orgmode/comments/gcex8p/creating_a_blog_with_orgmode/][Reddit Post]]
    - [ ] LSP instead of elpy
@@ -284,8 +286,10 @@
 
    ;; Org-Todos
    (setq evil-org-key-theme '(textobjects navigation additional insert todo))
+   
+   ;; order priority for sorting
    (setq org-todo-keywords
-	 (quote ((sequence "NEXT(n)" "TODO(t)" "WAITING(w@/)" "IN_PROGRESS(i)" "DONE(d)"))))
+	 (quote ((sequence "IN_PROGRESS(i)" "NEXT(n)" "TODO(t)" "WAITING(w@/)" "DONE(d)"))))
 
    (setq org-refile-targets '(
 			      (nil :maxlevel . 4)             ; refile to headings in the current buffer
@@ -324,6 +328,10 @@
 
 #+end_src
 
+#+RESULTS:
+| t | To-do      | entry | (file+headline c:/emacs/notes/gtd.org Inbox) | ** TODO [#%^{priority}] %^{Task Description} | :prepend | t |
+| c | To-do Link | entry | (file+headline c:/emacs/notes/gtd.org Inbox) | ** TODO [#%^{priority}] %A                   |          |   |
+
 
 #+begin_src emacs-lisp
    ;; Org-Pomodoro ;; https://github.com/yanivdll/.emacs.d/blob/master/config.org
@@ -347,26 +355,36 @@
  : t
 
 ** org agenda / priority
-   Something in this config is breaking the graph. It works if I comment out these two blocks and use a regular org agenda, then reopen and delete the colin in schedule
+   This section gets a bit nitty gritty. Look at the [[https://orgmode.org/worg/doc.html][Worg documentation]] for details on these settings.
+
+   Only show details for today when viewing the org agenda. I don't know which one does what, but org-agenda-show-future-repeats is allegedly the most up to date
 #+begin_src emacs-lisp
   (setq org-habit-show-all-today t)
   (setq org-habit-show-habits-only-for-today t)
   (setq org-agenda-show-future-repeats 'next)
 #+end_src
 
-  This section gets a bit nitty gritty. Look at the [[https://orgmode.org/worg/doc.html][Worg documentation]] for details on these settings.
+  Non prioritized tasks will be sorted to d
 #+begin_src emacs-lisp
-  ;; non prioritized tasks will be sorted to d
   (setq org-lowest-priority ?D)
   (setq org-default-priority ?D)
+#+end_src
 
-  ;; Customize agenda rankings
+  Customize the order in which tasks appear in the agenda
+#+begin_src emacs-lisp
   (setq org-agenda-sorting-strategy
-      '((agenda habit-up deadline-up scheduled-up priority-up) ;; show habits, then deadlines, then scheduled (keeps completed habits below uncompleted)
-	(tags todo-state-down deadline-up)               ;; show todo-state then deadlines
+      '((agenda habit-up deadline-up scheduled-up priority-up) ;; show habits, then time, then by priority
+	(tags todo-state-up deadline-up) ;; show todo-state then deadlines
 	(search category-keep)))
+#+end_src
 
-  ;; https://blog.aaronbieber.com/2016/09/24/an-agenda-for-life-with-org-mode.html
+#+RESULTS:
+| agenda | habit-up      | deadline-up | scheduled-up | priority-up |
+| tags   | todo-state-up | deadline-up |              |             |
+| search | category-keep |             |              |             |
+
+  Custom agenda filtering functions modified from [[https://blog.aaronbieber.com/2016/09/24/an-agenda-for-life-with-org-mode.html][Aaron Bieber]]
+#+begin_src emacs-lisp
   ;; custom agenda view and supporting functions
   (defun air-org-skip-subtree-if-habit ()
   "Skip an agenda entry if it has a STYLE property equal to \"habit\"."
@@ -384,19 +402,32 @@
       (if (= pri-value pri-current)
 	subtree-end
       nil)))
+#+end_src
 
+  Custom full screen agenda function modified from [[https://blog.aaronbieber.com/2016/09/24/an-agenda-for-life-with-org-mode.html][Aaron Bieber]]
+#+begin_src emacs-lisp
+  (defun air-pop-to-org-agenda (&optional split)
+    "Visit the org agenda, in the current window or a SPLIT."
+    (interactive "P")
+    (org-agenda nil "d")
+    (when (not split)
+    (delete-other-windows)))
+
+#+end_src
+
+  Settings for the different agenda blocks. Utilizes aairon bieber functions to prevent tasks from appearing multiple times in agenda.
+#+begin_src emacs-lisp
   (setq org-agenda-custom-commands
 	'(("d" "Daily agenda and all TODOs"
 	   ((tags "PRIORITY=\"A\""
 		  ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
 		   (org-agenda-overriding-header "High-priority unfinished tasks:")))
-	    ;; (agenda ""
+	    ;; (agenda "" ;; skipped completed habits. I prefer if they stay but are ordered
 	    ;; 	  ((org-agenda-span 'day)
 	    ;; 	   (org-agenda-skip-function '(and (org-agenda-skip-entry-if 'todo '("NEXT")) (org-agenda-skip-entry-if 'regexp "habit"))) ;; hide completed habits
 	    ;; 	   (org-agenda-overriding-header "ALL normal priority tasks:")))
 	    (agenda ""
 		    ((org-agenda-span 'day)
-		     ;; (org-agenda-skip-function '(org-agenda-skip-entry-if 'regexp "habit")) ;; hide completed habits
 		     (org-agenda-overriding-header "ALL normal priority tasks:")))
 	    (tags (or "PRIORITY=\"B\"" "PRIORITY=\"C\"")
 		  ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
@@ -409,16 +440,8 @@
 		      (org-agenda-overriding-header "Eventually:"))))
 	   ;; ((org-agenda-compact-blocks t)) ;; removes = breaks
 	   )))
-
-  (defun air-pop-to-org-agenda (&optional split)
-    "Visit the org agenda, in the current window or a SPLIT."
-    (interactive "P")
-    (org-agenda nil "d")
-    (when (not split)
-    (delete-other-windows)))
-
+ 
 #+end_src
-
 #+RESULTS:
 : air-pop-to-org-agenda
 
