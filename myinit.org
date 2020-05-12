@@ -1,29 +1,30 @@
 * Notes
 ** TODO Planned Tweaks
-   - [ ] move scheduled to todo
-   - [ ] ask about org-habit going away after tweaks
-   - [ ] figure out what [[*Org][this]] setting does
-   - [ ] Use [[https://github.com/alphapapa/org-super-agenda][org-super-agenda]]
    - [ ] Org Blog w/ [[https://ox-hugo.scripter.co/][ox-hugo]]. [[https://www.reddit.com/r/orgmode/comments/gcex8p/creating_a_blog_with_orgmode/][Reddit Post]]
+   - [ ] [[https://github.com/bastibe/org-journal][org-journal]]
    - [ ] LSP instead of elpy
    - [ ] gitgutter
-   - [ ] customize telephone line [[https://www.reddit.com/r/emacs/comments/7e7xzg/telephoneline_theming_question/][colors]] to match theme
    - [ ] Figure out where & how windows knows where my emacs is
-   - [ ] PDF-viewer
-   - [ ] Move org-files to dropbox
-   - [ ] Treemacs (do I need this?)
+   - [ ] PDF-viewer ;; seems like a drag on windows. doc-viewer let's me at least see the text
+   - [ ] Move org-files to dropbox ;; just dragging my feet
    - [ ] ace by abo-abo?
+   - [ ] Treemacs (do I need this?) ;; no
    - [ ] hydra for [[https://github.com/abo-abo/hydra/wiki/Emacs][outline]]
    - [ ] fix ediff
    - [ ] org make todotype selection easier
-   - [ ] Default new todo bullet to TODO not inprogress
    - [ ] magit path reset
    - [ ] Figure out pomodoro
-   - [ ] add hooks more elegantly
+   - [ ] add hooks more elegantly w/ general
    - [ ] babel installs
    - [ ] R
-   - [ ] Config Shackle (do I need to? I feel like I've been able to supress a lot as of late)
+   - [ ] Use [[https://github.com/alphapapa/org-super-agenda][org-super-agenda]]
    - [ ] vim bracket buffer movement
+   - [ ] [[http://www.cachestocaches.com/2017/3/complete-guide-email-emacs-using-mu-and-/][email]]
+   - [X] Config Shackle (do I need to? I feel like I've been able to supress a lot as of late)
+   - [X] Default new todo bullet to TODO not inprogress
+   - [X] customize telephone line [[https://www.reddit.com/r/emacs/comments/7e7xzg/telephoneline_theming_question/][colors]] to match theme ;; Defaults look better than the starting custom
+   - [X] ask about org-habit going away after tweaks ;; decided that It's not a big deal
+   - [X] move scheduled to todo
    - [X] hydra for themes solved w/ counsel-load-file
    - [X] Fix Agenda
    - [X] [[https://www.reddit.com/r/emacs/comments/4n0n8o/what_is_the_best_emacs_mode_line_package/][some sort of mode line]]. [[https://github.com/dbordak/telephone-line][Telephone-line]] looks promising
@@ -339,7 +340,6 @@
    ;; Org-Pomodoro ;; https://github.com/yanivdll/.emacs.d/blob/master/config.org
    (use-package org-pomodoro
      :ensure t
-     ;; :commands (org-pomodoro)
      :config
      ;; (setq alert-user-configuration (quote ((((:category . "org-pomodoro")) libnotify nil))))
      )
@@ -352,7 +352,7 @@
   ;; add support to dired
   (add-hook 'dired-mode-hook 'org-download-enable))
  #+end_src
-
+ 
  #+RESULTS:
  : t
 
@@ -450,11 +450,72 @@
 						     (org-agenda-skip-if nil '(scheduled deadline))))
 		      (org-agenda-overriding-header "Eventually:"))))
 	   ;; ((org-agenda-compact-blocks t)) ;; removes = breaks
-	   )))
- 
+	   )
+	  ("r" "Day in review"
+	     todo "DONE"
+	     ;; agenda settings
+	     ((org-agenda-files '("c:/emacs/notes/gtd.org_archive"))
+              (org-agenda-start-with-log-mode '(ARCHIVE_TIME))
+	       (org-agenda-archives-mode t)
+	       (org-agenda-skip-function 'air-org-skip-subtree-if-not-today)
+	       (org-agenda-overriding-header "Day in Review"))
+	     ;; ("~/org/review/day.html") ;; for export
+		  )))
 #+end_src
 #+RESULTS:
-| d | Daily agenda and all TODOs | ((tags PRIORITY="A" ((org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote todo) (quote done)))) (org-agenda-overriding-header High-priority unfinished tasks:))) (agenda  ((org-agenda-span (quote day)) (org-agenda-overriding-header ALL normal priority tasks:))) (tags (or PRIORITY="B" PRIORITY="C") ((org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote todo) (quote done)))) (org-agenda-overriding-header Unfinished tasks:))) (alltodo  ((org-agenda-skip-function (quote (or (air-org-skip-subtree-if-habit) (air-org-skip-subtree-if-priority 65) (air-org-skip-subtree-if-priority 66) (org-agenda-skip-if nil (quote (scheduled deadline)))))) (org-agenda-overriding-header Eventually:)))) |
+| d | Daily agenda and all TODOs | ((tags PRIORITY="A" ((org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote todo) (quote done)))) (org-agenda-overriding-header High-priority unfinished tasks:))) (agenda  ((org-agenda-span (quote day)) (org-agenda-overriding-header ALL normal priority tasks:))) (tags (or PRIORITY="B" PRIORITY="C") ((org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote todo) (quote done)))) (org-agenda-overriding-header Unfinished tasks:))) (alltodo  ((org-agenda-skip-function (quote (or (air-org-skip-subtree-if-habit) (air-org-skip-subtree-if-priority 65) (air-org-skip-subtree-if-priority 66) (org-agenda-skip-if nil (quote (scheduled deadline)))))) (org-agenda-overriding-header Eventually:)))) |      |                                                                                                                                                                                                 |
+| r | Day in review              | todo                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | DONE | ((org-agenda-files (quote (c:/emacs/notes/gtd.org_archive))) (org-agenda-start-with-log-mode (quote (ARCHIVE_TIME))) (org-agenda-archives-mode t) (org-agenda-overriding-header Day in Review)) |
+#+begin_src emacs-lisp
+
+  (defun air-org-skip-subtree-if-not-today ()
+  "Skip an agenda entry if it has a STYLE property equal to \"habit\"."
+    (let ((subtree-end (save-excursion (org-end-of-subtree t))))
+      (if (string= (org-entry-get nil "ARCHIVE_TIME") "habit")
+	subtree-end
+      nil)))
+#+end_src
+#+begin_src emacs-lisp
+   ;; (defvar current-date-format "%a %b %d %H:%M:%S %Z %Y"
+   (defvar current-date-format "%Y-%m-%d"
+    "Format of date to insert with `insert-current-date-time' func
+     See help of `format-time-string' for possible replacements")
+
+    ;; :ARCHIVE_TIME: 2020-04-29 Wed 18:41
+  (format-time-string current-date-format (current-time))
+#+end_src
+
+#+RESULTS:
+: Tue May 12 15:21:26 Central Daylight Time 2020
+
+#+begin_src emacs-lisp
+  ;; https://stackoverflow.com/questions/22394394/orgmode-a-report-of-tasks-that-are-done-within-the-week
+  (setq efs/org-agenda-review-settings
+	'((org-agenda-files '("c:/emacs/notes/gtd.org_archive"))
+	  ;; (org-agenda-show-all-dates t)
+	  ;; (org-agenda-start-with-log-mode t)
+	  ;; (org-agenda-start-with-clockreport-mode t)
+	  (org-agenda-archives-mode t)
+	  ;; (org-agenda-span 'day)
+	  ;; (org-agenda-overriding-header "Week in Review")
+	  ;; I don't care if an entry was archived
+	  ;; (org-agenda-hide-tags-regexp
+	  ;;  (concat org-agenda-hide-tags-regexp
+	  ;; 	 "\\|ARCHIVE"))
+	))
+
+  ;; (add-to-list 'org-agenda-custom-commands
+  ;; 	     '("R" "Day in review"
+  ;; 		todo "DONE"
+  ;; 		;; agenda settings
+  ;; 		(efs/org-agenda-review-settings)
+  ;; 		;; ("~/org/review/day.html") ;; for export
+  ;; 		))
+#+end_src
+
+#+RESULTS:
+| org-agenda-files             | (quote (c:/emacs/notes/gtd.org_archive)) |
+| org-agenda-archives-mode     | t                                        |
+| org-agenda-overriding-header | Week in Review                           |
 
 ** Org Super Agenda
 #+BEGIN_SRC emacs-lisp
@@ -772,7 +833,7 @@ down below.
    :config
    (which-key-mode 1))
  #+end_src
-
+ 
 * Key Bindings
 ** General
  #+begin_src emacs-lisp
@@ -846,6 +907,8 @@ down below.
 	       "wd"  '(delete-window :which-key "delete window")
 	       "wg"  '(golden-ratio :which-key "golden ratio")
 	       "wc"  '(evil-window-delete :which-key "delete window")
+	       "wu"  '(winner-undo :which-key "winner undo")
+	       "wU"  '(winner-redo :which-key "winner redo")
 	       ;; v for view
 	       "v"   '(:ignore t :which-key "view")
 	       "vc"  '(ivy-push-view :which-key "create view")
@@ -853,10 +916,11 @@ down below.
 	       ;; Org
 	       "o"   '(:ignore t :which-key "org")
 	       "ob"  '(ak-insert-bable :Which-key "insert bable")
-	       "oo"  '(air-pop-to-org-agenda :which-key "Open Agenda")
+	       "oo"  '(air-pop-to-org-agenda :which-key "Open Standard Agenda")
+	       "or"  '(org-agenda :which-key "Open Review Agenda")
 	       "oc"  '(org-capture :which-key "Org Capture")
 	       ;; org-pomodoro
-	       "op"  '(org-clock-in :which-key "Pomodoro Start")
+	       "op"  '(org-pomodoro :which-key "Pomodoro Start")
 	       "oP"  '(org-clock-out :which-key "Pomodoro Stop")
 	       ;; Magit
 	       "g"   '(:ignore t :which-key "magit")
@@ -885,9 +949,6 @@ down below.
 	       "c"  '((lambda () (interactive) (find-file (concat ak/custpath-emacsd "myinit.org"))) :which-key "open .emacs")
 	       "o"  '((lambda () (interactive) (find-file (concat ak/custpath-org-notes "gtd.org"))) :which-key "open org")
 	       "n"  '((lambda () (interactive) (find-file (concat ak/custpath-org-notes "notes.org"))) :which-key "open notes")
-	       ;; winner undo / redo
-	       "H"  '(winner-undo :which-key "winner undo")
-	       "L"  '(winner-redo :which-key "winner redo")
 	       ;; Vim  number increment
 	       "C-="  '(evil-numbers/inc-at-pt :which-key "increment num")
 	       "C--"  '(evil-numbers/dec-at-pt :which-key "decrement num"))
@@ -898,6 +959,7 @@ down below.
 		"k" 'org-agenda-previous-line
 		"u" 'org-agenda-undo
 		"n" 'org-agenda-capture
+		"p" 'org-pomodoro
 		"C" 'org-agenda-clock-in)
 	     ;; Org C-c links
 	     (general-define-key
