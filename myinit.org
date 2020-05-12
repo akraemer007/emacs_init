@@ -1,5 +1,6 @@
 * Notes
 ** TODO Planned Tweaks
+   - [ ] move scheduled to todo
    - [ ] ask about org-habit going away after tweaks
    - [ ] figure out what [[*Org][this]] setting does
    - [ ] Use [[https://github.com/alphapapa/org-super-agenda][org-super-agenda]]
@@ -42,6 +43,7 @@
    - [[https://sam217pa.github.io/2016/09/23/keybindings-strategies-in-emacs/][Key bindings article]]
    - [[https://blog.aaronbieber.com/2016/09/24/an-agenda-for-life-with-org-mode.html][Aaron Bieber]] the guy who convinced me to try Evil. I steal from his Agenda setup
    - [[https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org][This one]] is beautiful. Found it when investigating mode lines
+   - [[https://github.com/noahfrederick/dots/blob/master/emacs/emacs.org][Nox]] has an org set-up in his use-package
 
 * Package Configuration 
 ** Paths
@@ -52,12 +54,17 @@
   (setq user-mail-address "andrew.h.kraemer@gmail.com")
 
   (cond ((eq workstation 'catapult)
-	 (setq ak/custpath-emacsd "c:/emacs/.emacs.d/"
+	 (setq ak/custpath-home "c:/Users/akraemer/"
+	       ak/custpath-phone-notes "c:/Users/akraemer/Dropbox/org/phone_inbox.org"
+	       ak/custpath-emacsd "c:/emacs/.emacs.d/"
 	       ak/custpath-org-notes "c:/emacs/notes/"
 	       ak/custpath-py-default-env "c:/Users/akraemer/Anaconda3/envs/py37"
 	       ak/custpath-flake8 "c:/Users/akraemer/Anaconda3/Scripts/flake8.exe"
 	       ak/custpath-aspell "c:/msys64/mingw64/bin/aspell.exe")))
 #+end_src
+
+#+RESULTS:
+: c:/msys64/mingw64/bin/aspell.exe
 
 ** Interface adjustments
  #+begin_src emacs-lisp
@@ -281,12 +288,12 @@
      :config
      (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 
-   (with-eval-after-load 'org (setq org-agenda-files     ;; cust
-				   `(,ak/custpath-org-notes)))
+   (with-eval-after-load 'org (setq org-agenda-files
+				   `(,ak/custpath-org-notes ,ak/custpath-phone-notes)))
 
    ;; Org-Todos
    (setq evil-org-key-theme '(textobjects navigation additional insert todo))
-   
+
    ;; order priority for sorting
    (setq org-todo-keywords
 	 (quote ((sequence "IN_PROGRESS(i)" "NEXT(n)" "TODO(t)" "WAITING(w@/)" "DONE(d)"))))
@@ -295,11 +302,6 @@
 			      (nil :maxlevel . 4)             ; refile to headings in the current buffer
 			      (org-agenda-files :maxlevel . 4) ; refile to any of these files
 			      ))
-
-   ;; Org-Habits
-   (with-eval-after-load 'org
-     (add-to-list 'org-modules 'org-habit t))
-   (setq org-habit-show-all-today t)
 
    ;; Org-Capture
    (defvar my/org-meeting-template "** Meeting about %^{something}
@@ -359,10 +361,16 @@
 
    Only show details for today when viewing the org agenda. I don't know which one does what, but org-agenda-show-future-repeats is allegedly the most up to date
 #+begin_src emacs-lisp
+  (with-eval-after-load 'org
+    (add-to-list 'org-modules 'org-habit t))
+
   (setq org-habit-show-all-today t)
   (setq org-habit-show-habits-only-for-today t)
   (setq org-agenda-show-future-repeats 'next)
 #+end_src
+
+#+RESULTS:
+: next
 
   Non prioritized tasks will be sorted to d
 #+begin_src emacs-lisp
@@ -404,6 +412,9 @@
       nil)))
 #+end_src
 
+#+RESULTS:
+: air-org-skip-subtree-if-priority
+
   Custom full screen agenda function modified from [[https://blog.aaronbieber.com/2016/09/24/an-agenda-for-life-with-org-mode.html][Aaron Bieber]]
 #+begin_src emacs-lisp
   (defun air-pop-to-org-agenda (&optional split)
@@ -443,7 +454,7 @@
  
 #+end_src
 #+RESULTS:
-: air-pop-to-org-agenda
+| d | Daily agenda and all TODOs | ((tags PRIORITY="A" ((org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote todo) (quote done)))) (org-agenda-overriding-header High-priority unfinished tasks:))) (agenda  ((org-agenda-span (quote day)) (org-agenda-overriding-header ALL normal priority tasks:))) (tags (or PRIORITY="B" PRIORITY="C") ((org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote todo) (quote done)))) (org-agenda-overriding-header Unfinished tasks:))) (alltodo  ((org-agenda-skip-function (quote (or (air-org-skip-subtree-if-habit) (air-org-skip-subtree-if-priority 65) (air-org-skip-subtree-if-priority 66) (org-agenda-skip-if nil (quote (scheduled deadline)))))) (org-agenda-overriding-header Eventually:)))) |
 
 ** Org Super Agenda
 #+BEGIN_SRC emacs-lisp
@@ -796,6 +807,7 @@ down below.
 	       "fr"  '(counsel-recentf :which-key "recent files")
 	       "fs"  '(save-buffer :which-key "save buffer")
 	       "ft"  '(ak/ivy-tramp-find-file :which-key "find tramp files")
+	       "fh"  '(ak/ivy-home-find-file :which-key "find home files")
 	       ;;projects
 	       "p"   '(:ignore t :which-key "project")
 	       "pc"  '(:keymap projectile-command-map :which-key "commands")
@@ -824,11 +836,16 @@ down below.
 	       "wh"  '(windmove-left :which-key "move left")
 	       "wk"  '(windmove-up :which-key "move up")
 	       "wj"  '(windmove-down :which-key "move bottom")
-	       "w/"  '(split-window-right :which-key "split right")
-	       "w-"  '(split-window-below :which-key "split bottom")
-	       "wx"  '(delete-window :which-key "delete window")
+	       "wL"  '(evil-window-move-far-right :which-key "shift window right")
+	       "wH"  '(evil-window-move-far-left :which-key "shift window left")
+	       "wK"  '(evil-window-move-very-top :which-key "shift window up")
+	       "wJ"  '(evil-window-move-very-bottom :which-key "shift window bottom")
+	       "wv"  '(split-window-right :which-key "split right")
+	       "ws"  '(split-window-below :which-key "split bottom")
+	       "wo"  '(delete-other-windows :which-key "delete other windows")
+	       "wd"  '(delete-window :which-key "delete window")
 	       "wg"  '(golden-ratio :which-key "golden ratio")
-	       "wd"  '(evil-window-delete :which-key "delete window")
+	       "wc"  '(evil-window-delete :which-key "delete window")
 	       ;; v for view
 	       "v"   '(:ignore t :which-key "view")
 	       "vc"  '(ivy-push-view :which-key "create view")
@@ -880,6 +897,7 @@ down below.
 		"j" 'org-agenda-next-line
 		"k" 'org-agenda-previous-line
 		"u" 'org-agenda-undo
+		"n" 'org-agenda-capture
 		"C" 'org-agenda-clock-in)
 	     ;; Org C-c links
 	     (general-define-key
@@ -968,7 +986,8 @@ customize to my liking
 #+RESULTS:
 : ak-insert-bable
 
-*** testing area
+*** Tramp Find File
+    Counsel-find file wasn't letting me go back to ~/, so I made a function to force it
   #+begin_src emacs-lisp
     (defun ak/ivy-tramp-find-file ()
       "find-file with Tramp. Ex: '/plink:bort:~/'. See tramp note to setup"
@@ -979,6 +998,15 @@ customize to my liking
 
   #+RESULTS:
   : ak/ivy-tramp-find-file
-  
-  
-  
+
+*** Find File Home
+    Counsel-find file wasn't letting me go back to ~/, so I made a function to force it
+  #+begin_src emacs-lisp
+    (defun ak/ivy-home-find-file ()
+      "find-file with Tramp. Ex: '/plink:bort:~/'. See tramp note to setup"
+      (interactive)
+      (counsel-find-file ak/custpath-home))
+  #+end_src
+
+  #+RESULTS:
+  : ak/ivy-home-find-file
