@@ -123,6 +123,7 @@
 #+end_src
 
 * Font
+  
 #+begin_src emacs-lisp
   ;; (set-face-attribute 'default nil :family "Consolas" :height 110)
   ;; (set-face-attribute 'default nil :family "Hack" :height 105)
@@ -137,6 +138,7 @@
 #+RESULTS:
 
 * Theme / UI / Modeline
+  I love nord
    - Theme toggling with counsel-load-theme use C-M-n / C-M-p to preview
 #+begin_src emacs-lisp
   (use-package doom-themes
@@ -149,6 +151,7 @@
 ;;   (load-theme 'sanityinc-tomorrow-eighties t))
 #+end_src
 
+  This modeline replacement is clean, light, and evil friendly.
 #+begin_src emacs-lisp
  (use-package telephone-line
   :init (telephone-line-mode 1))
@@ -157,7 +160,7 @@
 #+RESULTS:
 
 * Winner
-  Undo / redo window / setup
+  Winner allows me to iterate through previous window configurations. I've got some files listed to ignore as well.
 #+begin_src emacs-lisp
 (use-package winner
   :init (setq winner-boring-buffers
@@ -175,7 +178,7 @@
 #+end_src
 
 * Shackle
-  Manage popups
+  Emacs will pop files up all over the place. This package helps reduce the insanity that results from this. I haven't done a comparison of how this changes the pop ups, but I get a sense that they are now more manageable
 #+begin_src emacs-lisp
   (use-package shackle
     :ensure t
@@ -229,9 +232,10 @@
 #+end_src
 
 * Golden Ratio
+  When I'm coding there is usally a file that I'm focusing on. Golden ratio allows me to balance the window sizes based on the golden ratio
 #+begin_src emacs-lisp
-(use-package golden-ratio
-  :ensure t)
+  (use-package golden-ratio
+    :ensure t)
 #+end_src
  
 * Ivy, Counsel, Swiper
@@ -242,9 +246,10 @@
     :init
     (setq ivy-use-virtual-buffers t
 	  enable-recursive-minibuffers t
+          ivy-initial-inputs-alist nil ;; don't use ^ w/ ivy M-x 
 	  ivy-re-builders-alist
-	  '((swiper . regexp-quote)
-	    (t      . ivy--regex-fuzzy)))
+	    '((swiper . regexp-quote)
+	      (t      . ivy--regex-fuzzy)))
     :config
     (setq ivy-ignore-buffers '("\\` " "\\`\\*")) ;; hide star buffers note above
     (ivy-mode 1))
@@ -277,11 +282,17 @@
 
 * Magit
 #+begin_src emacs-lisp
-(use-package magit
-  :ensure t)
+  (use-package magit
+    :ensure t)
+  
+  (use-package evil-magit
+    :after magit)
 
-(use-package evil-magit
-  :after magit)
+  (use-package git-gutter
+    :ensure t
+    :config
+    (global-git-gutter-mode 't)
+    :diminish git-gutter-mode)
 #+end_src
 
 #+RESULTS:
@@ -911,6 +922,7 @@ down below.
 	       "bp"  '(switch-to-prev-buffer :which-key "prev buffer")
 	       "bd"  '(kill-this-buffer :which-key "delete buffer")
 	       "bk"  '(evil-delete-buffer :which-key "delete buffer and window")
+	       "bq"  '(ak/save-exit-buffer-list :which-key "quit gtd-files")
 	       ;; Window
 	       "w"   '(:ignore t :which-key "window")
 	       "wl"  '(windmove-right :which-key "move right")
@@ -1108,3 +1120,23 @@ customize to my liking
 
   #+RESULTS:
   : ak/save-close-window
+
+*** Close all gtd files
+    Quickly save and close gtd files to not conflict with other computers
+#+begin_src emacs-lisp
+(setq gtd-buffer-list '("inbox.org" "gtd.org" "gtd.org_archive" "notes.org" "notes.org_archive" "phone_inbox.org")) ;; custpath
+
+(defun ak/delete-buffer-list (buffer)
+  "Delete buffer if exists"
+  (when (get-buffer buffer)
+    (kill-buffer buffer)))
+
+(defun ak/save-exit-buffer-list ()
+  "save all buffers in list then close them. Used for keeping gtd from conflicting on multiple machines"
+  (interactive)
+  (save-some-buffers gtd-buffer-list)
+  (mapcar #'ak/delete-buffer-list gtd-buffer-list))
+#+end_src
+
+#+RESULTS:
+: ak/save-exit-buffer-list
