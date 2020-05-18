@@ -109,11 +109,11 @@
 
     Org mode was being very slow on my windows machine, so I found [[https://www.reddit.com/r/emacs/comments/55ork0/is_emacs_251_noticeably_slower_than_245_on_windows/d8cmm7v/][this]] solution to improve garbage collection.
  #+begin_src emacs-lisp
-    (when (eq window-system 'w32)
-      (setq gc-cons-threshold (* 511 1024 1024))
-      (setq gc-cons-percentage 0.5)
-      (run-with-idle-timer 5 t #'garbage-collect)
-      (setq garbage-collection-messages t))
+   (when (eq window-system 'w32)
+     (setq gc-cons-threshold (* 511 1024 1024))
+     (setq gc-cons-percentage 0.5)
+     (run-with-idle-timer 5 t #'garbage-collect)
+     (setq garbage-collection-messages nil))
  #+end_src
 
  #+RESULTS:
@@ -970,12 +970,14 @@ down below.
 	       "oj"  '(org-journal-new-entry :which-key "org journal")
 	       "op"  '(org-pomodoro :which-key "pomodoro start")
 	       "oP"  '(org-clock-out :which-key "pomodoro stop")
-	       ;; Magit
-	       "g"   '(:ignore t :which-key "magit")
+	       ;; git
+	       "g"   '(:ignore t :which-key "git")
 	       "gs"  '(magit-status :which-key "magit status")
 	       "ga"  '(magit-stage :which-key "magit add")
 	       "gd"  '(magit-dispatch :which-key "magit dispatch")
 	       "gi"  '(magit-gitignore :which-key "magit gitignore")
+	       "gn"  '(git-gutter:next-hunk :which-key "next hunk")
+	       "gp"  '(git-gutter:next-hunk :which-key "prev hunk")
 	       ;; Visual Toggles
 	       "t"   '(:ignore t :which-key "ui toggle")
 	       "tn"  '(display-line-numbers-mode :which-key "toggle line numbers")
