@@ -58,6 +58,7 @@
 
    (cond ((eq workstation 'catapult)
 	  (setq ak/custpath-home "c:/Users/akraemer/"
+		ak/custpath-dropbox-org "c:/Users/akraemer/Dropbox/org/"
 		ak/custpath-phone-notes "c:/Users/akraemer/Dropbox/org/phone_inbox.org"
 		ak/custpath-journal-path "c:/Users/akraemer/Dropbox/journal/"
 		ak/custpath-emacsd "c:/emacs/.emacs.d/"
@@ -66,6 +67,9 @@
 		ak/custpath-flake8 "c:/Users/akraemer/Anaconda3/Scripts/flake8.exe"
 		ak/custpath-aspell "c:/msys64/mingw64/bin/aspell.exe")))
  #+end_src
+
+ #+RESULTS:
+ : c:/msys64/mingw64/bin/aspell.exe
 
 * Preferences
 ** TODO make this better documented
@@ -865,6 +869,17 @@ down below.
   (which-key-mode 1))
 #+end_src
  
+* Writing
+** writeroom
+#+begin_src emacs-lisp
+  (use-package writeroom-mode
+    :ensure t)
+#+end_src
+
+#+RESULTS:
+: t
+
+** 
 * Key Bindings
 ** General
  #+begin_src emacs-lisp
@@ -917,7 +932,7 @@ down below.
 	       ;; Buffers
 	       "b"   '(:ignore t :which-key "buffers")
 	       "bb"  '(ivy-switch-buffer :which-key "buffers list")
-	       "bs"  '(ak-go-to-scratch :which-key "open scratch")
+	       "bs"  '(ak/go-to-scratch :which-key "open scratch")
 	       "bn"  '(switch-to-next-buffer :which-key "next buffer")
 	       "bp"  '(switch-to-prev-buffer :which-key "prev buffer")
 	       "bd"  '(kill-this-buffer :which-key "delete buffer")
@@ -941,13 +956,14 @@ down below.
 	       "wc"  '(evil-window-delete :which-key "delete window")
 	       "wu"  '(winner-undo :which-key "winner undo")
 	       "wU"  '(winner-redo :which-key "winner redo")
+	       "ww"  '(writeroom-mode :which-key "writeroom mode")
 	       ;; v for view
 	       "v"   '(:ignore t :which-key "view")
 	       "vc"  '(ivy-push-view :which-key "create view")
 	       "vv"  '(ivy-switch-view :which-key "switch view")
 	       ;; Org
 	       "o"   '(:ignore t :which-key "org")
-	       "ob"  '(ak-insert-bable :Which-key "insert bable")
+	       "ob"  '(ak/insert-bable :Which-key "insert bable")
 	       "oo"  '(air-pop-to-org-agenda :which-key "open standard agenda")
 	       "or"  '(org-agenda :which-key "open review agenda")
 	       "oc"  '(org-capture :which-key "org capture")
@@ -980,7 +996,8 @@ down below.
 	       ;; Quick open files
 	       "c"  '((lambda () (interactive) (find-file (concat ak/custpath-emacsd "myinit.org"))) :which-key "open .emacs")
 	       "o"  '((lambda () (interactive) (find-file (concat ak/custpath-org-notes "gtd.org"))) :which-key "open org")
-	       "n"  '((lambda () (interactive) (find-file (concat ak/custpath-org-notes "notes.org"))) :which-key "open notes")
+	       "n"  '((lambda () (interactive) (find-file (concat ak/custpath-org-notes "worknotes.org"))) :which-key "open notes")
+	       "N"  '((lambda () (interactive) (find-file (concat ak/custpath-dropbox-org "notes.org"))) :which-key "open notes")
 	       ;; Vim  number increment
 	       "C-="  '(evil-numbers/inc-at-pt :which-key "increment num")
 	       "C--"  '(evil-numbers/dec-at-pt :which-key "decrement num"))
@@ -1006,19 +1023,21 @@ down below.
 	     (general-define-key
 		:keymaps 'org-journal-mode-map
 		"C-c C-c" 'ak/save-close-window)
-	     ;; Org-Promote
 	     (general-define-key
 		:keymaps 'org-mode-map
+		 ;; Org-Promote
 		"M-l" 'org-do-demote
 		"M-h" 'org-do-promote
 		"M-L" 'org-demote-subtree
 		"M-H" 'org-promote-subtree
 		"M-k" 'org-move-subtree-up
-		"M-j" 'org-move-subtree-down))
+		"M-j" 'org-move-subtree-down
+		"C-c f" 'ak/org-focus-subtree))
  #+end_src
 
  #+RESULTS:
  : t
+
 ** Hydras
 *** Zoom text
     Increase text size. Probably want to change the key binding
@@ -1036,20 +1055,20 @@ customize to my liking
 ** Functions
 *** go to scratch
   #+begin_src emacs-lisp
-  (defun ak-go-to-buffer (buffer)
+  (defun ak/go-to-buffer (buffer)
     "goes to buffer. If buffer does not exist, creates buffer"
     (if (not (get-buffer buffer))
         (generate-new-buffer buffer))
     (switch-to-buffer buffer))
 
-  (defun ak-go-to-scratch ()
-    "runs ak-go-to-buffer for scratch file"
+  (defun ak/go-to-scratch ()
+    "runs ak/go-to-buffer for scratch file"
     (interactive)
-    (ak-go-to-buffer "*buffer*"))
+    (ak/go-to-buffer "*buffer*"))
   #+end_src
 
   #+RESULTS:
-  : ak-go-to-scratch
+  : ak/go-to-scratch
 
 *** Alternate buffers
     Stolen from SPC-TAB spacemacs
@@ -1068,7 +1087,7 @@ customize to my liking
 
 *** Insert Bable
 #+begin_src emacs-lisp
- (defun ak-insert-bable ()
+ (defun ak/insert-bable ()
    "Insert src_sections for viz in orgmode."
    (interactive)
    (insert "#+begin_src "
@@ -1120,6 +1139,20 @@ customize to my liking
 
   #+RESULTS:
   : ak/save-close-window
+
+*** Focus / unfocus on org bullet
+    Toggle org narrow subtreee / show everything
+#+begin_src emacs-lisp
+  (defun ak/org-focus-subtree ()
+    "Toggle org narrow subtreee / show everything"
+    (interactive)
+    (if (buffer-narrowed-p)
+	(widen)
+      (org-narrow-to-subtree)))
+#+end_src
+
+#+RESULTS:
+: ak/org-focus-subtree
 
 *** Close all gtd files
     Quickly save and close gtd files to not conflict with other computers
