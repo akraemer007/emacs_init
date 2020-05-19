@@ -1,6 +1,7 @@
 #+STARTUP: hideblocks
 * Notes
 ** TODO Planned Tweaks
+   - [ ] use ENTER to follow links
    - [ ] blacken for python mode
    - [ ] Remove annoying lisp warning and char number warnings for flycheck
    - [ ] Move org-files to dropbox ;; just dragging my feet
@@ -997,8 +998,8 @@ down below.
 	       "wd"  '(delete-window :which-key "delete window")
 	       "wg"  '(golden-ratio :which-key "golden ratio")
 	       "wc"  '(evil-window-delete :which-key "delete window")
-	       "wu"  '(winner-undo :which-key "winner undo")
-	       "wU"  '(winner-redo :which-key "winner redo")
+	       ;; "wu"  '(winner-undo :which-key "winner undo")
+	       ;; "wU"  '(winner-redo :which-key "winner redo")
 	       "ww"  '(writeroom-mode :which-key "writeroom mode")
 	       ;; v for view
 	       "v"   '(:ignore t :which-key "view")
@@ -1096,7 +1097,55 @@ down below.
 *** org-outline
 
 *** Windows
-customize to my liking
+    - I'd like to be able to cycle through a number of winner. There are some binding things here that I don't understand yet
+#+begin_src emacs-lisp
+ (defhydra hydra-winner (global-map "<f2>")
+  "Winner"
+  ("u" winner-undo "in")
+  ("U" winner-redo "out"))
+#+end_src
+
+#+RESULTS:
+: hydra-winner/body
+
+*** buffers
+    This would work on the normal buffer list. I could use something like this to make navigatig the ivy buffers a little easier
+#+begin_src emacs-lisp
+   (defhydra hydra-buffer-menu (:color pink
+			       :hint nil)
+    "
+  ^Mark^             ^Unmark^           ^Actions^          ^Search
+  ^^^^^^^^-----------------------------------------------------------------
+  _m_: mark          _u_: unmark        _x_: execute       _R_: re-isearch
+  _s_: save          _U_: unmark up     _b_: bury          _I_: isearch
+  _d_: delete        ^ ^                _g_: refresh       _O_: multi-occur
+  _D_: delete up     ^ ^                _T_: files only: % -28`Buffer-menu-files-only
+  _~_: modified
+  "
+    ("m" Buffer-menu-mark)
+    ("u" Buffer-menu-unmark)
+    ("U" Buffer-menu-backup-unmark)
+    ("d" Buffer-menu-delete)
+    ("D" Buffer-menu-delete-backwards)
+    ("s" Buffer-menu-save)
+    ("~" Buffer-menu-not-modified)
+    ("x" Buffer-menu-execute)
+    ("b" Buffer-menu-bury)
+    ("g" revert-buffer)
+    ("T" Buffer-menu-toggle-files-only)
+    ("O" Buffer-menu-multi-occur :color blue)
+    ("I" Buffer-menu-isearch-buffers :color blue)
+    ("R" Buffer-menu-isearch-buffers-regexp :color blue)
+    ("c" nil "cancel")
+    ("v" Buffer-menu-select "select" :color blue)
+    ("o" Buffer-menu-other-window "other-window" :color blue)
+    ("q" quit-window "quit" :color blue))
+  ;; (define-key Buffer-menu-mode-map "." 'hydra-buffer-menu/body)
+#+end_src
+
+#+RESULTS:
+: hydra-buffer-menu/body
+
 * My Custom Functions
 ** go to scratch
  #+begin_src emacs-lisp
