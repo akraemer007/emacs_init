@@ -1,4 +1,3 @@
-#+STARTUP: hideblocks
 * Notes
 ** TODO Planned Tweaks
    - [ ] use ENTER to follow links
@@ -137,10 +136,16 @@
  : t
 
     Windows doesn't have a super key, so I remap the windows key to super. The problem is that the windows key often can't be overridden. I don't use it often, so I might revert.
+    If on a mac, I like the super and meta keys to be in the same location as when I'm on my windows machine.
 #+begin_src emacs-lisp
-    (when (eq window-system 'w32)
-      (setq w32-pass-lwindow-to-system nil)
-      (setq w32-lwindow-modifier 'super) )
+  (when (eq window-system 'w32)
+    (setq w32-pass-lwindow-to-system nil)
+    (setq w32-lwindow-modifier 'super) )
+
+  (when (eq window-system 'w32)
+    (setq mac-command-modifier 'meta) ; make cmd key do Meta
+    (setq mac-option-modifier 'super) ; make opt key do Super
+    )
 #+end_src
 
 * Font
