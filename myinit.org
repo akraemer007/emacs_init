@@ -122,7 +122,7 @@
 		ak/custpath-py-default-env "c:/Users/akraemer/Anaconda3/envs/py37"
 		ak/custpath-flake8 "c:/Users/akraemer/Anaconda3/Scripts/flake8.exe"
 		ak/custpath-aspell "c:/msys64/mingw64/bin/aspell.exe"))
-	 ((eq window-system 'darwin)
+	 ((eq window-system 'ns)
 	  (setq ak/custpath-home "/Users/AndrewKraemer/"
 		ak/custpath-dropbox-org "/Users/AndrewKraemer/Dropbox/org/"
 		ak/custpath-phone-notes "/Users/AndrewKraemer/Dropbox/org/phone_inbox.org"
@@ -187,15 +187,16 @@
     Windows doesn't have a super key, so I remap the windows key to super. The problem is that the windows key often can't be overridden. I don't use it often, so I might revert.
     If on a mac, I like the super and meta keys to be in the same location as when I'm on my windows machine.
 #+begin_src emacs-lisp
-  (when (eq window-system 'w32)
-    (setq w32-pass-lwindow-to-system nil)
-    (setq w32-lwindow-modifier 'super) )
-
-  (when (eq window-system 'w32)
-    (setq mac-command-modifier 'meta) ; make cmd key do Meta
-    (setq mac-option-modifier 'super) ; make opt key do Super
-    )
+  (cond ((eq window-system 'w32)
+	 (setq w32-pass-lwindow-to-system nil)
+	 (setq w32-lwindow-modifier 'super))
+	((eq window-system 'ns)
+	 (setq mac-command-modifier 'meta)
+	 (setq mac-option-modifier 'super)))
 #+end_src
+
+#+RESULTS:
+: super
 
 ** Temporary File Management
    Emacs is a little too eager to save files everywhere. I found the below to keep version control without it leaving files all over the place
@@ -221,7 +222,7 @@
 			      ;; :weight 'bold
 			      ;; :width 'normal
 			      :height 107))
-	 ((eq window-system 'darwin)
+	 ((eq window-system 'ns)
 	  (set-face-attribute 'default nil
 			      :family "Source Code Pro"
 			      :weight 'normal

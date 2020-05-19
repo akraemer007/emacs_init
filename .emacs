@@ -1,7 +1,11 @@
+(setq use-spacemacs nil)   ; or nil 
+
 (cond ((eq window-system 'w32)
        (setq user-emacs-directory "c:/emacs/.emacs.d/"))
-      ((eq window-system 'darwin)
-       (setq user-emacs-directory "~/.emacs.d/")))
+      ((eq window-system 'ns)
+       (if use-spacemacs
+           (setq user-emacs-directory "~/.spacemacs.d/")
+         (setq user-emacs-directory "~/.emacs.d/"))))
 (load (expand-file-name "init.el" user-emacs-directory))
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
