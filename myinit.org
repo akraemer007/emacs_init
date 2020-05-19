@@ -153,19 +153,20 @@
 #+begin_src emacs-lisp
   ;; (set-face-attribute 'default nil :family "Consolas" :height 110)
   ;; (set-face-attribute 'default nil :family "Hack" :height 105)
-  (if (eq window-system 'w32)
-      (set-face-attribute 'default nil
-			  :family "Source Code Pro"
-			  :weight 'Regular
-			  ;; :weight 'bold
-			  ;; :width 'normal
-			  :height 107)
-      (set-face-attribute 'default nil
-			  :family "Source Code Pro"
-			  :weight 'normal
-			  ;; :weight 'bold
-			  ;; :width 'normal
-			  :height 140))
+  (cond ((eq window-system 'w32)
+	 (set-face-attribute 'default nil
+			     :family "Source Code Pro"
+			     :weight 'Regular
+			     ;; :weight 'bold
+			     ;; :width 'normal
+			     :height 107))
+	((eq window-system 'darwin)
+	 (set-face-attribute 'default nil
+			     :family "Source Code Pro"
+			     :weight 'normal
+			     ;; :weight 'bold
+			     ;; :width 'normal
+			     :height 140)))
 #+end_src
 
 #+RESULTS:
@@ -178,10 +179,11 @@
     :ensure t
     :config (load-theme 'doom-nord t))
 
-;; (use-package color-theme-sanityinc-tomorrow
-;;   :ensure t
-;;   :config
-;;   (load-theme 'sanityinc-tomorrow-eighties t))
+  (use-package color-theme-sanityinc-tomorrow
+    :disable
+    :ensure t
+    :config
+    (load-theme 'sanityinc-tomorrow-eighties t))
 #+end_src
 
   This modeline replacement is clean, light, and evil friendly.
