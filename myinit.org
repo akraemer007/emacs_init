@@ -977,7 +977,7 @@ down below.
 	       "gd"  '(magit-dispatch :which-key "magit dispatch")
 	       "gi"  '(magit-gitignore :which-key "magit gitignore")
 	       "gn"  '(git-gutter:next-hunk :which-key "next hunk")
-	       "gp"  '(git-gutter:next-hunk :which-key "prev hunk")
+	       "gp"  '(git-gutter:previous-hunk :which-key "prev hunk")
 	       ;; Visual Toggles
 	       "t"   '(:ignore t :which-key "ui toggle")
 	       "tn"  '(display-line-numbers-mode :which-key "toggle line numbers")
