@@ -2,6 +2,7 @@
 * Notes
 ** TODO Planned Tweaks
    - [ ] use ENTER to follow links
+   - [ ] move mode specific hotkeys from general to use-package
    - [ ] blacken for python mode
    - [ ] Remove annoying lisp warning and char number warnings for flycheck
    - [ ] Move org-files to dropbox ;; just dragging my feet
@@ -820,16 +821,16 @@ down below.
 
 ** Lispy
  #+begin_src emacs-lisp
-   ;; Lispy
-   ;;(use-package lisp;; y
-   ;;   :ensure t
-   ;;   :defer t
-   ;;   :init
-   ;;     (general-add-hook '(hy-mode-hook lisp-mode-hook emacs-lisp-mode-hook) #'lispy-mode)
-   ;;     ;; (add-hook 'hy-mode-hook #'lispy-mode)
-   ;;     ;; (add-hook 'lisp-mode-hook #'lispy-mode)
-   ;;     ;; (add-hook 'emacs-lisp-mode-hook #'lispy-mode)
-   ;;)
+   (use-package lisp;; y
+     :disabled
+     :ensure t
+     :defer t
+     :init
+       (general-add-hook '(hy-mode-hook lisp-mode-hook emacs-lisp-mode-hook) #'lispy-mode)
+       ;; (add-hook 'hy-mode-hook #'lispy-mode)
+       ;; (add-hook 'lisp-mode-hook #'lispy-mode)
+       ;; (add-hook 'emacs-lisp-mode-hook #'lispy-mode)
+   )
 
    (use-package lispyville
      :ensure t
@@ -909,9 +910,6 @@ down below.
   (use-package writeroom-mode
     :ensure t)
 #+end_src
-
-#+RESULTS:
-: t
 
 ** Word Count
    I want to experiment with writing 750 words in my journal a day. The settings below makes sure that I get a word count when I'm using my journal.
@@ -1090,8 +1088,8 @@ down below.
    #+begin_src emacs-lisp
  (defhydra hydra-zoom (global-map "<f2>")
   "zoom"
-  ("g" text-scale-increase "in")
-  ("l" text-scale-decrease "out"))
+  ("+" text-scale-increase "in")
+  ("-" text-scale-decrease "out"))
 #+end_src 
 
 *** org-outline
