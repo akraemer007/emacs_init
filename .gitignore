@@ -12,3 +12,8 @@
 /spell-fu/
 /tmp/
 /transient/
+myinit.el
+/tramp
+/org-journal.cache
+/full_emacs_conf.el
+/.emacs~
