@@ -55,6 +55,54 @@
    - [[https://github.com/noahfrederick/dots/blob/master/emacs/emacs.org][Nox]] has an org set-up in his use-package
    - [[https://github.com/zzamboni/dot-emacs/blob/master/init.org][zzamboni]] has a great literate config. Lots of it considers writing
    - [[http://www.howardism.org/Technical/Emacs/orgmode-wordprocessor.html][This]] guy has a really robust emacs blog. He makes his org-mode look AWESOME. I'm not sure it's worth the effort though
+
+* Performance Optimization
+  This section entirely stolen from [[https://github.com/zzamboni/dot-emacs/blob/master/init.org#performance-optimization][here]].
+  
+  - [[https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_speed_up_emacs_start/][Two easy little known steps to speed up Emacs start up time]]
+  - [[https://blog.d46.us/advanced-emacs-startup/][Advanced Techniques for Reducing Emacs Startup Time]]
+  
+  Based on these, I have added the code below.
+
+  First, we wrap the whole init file in a block that sets =file-name-handler-alist= to =nil= to prevent any special-filename parsing of files loaded from the init file (e.g. remote files loaded through tramp, etc.). The =let= block gets closed in the [[Epilogue][Epilogue]].
+  
+  #+begin_src emacs-lisp
+    (let ((file-name-handler-alist nil))
+  #+end_src
+
+  Next, a hook that reports how long and how many garbage collections the startup took. We use a hook to run it at the very end, so the message doesn't get clobbered by other messages during startup.
+
+  #+begin_src emacs-lisp
+    (add-hook 'emacs-startup-hook
+              (lambda ()
+                (message "Emacs ready in %s with %d garbage collections."
+                         (format "%.2f seconds"
+                                 (float-time
+                                  (time-subtract after-init-time before-init-time)))
+                         gcs-done)))
+  #+end_src
+
+  Optionally enable =debug-on-error= - I do this only when I'm trying to figure out some problem in my config.
+
+  #+begin_src emacs-lisp
+    ;;(setq debug-on-error t)
+  #+end_src
+
+  If the =gcmh= package is already installed, load and enable it early. If not, this gets installed a bit later in the Package Management section. This package manages the garbage collection thresholds and scheduling to improve performance. DISABLED for now because it seems to cause performance degradation when inserting text in long files.
+
+  #+begin_src emacs-lisp
+    ;; (when (require 'gcmh nil t)
+    ;;   (gcmh-mode 1))
+  #+end_src
+
+  We set =gc-cons-threshold= to its maximum value, to prevent any garbage collection from happening during load time. We also reset this value in the [[Epilogue][Epilogue]].
+
+  #+begin_src emacs-lisp
+    (setq gc-cons-threshold most-positive-fixnum)
+  #+end_src
+
+  Using all of this, my startup time went from 21 seconds down to 15 seconds.
+
 * Setup
 ** Paths
    I use multiple computers. This allows me to update paths globally for each of my machines.
@@ -1113,3 +1161,10 @@
 
 #+RESULTS:
 : ak/save-exit-buffer-list
+
+* Epilogue 
+  Here we close the let expression from the preface.
+  #+begin_src emacs-lisp
+    (setq gc-cons-threshold (* 2 1000 1000))
+    )
+  #+end_src
