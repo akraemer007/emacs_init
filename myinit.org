@@ -1,6 +1,8 @@
 #+STARTUP: hideblocks
 * Notes
 ** TODO Planned Tweaks
+   - [ ] blacken for python mode
+   - [ ] Remove annoying lisp warning and char number warnings for flycheck
    - [ ] Move org-files to dropbox ;; just dragging my feet
    - [ ] don't delete scratch buffer zzamboni
    - [ ] learn about bookmarks
@@ -218,13 +220,21 @@
 * Files
   Stop files from saving temporary files everywhere
 #+begin_src emacs-lisp
-;; files
-(use-package files
+(use-package 
   :init
   ;; Backup ~ files in seperate directory
   (setq backup-directory-alist `(("." . ,(concat ak/custpath-emacsd "backups"))))
   ;; No confirmation when creating new buffer
   (setq confirm-nonexistent-file-or-buffer nil))
+#+end_src
+
+#+RESULTS:
+
+* Expand Region
+  when you start on a word you can press `C-=` to expand to sentace/ line. Very helpful for mass grabbing. Very highly rated from what I've read
+#+begin_src emacs-lisp
+(use-package expand-region 
+  :ensure t)
 #+end_src
 
 #+RESULTS:
@@ -925,7 +935,9 @@ down below.
 	       :states '(normal visual)
 	       ;; use visual line movement w/ j/k
 	       "j" 'evil-next-visual-line
-	       "k" 'evil-previous-visual-line)
+	       "k" 'evil-previous-visual-line
+	       ;; globally define 
+	       "C-=" 'er/expand-region)
 	     (general-define-key
 	       :states '(normal viusal)
 	       :prefix "g"
