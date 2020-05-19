@@ -1,3 +1,7 @@
+(if (eq window-system 'w32)
+    (setq filepath "c:/emacs/.emacs.d/myinit.org")
+  (setq filepath "~/.emacs.d/myinit.org"))
+
 ;; Package configs
 (require 'package)
 (setq package-enable-at-startup nil)
@@ -12,7 +16,7 @@
   (package-install 'use-package))
 (require 'use-package)
 
-(org-babel-load-file (expand-file-name "c:/emacs/.emacs.d/myinit.org"))
+(org-babel-load-file (expand-file-name filepath))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
