@@ -52,36 +52,36 @@
 ** Paths
    I use multiple computers. This allows me to update paths globally for each of my machines.
  #+begin_src emacs-lisp
-   (setq workstation 'personal_macbook) ;; options: catapult, personal_macbook
+      (setq workstation 'personal_macbook) ;; options: catapult, personal_macbook
 
-   (setq user-full-name "Andrew Kraemer")
-   (setq user-mail-address "andrew.h.kraemer@gmail.com")
+      (setq user-full-name "Andrew Kraemer")
+      (setq user-mail-address "andrew.h.kraemer@gmail.com")
 
-   (cond ((eq workstation 'catapult)
-	  (setq ak/custpath-home "c:/Users/akraemer/"
-		ak/custpath-dropbox-org "c:/Users/akraemer/Dropbox/org/"
-		ak/custpath-phone-notes "c:/Users/akraemer/Dropbox/org/phone_inbox.org"
-		ak/custpath-journal-path "c:/Users/akraemer/Dropbox/journal/"
-		ak/custpath-emacsd "c:/emacs/.emacs.d/"
-		ak/custpath-org-notes "c:/emacs/notes/"
-		ak/custpath-py-default-env "c:/Users/akraemer/Anaconda3/envs/py37"
-		ak/custpath-flake8 "c:/Users/akraemer/Anaconda3/Scripts/flake8.exe"
-		ak/custpath-aspell "c:/msys64/mingw64/bin/aspell.exe"))
-         ((eq workstation 'personal_macbook)
-	  (setq ak/custpath-home "~/Users/AndrewKraemer/"
-		ak/custpath-dropbox-org "~/Users/AndrewKraemer/Dropbox/org/"
-		ak/custpath-phone-notes "~/Users/AndrewKraemer/Dropbox/org/phone_inbox.org"
-		ak/custpath-journal-path "~/Users/AndrewKraemer/Dropbox/journal/"
-		ak/custpath-emacsd "~/.emacs.d/"
-		ak/custpath-org-notes "~/emacs/notes/"
-		;; ak/custpath-py-default-env "~/Users/AndrewKraemer/Anaconda3/envs/py37"
-		;; ak/custpath-flake8 "~/Users/AndrewKraemer/Anaconda3/Scripts/flake8.exe"
-		;; ak/custpath-aspell "~/msys64/mingw64/bin/aspell.exe"
-)))
+      (cond ((eq workstation 'catapult)
+	     (setq ak/custpath-home "c:/Users/akraemer/"
+		   ak/custpath-dropbox-org "c:/Users/akraemer/Dropbox/org/"
+		   ak/custpath-phone-notes "c:/Users/akraemer/Dropbox/org/phone_inbox.org"
+		   ak/custpath-journal-path "c:/Users/akraemer/Dropbox/journal/"
+		   ak/custpath-emacsd "c:/emacs/.emacs.d/"
+		   ak/custpath-org-notes "c:/emacs/notes/"
+		   ak/custpath-py-default-env "c:/Users/akraemer/Anaconda3/envs/py37"
+		   ak/custpath-flake8 "c:/Users/akraemer/Anaconda3/Scripts/flake8.exe"
+		   ak/custpath-aspell "c:/msys64/mingw64/bin/aspell.exe"))
+	    ((eq workstation 'personal_macbook)
+	     (setq ak/custpath-home "/Users/AndrewKraemer/"
+		   ak/custpath-dropbox-org "/Users/AndrewKraemer/Dropbox/org/"
+		   ak/custpath-phone-notes "/Users/AndrewKraemer/Dropbox/org/phone_inbox.org"
+		   ak/custpath-journal-path "/Users/AndrewKraemer/Dropbox/journal/"
+		   ak/custpath-emacsd "~/.emacs.d/"
+		   ak/custpath-org-notes "~/emacs/notes/"
+		   ak/custpath-py-default-env "/Users/AndrewKraemer/anaconda3/envs/py37"
+		   ;; ak/custpath-flake8 "~/Users/AndrewKraemer/Anaconda3/Scripts/flake8.exe"
+		   ;; ak/custpath-aspell "~/msys64/mingw64/bin/aspell.exe"
+   )))
  #+end_src
 
  #+RESULTS:
- : c:/msys64/mingw64/bin/aspell.exe
+ : /Users/AndrewKraemer/anaconda3/envs/py37
 
 * Preferences
 ** TODO make this better documented
@@ -1011,7 +1011,7 @@ down below.
 	       ;; Flycheck
 	       "c"   '(:ignore t :which-key "code check")
 	       "cn"  '(flycheck-next-error :which-key "next error")
-	       "cN"  '(flycheck-previous-error :which-key "previous error")
+	       "cp"  '(flycheck-previous-error :which-key "previous error")
 	       ;; Others
 	       "at"  '(new-eshell :which-key "eshell"))
 	     (general-define-key
