@@ -1,29 +1,24 @@
 #+STARTUP: hideblocks
 * Notes
 ** TODO Planned Tweaks
-   - [ ] reduce when microsoft. Instead use env names
-   - [ ] reduce start time
+   - [ ] Move org-files to dropbox ;; just dragging my feet
+   - [ ] don't delete scratch buffer zzamboni
+   - [ ] learn about bookmarks
+   - [ ] improve documentation of this file
+   - [ ] Instead of 'catapult use when microsoft, so I don't need to update my config
+   - [ ] reduce start time [[https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_speed_up_emacs_start/][1]] [[https://blog.d46.us/advanced-emacs-startup/][2]]
    - [ ] Org Blog w/ [[https://ox-hugo.scripter.co/][ox-hugo]]. [[https://www.reddit.com/r/orgmode/comments/gcex8p/creating_a_blog_with_orgmode/][Reddit Post]]
-   - [ ] clean up pomodoro in telephone-line
-   - [ ] [[https://github.com/bastibe/org-journal][org-journal]]
    - [ ] LSP instead of elpy
-   - [ ] gitgutter
    - [ ] Figure out where & how windows knows where my emacs is
    - [ ] PDF-viewer ;; seems like a drag on windows. doc-viewer let's me at least see the text
-   - [ ] Move org-files to dropbox ;; just dragging my feet
-   - [ ] ace by abo-abo?
-   - [ ] Treemacs (do I need this?) ;; no
    - [ ] hydra for [[https://github.com/abo-abo/hydra/wiki/Emacs][outline]]
    - [ ] fix ediff
-   - [ ] org make todotype selection easier
-   - [ ] magit path reset
-   - [ ] Figure out pomodoro
    - [ ] add hooks more elegantly w/ general
-   - [ ] babel installs
-   - [ ] R
-   - [ ] Use [[https://github.com/alphapapa/org-super-agenda][org-super-agenda]]
-   - [ ] vim bracket buffer movement
+   - [ ] babel installs (R)
    - [ ] [[http://www.cachestocaches.com/2017/3/complete-guide-email-emacs-using-mu-and-/][email]]
+   - [X] Figure out pomodoro
+   - [X] gitgutter
+   - [X] [[https://github.com/bastibe/org-journal][org-journal]]
    - [X] Config Shackle (do I need to? I feel like I've been able to supress a lot as of late)
    - [X] Default new todo bullet to TODO not inprogress
    - [X] customize telephone line [[https://www.reddit.com/r/emacs/comments/7e7xzg/telephoneline_theming_question/][colors]] to match theme ;; Defaults look better than the starting custom
@@ -40,6 +35,11 @@
    - [X] magit consider j and k 
    - [X] spell-fu ;; why not in melpa? aspell w/ wierd packman install
    - [X] make this an org file
+   - [ ] vim bracket buffer movement
+   - [ ] org make todotype selection easier
+   - [ ] Treemacs (do I need this?) ;; no
+   - [ ] Use [[https://github.com/alphapapa/org-super-agenda][org-super-agenda]]
+   - [ ] ace by abo-abo? Probably more than I need
 ** Inspiration + links
    - [[https://www.youtube.com/watch?v=49kBWM3RQQ8&list=PL9KxKa8NpFxIcNQa9js7dQQIHc81b0-Xg&index=1][Using Emacs videos]]
    - Originally inspaired by based on [[https://huytd.github.io/emacs-from-scratch.html#orgf713fce][this]] implementation 
@@ -893,7 +893,8 @@ down below.
 #+end_src
  
 * Writing
-** writeroom
+** Write Room
+   Write room is a package great for narrowing my focus on writing. It takes the full screen, much like your average "distraction free" writing enviornments. It's also nice to use with my helper function C-c f (f for focus) which toggles the narrowing of a sub tree in case I'm working with an unweildy org file
 #+begin_src emacs-lisp
   (use-package writeroom-mode
     :ensure t)
@@ -902,7 +903,15 @@ down below.
 #+RESULTS:
 : t
 
-** 
+** Word Count
+   I want to experiment with writing 750 words in my journal a day. The settings below makes sure that I get a word count when I'm using my journal.
+#+begin_src emacs-lisp
+  (use-package wc-mode
+    :ensure t)
+#+end_src
+
+#+RESULTS:
+
 * Key Bindings
 ** General
  #+begin_src emacs-lisp
