@@ -1,5 +1,6 @@
 * Notes
 ** TODO Planned Tweaks
+   - [ ] use yasnippet for inserting bable
    - [ ] use ENTER to follow links
    - [ ] move mode specific hotkeys from general to use-package
    - [ ] blacken for python mode
@@ -53,6 +54,7 @@
    - [[https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org][This one]] is beautiful. Found it when investigating mode lines
    - [[https://github.com/noahfrederick/dots/blob/master/emacs/emacs.org][Nox]] has an org set-up in his use-package
    - [[https://github.com/zzamboni/dot-emacs/blob/master/init.org][zzamboni]] has a great literate config. Lots of it considers writing
+   - [[http://www.howardism.org/Technical/Emacs/orgmode-wordprocessor.html][This]] guy has a really robust emacs blog. He makes his org-mode look AWESOME. I'm not sure it's worth the effort though
 * Setup
 ** Paths
    I use multiple computers. This allows me to update paths globally for each of my machines.
@@ -80,15 +82,14 @@
 		ak/custpath-emacsd "~/.emacs.d/"
 		ak/custpath-org-notes "~/emacs/notes/"
 		ak/custpath-py-default-env "/Users/AndrewKraemer/anaconda3/envs/py37"
-		;; ak/custpath-flake8 "~/Users/AndrewKraemer/Anaconda3/Scripts/flake8.exe"
 		ak/custpath-aspell "/usr/local/bin/aspell")))
  #+end_src
 
  #+RESULTS:
  : /usr/local/bin/aspell
 
-* Preferences
-** TODO make this better documented
+** Better Defaults
+   TODO document these chunks
  #+begin_src emacs-lisp
    ;;; Code:
    ;; Minimal UI
@@ -148,139 +149,131 @@
     )
 #+end_src
 
-* Font
- TODO base off of current machine name 
-#+begin_src emacs-lisp
-  ;; (set-face-attribute 'default nil :family "Consolas" :height 110)
-  ;; (set-face-attribute 'default nil :family "Hack" :height 105)
-  (cond ((eq window-system 'w32)
-	 (set-face-attribute 'default nil
-			     :family "Source Code Pro"
-			     :weight 'Regular
-			     ;; :weight 'bold
-			     ;; :width 'normal
-			     :height 107))
-	((eq window-system 'darwin)
-	 (set-face-attribute 'default nil
-			     :family "Source Code Pro"
-			     :weight 'normal
-			     ;; :weight 'bold
-			     ;; :width 'normal
-			     :height 140)))
-#+end_src
+** Temporary File Management
+   Emacs is a little too eager to save files everywhere. I found the below to keep version control without it leaving files all over the place
+ #+begin_src emacs-lisp
+   (use-package files
+     :init
+     (setq backup-directory-alist `(("." . ,(concat ak/custpath-emacsd "backups"))))
+     (setq confirm-nonexistent-file-or-buffer nil))
+ #+end_src
 
-#+RESULTS:
+ #+RESULTS:
 
-* Theme / UI / Modeline
-  I love nord
-   - Theme toggling with counsel-load-theme use C-M-n / C-M-p to preview
-#+begin_src emacs-lisp
-  (use-package doom-themes
-    :ensure t
-    :config (load-theme 'doom-nord t))
+* UI
+** Font
+  I find that consolas works really well on my windows machine, but Source Code Pro is just a little more nifty. Normal thickness on windows doesn't look great with orgmode on my windows machine, so I have different settings for different computers
+ #+begin_src emacs-lisp
+   ;; (set-face-attribute 'default nil :family "Consolas" :height 110)
+   ;; (set-face-attribute 'default nil :family "Hack" :height 105)
+   (cond ((eq window-system 'w32)
+	  (set-face-attribute 'default nil
+			      :family "Source Code Pro"
+			      :weight 'Regular
+			      ;; :weight 'bold
+			      ;; :width 'normal
+			      :height 107))
+	 ((eq window-system 'darwin)
+	  (set-face-attribute 'default nil
+			      :family "Source Code Pro"
+			      :weight 'normal
+			      ;; :weight 'bold
+			      ;; :width 'normal
+			      :height 140)))
+ #+end_src
 
-  (use-package color-theme-sanityinc-tomorrow
-    :disable
-    :ensure t
-    :config
-    (load-theme 'sanityinc-tomorrow-eighties t))
-#+end_src
+ #+RESULTS:
 
-  This modeline replacement is clean, light, and evil friendly.
-#+begin_src emacs-lisp
- (use-package telephone-line
-  :init (telephone-line-mode 1))
-#+end_src
+** Theme
+   I love the nord theme. It's not too harsh on the eyes and I think it looks really cool.
+   counsel-load-theme is a great way to preview themes with `C-M-n` / `C-M-p`
+ #+begin_src emacs-lisp
+   (use-package doom-themes
+     :ensure t
+     :config (load-theme 'doom-nord t))
 
-#+RESULTS:
+   (use-package color-theme-sanityinc-tomorrow
+     :disabled
+     :ensure t
+     :config
+     (load-theme 'sanityinc-tomorrow-eighties t))
+ #+end_src
 
-* Winner
-  Winner allows me to iterate through previous window configurations. I've got some files listed to ignore as well.
-#+begin_src emacs-lisp
-(use-package winner
-  :init (setq winner-boring-buffers
-        '("*Completions*"
-          "*Compile-Log*"
-          "*inferior-lisp*"
-          "*Fuzzy Completions*"
-          "*Apropos*"
-          "*dvc-error*"
-          "*Help*"
-          "*cvs*"
-          "*Buffer List*"
-          "*Ibuffer*"))
-  :config (winner-mode 1))
-#+end_src
+** Modeline
+   Telephone line is a modeline replacement which is clean, light, and evil friendly. It's allegedly easy to configure, but I'm happy with the default.
+   TODO try evil mode abbreviation to save on realestate
+ #+begin_src emacs-lisp
+  (use-package telephone-line
+   :init (telephone-line-mode 1))
+ #+end_src
 
-* Shackle
-  Emacs will pop files up all over the place. This package helps reduce the insanity that results from this. I haven't done a comparison of how this changes the pop ups, but I get a sense that they are now more manageable
-#+begin_src emacs-lisp
-  (use-package shackle
-    :ensure t
-    :defer t
-    :config
-    ;; (setq shackle-default-rule '(:select t))
-    (shackle-mode t))
-#+end_src
-
-#+RESULTS:
-: t
-
-* Files
-  Stop files from saving temporary files everywhere
-#+begin_src emacs-lisp
-
-  (use-package files
-    :init
-    ;; Backup ~ files in seperate directory
-    (setq backup-directory-alist `(("." . ,(concat ak/custpath-emacsd "backups"))))
-    ;; No confirmation when creating new buffer
-    (setq confirm-nonexistent-file-or-buffer nil))
-#+end_src
-
-#+RESULTS:
-
-* Expand Region
-  when you start on a word you can press `C-=` to expand to sentace/ line. Very helpful for mass grabbing. Very highly rated from what I've read
-#+begin_src emacs-lisp
-(use-package expand-region 
-  :ensure t)
-#+end_src
-
-#+RESULTS:
-
+ #+RESULTS:
 * Evil
 #+begin_src emacs-lisp
-;; Vim mode
-(use-package evil
-  :ensure t
-   ;; c-u to scroll up
-  :init
-  (setq evil-want-C-u-scroll t)
-  :config
-  (evil-mode 1)
-  (add-hook 'prog-mode-hook #'turn-on-evil-mode))
+  (use-package evil
+    :ensure t
+     ;; c-u to scroll up
+    :init
+    (setq evil-want-C-u-scroll t)
+    :config
+    (evil-mode 1)
+    (add-hook 'prog-mode-hook #'turn-on-evil-mode))
 
-(use-package evil-surround
-  :ensure t
-  :config
-  (global-evil-surround-mode 1))
+  (use-package evil-surround
+    :ensure t
+    :config
+    (global-evil-surround-mode 1))
 
-(use-package evil-commentary
-  :ensure t
-  :config
-  (evil-commentary-mode))
+  (use-package evil-commentary
+    :ensure t
+    :config
+    (evil-commentary-mode))
 
-(use-package evil-numbers
-  :ensure t)
-#+end_src
-
-* Golden Ratio
-  When I'm coding there is usally a file that I'm focusing on. Golden ratio allows me to balance the window sizes based on the golden ratio
-#+begin_src emacs-lisp
-  (use-package golden-ratio
+  (use-package evil-numbers
     :ensure t)
 #+end_src
+
+* Window Management
+  I do a lot in emacs, and it can be overwhelming to manage all of the different buffers and windows lying about.
+** Winner
+   Winner allows me to iterate through previous window configurations. I've got some files listed to ignore as well.
+   TODO I'd like to make a hydra for iterating through my winner states faster
+ #+begin_src emacs-lisp
+ (use-package winner
+   :init (setq winner-boring-buffers
+         '("*Completions*"
+           "*Compile-Log*"
+           "*inferior-lisp*"
+           "*Fuzzy Completions*"
+           "*Apropos*"
+           "*dvc-error*"
+           "*Help*"
+           "*cvs*"
+           "*Buffer List*"
+           "*Ibuffer*"))
+   :config (winner-mode 1))
+ #+end_src
+
+** Shackle
+   Emacs will pop files up all over the place. This package helps reduce the insanity that results from this. I haven't done a comparison of how this changes the pop ups, but I get a sense that they are now more manageable
+ #+begin_src emacs-lisp
+   (use-package shackle
+     :ensure t
+     :defer t
+     :config
+     ;; (setq shackle-default-rule '(:select t))
+     (shackle-mode t))
+ #+end_src
+
+ #+RESULTS:
+ : t
+
+** Golden Ratio
+   When I'm coding there is usally a file that I'm focusing on. Golden ratio allows me to balance the window sizes based on the golden ratio. I don't like it on all of the time, but I can activate it with `<SPC> w g`
+ #+begin_src emacs-lisp
+   (use-package golden-ratio
+     :ensure t)
+ #+end_src
  
 * Ivy, Counsel, Swiper
   - Hide star buffers w/ ivy-ignore buffers. Use C-c C-a to toggle back. Ref [[https://github.com/abo-abo/swiper/issues/644][here]].
@@ -308,151 +301,222 @@
 
 #+RESULTS:
 
-* Company
-   Auto-completion
-  - TODO move this to the general section
-#+begin_src emacs-lisp
-  (use-package company
-    :hook
-    (after-init . global-company-mode)
-    :bind
-    ;; make company completion work w/ vimkeys
-    (:map company-active-map)
-    ("C-n" . company-select-next-or-abort)
-    ("C-p" . company-select-previous-or-abort))
-#+end_src
-
-#+RESULTS:
-
-* Magit
-#+begin_src emacs-lisp
-  (use-package magit
-    :ensure t)
-  
-  (use-package evil-magit
-    :after magit)
-
-  (use-package git-gutter
-    :ensure t
-    :config
-    (global-git-gutter-mode 't)
-    :diminish git-gutter-mode)
-#+end_src
-
-#+RESULTS:
-
-* Projectile
-#+begin_src emacs-lisp
-   (use-package projectile
-     :ensure t
-     :init
-     (setq projectile-require-project-root nil)
-     (setq projectile-completion-system 'ivy)
-     :config
-     (projectile-mode 1))
-
-   (use-package counsel-projectile
-    :ensure t
-    :config
-    (counsel-projectile-mode))
-#+end_src
-
-#+RESULTS:
-: t
-
 * Org
- 
+** General Org Settings
+   Define paths and files of where to look for tasks.
+  #+begin_src emacs-lisp
+    (with-eval-after-load 'org (setq org-agenda-files
+				    `(,ak/custpath-org-notes ,ak/custpath-phone-notes)))
+  #+end_src 
+  
+  I love using habits in org-mode, you need to make sure to call them out to use them, which is what this code snippet does
+  #+begin_src emacs-lisp
+    (with-eval-after-load 'org
+      (add-to-list 'org-modules 'org-habit t))
+  #+end_src
+  
+  This seems to be somehow related to the [[https://github.com/Somelauw/evil-org-mode/blob/master/doc/example_config.el][evil-org]] package, which I decided against using awhile ago. I don't know if this does anything
+  TODO test org mode without this block
+  #+begin_src emacs-lisp
+    (setq evil-org-key-theme '(textobjects navigation additional insert todo))
+  #+end_src 
+
+
+** Org Tasking
+   These are my todo states. They are ordered by priority and, as such, Impact how my org-agenda is displayed
+  #+begin_src emacs-lisp
+    (setq org-todo-keywords
+	  (quote ((sequence "IN_PROGRESS(i)" "NEXT(n)" "TODO(t)" "WAITING(w@/)" "DONE(d)"))))
+  #+end_src
+
+  This allows me to refile bullets to four levels deep in any of my org-agenda files
+  #+begin_src emacs-lisp
+    (setq org-refile-targets '((nil :maxlevel . 4)
+			       (org-agenda-files :maxlevel . 4)))
+  #+end_src
+
+  Org caputure templates allow you to quickly create tasks following a structure. I like to make sure all tasks have a priority & go to my inbox. I have this large meeting template, but i don't use it currently. I still am working on a way of better capturing one-off notes related to a project.
+  #+begin_src emacs-lisp
+    (defvar my/org-meeting-template "** Meeting about %^{something}
+      SCHEDULED: %<%Y-%m-%d %H:%M>
+      ,*Attendees:*
+      - [X] Nick Anderson
+      - [ ] %?
+      ,*Agenda:*
+      -
+      -
+      ,*Notes:*
+      ")
+
+    (setq org-capture-templates
+	`(;; Note the backtick here, it's required so that the defvar based tempaltes will work!
+	  ;;http://comments.gmane.org/gmane.emacs.orgmode/106890
+
+	  ("t" "To-do" entry (file+headline ,(concat ak/custpath-org-notes "gtd.org") "Inbox")
+	    "** TODO [#%^{priority}] %^{Task Description}" :prepend t)
+	  ("c" "To-do Link" entry (file+headline ,(concat ak/custpath-org-notes "gtd.org") "Inbox")
+	    "** TODO [#%^{priority}] %A \n:PROPERTIES:\n:Created: %U\n:Source: %a\n:END:\n%?"
+	    :prepend t)
+	  ("m" "Meeting" entry (file+headline ,(concat ak/custpath-org-notes "meetings.org") "Meeting Notes")
+	   ,my/org-meeting-template)
+    ))
+
+ #+end_src
+
+ #+RESULTS:
+ | t | To-do      | entry | (file+headline c:/emacs/notes/gtd.org Inbox) | ** TODO [#%^{priority}] %^{Task Description} | :prepend | t |
+ | c | To-do Link | entry | (file+headline c:/emacs/notes/gtd.org Inbox) | ** TODO [#%^{priority}] %A                   |          |   |
+** Org-Agenda / priority
+   I use my org agenda extensively. It's the holy grail of task management for me. I use `<SPC> o o` to quickly jump to my agenda. It's where I manage task completion. It's where I kick off my pomodoro timers. I can filter it by tags with `/ <TAB>` 
+   This section gets a bit nitty gritty. Look at the [[https://orgmode.org/worg/doc.html][Worg documentation]] for details on these settings.
+
+   Only show details for today when viewing the org agenda. I don't know which one does what, but org-agenda-show-future-repeats is allegedly the most up to date
  #+begin_src emacs-lisp
-   (use-package org-bullets
-     :ensure t
-     :config
-     (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+   (setq org-habit-show-all-today t)
+   (setq org-habit-show-habits-only-for-today t)
+   (setq org-agenda-show-future-repeats 'next)
+ #+end_src
 
-   ;; better lists http://www.howardism.org/Technical/Emacs/orgmode-wordprocessor.html
+ #+RESULTS:
+ : next
 
-   (with-eval-after-load 'org (setq org-agenda-files
-				   `(,ak/custpath-org-notes ,ak/custpath-phone-notes)))
+   Non prioritized tasks will be sorted to d, though I usually make sure to priotize all of my tasks w/ my org capture
+ #+begin_src emacs-lisp
+   (setq org-lowest-priority ?D)
+   (setq org-default-priority ?D)
+ #+end_src
 
-   ;; Org-Todos
-   (setq evil-org-key-theme '(textobjects navigation additional insert todo))
+   Customize the order in which tasks appear in the agenda
+ #+begin_src emacs-lisp
+   (setq org-agenda-sorting-strategy
+       '((agenda habit-up deadline-up scheduled-up priority-up) ;; show habits, then time, then by priority
+	 (tags todo-state-up deadline-up) ;; show todo-state then deadlines
+	 (search category-keep)))
+ #+end_src
 
-   ;; order priority for sorting
-   (setq org-todo-keywords
-	 (quote ((sequence "IN_PROGRESS(i)" "NEXT(n)" "TODO(t)" "WAITING(w@/)" "DONE(d)"))))
+ #+RESULTS:
+ | agenda | habit-up      | deadline-up | scheduled-up | priority-up |
+ | tags   | todo-state-up | deadline-up |              |             |
+ | search | category-keep |             |              |             |
 
-   (setq org-refile-targets '(
-			      (nil :maxlevel . 4)             ; refile to headings in the current buffer
-			      (org-agenda-files :maxlevel . 4) ; refile to any of these files
-			      ))
+   Custom agenda filtering functions modified from [[https://blog.aaronbieber.com/2016/09/24/an-agenda-for-life-with-org-mode.html][Aaron Bieber]] as well as some of my own
+ #+begin_src emacs-lisp
+   (defun air-org-skip-subtree-if-habit ()
+     "Skip an agenda entry if it has a STYLE property equal to \"habit\"."
+     (let ((subtree-end (save-excursion (org-end-of-subtree t))))
+       (if (string= (org-entry-get nil "STYLE") "habit")
+	 subtree-end
+       nil)))
 
-   ;; Org-Capture
-   (defvar my/org-meeting-template "** Meeting about %^{something}
-     SCHEDULED: %<%Y-%m-%d %H:%M>
-     ,*Attendees:*
-     - [X] Nick Anderson
-     - [ ] %?
-     ,*Agenda:*
-     -
-     -
-     ,*Notes:*
-     ")
+   (defun air-org-skip-subtree-if-priority (priority)
+     "Skip an agenda subtree if it has a priority of PRIORITY.
+   PRIORITY may be one of the characters ?A, ?B, or ?C."
+     (let ((subtree-end (save-excursion (org-end-of-subtree t)))
+	 (pri-value (* 1000 (- org-lowest-priority priority)))
+	 (pri-current (org-get-priority (thing-at-point 'line t))))
+       (if (= pri-value pri-current)
+	 subtree-end
+       nil)))
+      
+   (defvar current-date-format "%Y-%m-%d"
+     "Format of date to insert with `insert-current-date-time' func
+      See help of `format-time-string' for possible replacements")
 
-   (setq org-capture-templates
-       `(;; Note the backtick here, it's required so that the defvar based tempaltes will work!
-	 ;;http://comments.gmane.org/gmane.emacs.orgmode/106890
+   (defun ak/org-skip-subtree-if-not-archived-today ()
+     "Skip an agenda entry if it was not completed today"
+     (concat ":ARCHIVE_TIME: " (format-time-string current-date-format (current-time))))
+ #+end_src
 
-	 ("t" "To-do" entry (file+headline ,(concat ak/custpath-org-notes "gtd.org") "Inbox")
-	   "** TODO [#%^{priority}] %^{Task Description}" :prepend t)
-	 ("c" "To-do Link" entry (file+headline ,(concat ak/custpath-org-notes "gtd.org") "Inbox")
-	   "** TODO [#%^{priority}] %A \n:PROPERTIES:\n:Created: %U\n:Source: %a\n:END:\n%?"
-	   :prepend t)
-	 ("m" "Meeting" entry (file+headline ,(concat ak/custpath-org-notes "meetings.org") "Meeting Notes")
-	  ,my/org-meeting-template)
-   ))
+ #+RESULTS:
+ : air-org-skip-subtree-if-priority
 
+   Settings for the different agenda blocks.
+   - *Daily Agenda* is my primary view of all of my tasks
+   - *Day in Review* gives me a way of seeing all of the tasks that I archvied (completed in a day)
+   Utilizes Aaron Bieber functions to prevent tasks from appearing multiple times in agenda.
+   TODO it might be smarter to have the custom commands saved separately for better documentation
+ #+begin_src emacs-lisp
+   (setq org-agenda-custom-commands
+	 '(("d" "Daily agenda and all TODOs"
+	    ((tags "PRIORITY=\"A\""
+		   ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+		    (org-agenda-overriding-header "High-priority unfinished tasks:")))
+	     (agenda ""
+		     ((org-agenda-span 'day)
+		      (org-agenda-overriding-header "ALL normal priority tasks:")))
+	     (tags (or "PRIORITY=\"B\"" "PRIORITY=\"C\"")
+		   ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+		    (org-agenda-overriding-header "Unfinished tasks:")))
+	     (alltodo ""
+		      ((org-agenda-skip-function '(or (air-org-skip-subtree-if-habit)
+						      (air-org-skip-subtree-if-priority ?A)
+						      (air-org-skip-subtree-if-priority ?B)
+						      (org-agenda-skip-if nil '(scheduled deadline))))
+		       (org-agenda-overriding-header "Eventually:"))))
+	    ;; ((org-agenda-compact-blocks t)) ;; removes = breaks
+	    )
+	   ("r" "Day in review"
+	      todo "DONE"
+	      ;; agenda settings
+	      ((org-agenda-files '("c:/emacs/notes/gtd.org_archive"))
+	       (org-agenda-start-with-log-mode '(ARCHIVE_TIME))
+	       (org-agenda-archives-mode t)
+               (org-agenda-skip-function '(org-agenda-skip-entry-if 'notregexp (ak/org-skip-subtree-if-not-archived-today)))
+	       (org-agenda-overriding-header "Day in Review"))
+	      ;; ("~/org/review/day.html") ;; for export
+		   )))
+ #+end_src
+
+   I love this function. It brings the agenda front and center. Thanks [[https://blog.aaronbieber.com/2016/09/24/an-agenda-for-life-with-org-mode.html][Aaron Bieber]].
+ #+begin_src emacs-lisp
+   (defun air-pop-to-org-agenda (&optional split)
+     "Visit the org agenda, in the current window or a SPLIT."
+     (interactive "P")
+     (org-agenda nil "d")
+     (when (not split)
+     (delete-other-windows)))
+ #+end_src
+
+** Org-Bullets
+   Org-Bullets makes the bullets in orgmode just a little bit nicer to look at.
+#+begin_src emacs-lisp
+  (use-package org-bullets
+    :ensure t
+    :config
+    (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 #+end_src
-
-#+RESULTS:
-| t | To-do      | entry | (file+headline c:/emacs/notes/gtd.org Inbox) | ** TODO [#%^{priority}] %^{Task Description} | :prepend | t |
-| c | To-do Link | entry | (file+headline c:/emacs/notes/gtd.org Inbox) | ** TODO [#%^{priority}] %A                   |          |   |
-
-
-** Pomodoro
+** Org-pomodoro
+   On good days, I use the pomodoro technique to track time and stay focused. I have my agenda customized to start a pomodoro for a task when I press `p` over a task. I can stop tracking on a task by pressing `O` then clock in with `I`. It's very neat, and I'm still getting the hang of it.
  #+begin_src emacs-lisp
-   ;; Org-Pomodoro ;; https://github.com/yanivdll/.emacs.d/blob/master/config.org
+   ;; https://github.com/yanivdll/.emacs.d/blob/master/config.org
    (use-package org-pomodoro
      :ensure t
      :config (setq org-pomodoro-play-sounds 1
 		   org-pomodoro-finished-sound "c:/Users/akraemer/Dropbox/org/sounds/tone.wav"
 		   org-pomodoro-long-break-sound "c:/Users/akraemer/Dropbox/org/sounds/tone.wav"
-		   org-pomodoro-short-break-sound "c:/Users/akraemer/Dropbox/org/sounds/tone.wav"
+		   org-pomodoro-short-break-sound "c:/Users/akraemer/Dropbox/org/sounds/tone.wav"))
+#+end_src
 
-		   ;; https://github.com/marcinkoziej/org-pomodoro/issues/29#issuecomment-129608240
-		   ;; to control volume I'd need to have it come from a different player
-		   ;; org-pomodoro-audio-player "mplayer"
-		   ;; org-pomodoro-finished-sound-args "-volume 0.3"
-		   ;; org-pomodoro-long-break-sound-args "-volume 0.3"
-		   ;; org-pomodoro-short-break-sound-args "-volume 0.3"
 
-     ))
+   I found the standard bell for the pomodoro timer to be a bit harsh, so I found a soothing yoga bell to use instead. To play wav files, I needed the sound-wav package. To use sound-wav on PC I need to make sure powershell is installed.
+   TODO For some reason, powershell causes my emacs to start with a split window.
+#+begin_src emacs-lisp
+  ;;https://emacs.stackexchange.com/a/48352
+  ;; required for org-sounds
+  (use-package sound-wav
+    :ensure t)
 
-   ;;https://emacs.stackexchange.com/a/48352
-   ;; required for org-sounds
-   (use-package sound-wav
-     :ensure t)
-
-   ;; ;; required for sound if on windows
-   (use-package powershell
-     :if (memq window-system '(w32))
-     :ensure t
-     :config)
+  ;; ;; required for sound if on windows
+  (use-package powershell
+    :if (memq window-system '(w32))
+    :ensure t)
   #+end_src
 
   #+RESULTS:
 
 #+RESULTS:
 
-** org-download
+** Org-download
  #+begin_src emacs-lisp
 (use-package org-download
   :ensure t
@@ -463,148 +527,34 @@
  
  #+RESULTS:
  : t
-* org agenda / priority
-   This section gets a bit nitty gritty. Look at the [[https://orgmode.org/worg/doc.html][Worg documentation]] for details on these settings.
+** Org-journal
+ #+begin_src emacs-lisp
+  (use-package org-journal
+   :ensure t
+   :defer t
+   :custom
+   (org-journal-dir ak/custpath-journal-path)
+   (org-journal-date-format "%Y-%m-%d"))
+ #+end_src
 
-   Only show details for today when viewing the org agenda. I don't know which one does what, but org-agenda-show-future-repeats is allegedly the most up to date
-#+begin_src emacs-lisp
-  (with-eval-after-load 'org
-    (add-to-list 'org-modules 'org-habit t))
+ #+RESULTS:
+ : t
 
-  (setq org-habit-show-all-today t)
-  (setq org-habit-show-habits-only-for-today t)
-  (setq org-agenda-show-future-repeats 'next)
-#+end_src
+** Org-Babel
+ #+begin_src emacs-lisp
+ (org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((R . t)
+     (python . t)))
+ ;; put viz inline by default
+ (setq org-startup-with-inline-images t)
 
-#+RESULTS:
-: next
+ (use-package ox-pandoc
+   :ensure t
+   :defer t)
+ #+end_src
 
-  Non prioritized tasks will be sorted to d, though I usually make sure to priotize all of my tasks w/ my org capture
-#+begin_src emacs-lisp
-  (setq org-lowest-priority ?D)
-  (setq org-default-priority ?D)
-#+end_src
-
-  Customize the order in which tasks appear in the agenda
-#+begin_src emacs-lisp
-  (setq org-agenda-sorting-strategy
-      '((agenda habit-up deadline-up scheduled-up priority-up) ;; show habits, then time, then by priority
-	(tags todo-state-up deadline-up) ;; show todo-state then deadlines
-	(search category-keep)))
-#+end_src
-
-#+RESULTS:
-| agenda | habit-up      | deadline-up | scheduled-up | priority-up |
-| tags   | todo-state-up | deadline-up |              |             |
-| search | category-keep |             |              |             |
-
-  Custom agenda filtering functions modified from [[https://blog.aaronbieber.com/2016/09/24/an-agenda-for-life-with-org-mode.html][Aaron Bieber]] as well as one of my own
-#+begin_src emacs-lisp
-  (defun air-org-skip-subtree-if-habit ()
-    "Skip an agenda entry if it has a STYLE property equal to \"habit\"."
-    (let ((subtree-end (save-excursion (org-end-of-subtree t))))
-      (if (string= (org-entry-get nil "STYLE") "habit")
-	subtree-end
-      nil)))
-
-  (defun air-org-skip-subtree-if-priority (priority)
-    "Skip an agenda subtree if it has a priority of PRIORITY.
-  PRIORITY may be one of the characters ?A, ?B, or ?C."
-    (let ((subtree-end (save-excursion (org-end-of-subtree t)))
-	(pri-value (* 1000 (- org-lowest-priority priority)))
-	(pri-current (org-get-priority (thing-at-point 'line t))))
-      (if (= pri-value pri-current)
-	subtree-end
-      nil)))
-      
-  (defvar current-date-format "%Y-%m-%d"
-    "Format of date to insert with `insert-current-date-time' func
-     See help of `format-time-string' for possible replacements")
-
-  (defun ak/org-skip-subtree-if-not-archived-today ()
-    "Skip an agenda entry if it was not completed today"
-    (concat ":ARCHIVE_TIME: " (format-time-string current-date-format (current-time))))
-#+end_src
-
-#+RESULTS:
-: air-org-skip-subtree-if-priority
-
-
-  Settings for the different agenda blocks. Utilizes aairon bieber functions to prevent tasks from appearing multiple times in agenda.
-#+begin_src emacs-lisp
-  (setq org-agenda-custom-commands
-	'(("d" "Daily agenda and all TODOs"
-	   ((tags "PRIORITY=\"A\""
-		  ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
-		   (org-agenda-overriding-header "High-priority unfinished tasks:")))
-	    ;; (agenda "" ;; skipped completed habits. I prefer if they stay but are ordered
-	    ;; 	  ((org-agenda-span 'day)
-	    ;; 	   (org-agenda-skip-function '(and (org-agenda-skip-entry-if 'todo '("NEXT")) (org-agenda-skip-entry-if 'regexp "habit"))) ;; hide completed habits
-	    ;; 	   (org-agenda-overriding-header "ALL normal priority tasks:")))
-	    (agenda ""
-		    ((org-agenda-span 'day)
-		     (org-agenda-overriding-header "ALL normal priority tasks:")))
-	    (tags (or "PRIORITY=\"B\"" "PRIORITY=\"C\"")
-		  ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
-		   (org-agenda-overriding-header "Unfinished tasks:")))
-	    (alltodo ""
-		     ((org-agenda-skip-function '(or (air-org-skip-subtree-if-habit)
-						     (air-org-skip-subtree-if-priority ?A)
-						     (air-org-skip-subtree-if-priority ?B)
-						     (org-agenda-skip-if nil '(scheduled deadline))))
-		      (org-agenda-overriding-header "Eventually:"))))
-	   ;; ((org-agenda-compact-blocks t)) ;; removes = breaks
-	   )
-	  ("r" "Day in review"
-	     todo "DONE"
-	     ;; agenda settings
-	     ((org-agenda-files '("c:/emacs/notes/gtd.org_archive"))
-	      (org-agenda-start-with-log-mode '(ARCHIVE_TIME))
-	      (org-agenda-archives-mode t)
-              (org-agenda-skip-function '(org-agenda-skip-entry-if 'notregexp (ak/org-skip-subtree-if-not-archived-today)))
-	      (org-agenda-overriding-header "Day in Review"))
-	     ;; ("~/org/review/day.html") ;; for export
-		  )))
-#+end_src
-
-  Custom full screen agenda function modified from [[https://blog.aaronbieber.com/2016/09/24/an-agenda-for-life-with-org-mode.html][Aaron Bieber]]
-#+begin_src emacs-lisp
-  (defun air-pop-to-org-agenda (&optional split)
-    "Visit the org agenda, in the current window or a SPLIT."
-    (interactive "P")
-    (org-agenda nil "d")
-    (when (not split)
-    (delete-other-windows)))
-#+end_src
-
-* Org-journal
-#+begin_src emacs-lisp
- (use-package org-journal
-  :ensure t
-  :defer t
-  :custom
-  (org-journal-dir ak/custpath-journal-path)
-  (org-journal-date-format "%Y-%m-%d"))
-#+end_src
-
-#+RESULTS:
-: t
-
-* Babel
-#+begin_src emacs-lisp
-(org-babel-do-load-languages
-'org-babel-load-languages
-'((R . t)
-    (python . t)))
-;; put viz inline by default
-(setq org-startup-with-inline-images t)
-
-(use-package ox-pandoc
-  :ensure t
-  :defer t)
-#+end_src
-
-* Code
+* Code & Development Tools
 ** Yasnippet
  #+begin_src emacs-lisp
  (use-package yasnippet
@@ -672,68 +622,60 @@
 
  #+RESULTS:
 
-* Tramp
-  - Snippet taken from here https://www.emacswiki.org/emacs/Tramp_on_Windows
-  - create saved session in putty then use the name like shown below
-  - run the following in eshell: "find-file /plink:bort:~/" Need to figure out how to get this to run in counsel-find file or get an easier way to access the vanilla find-file
-#+begin_src emacs-lisp
-  (use-package tramp
-    :ensure t
-    :defer t
-    :init
-     (when (eq window-system 'w32)
-       (setq tramp-default-method "plink")
-       (setenv "PATH" (concat "c:/Program Files/PuTTY/" ";" (getenv "PATH")))))
-#+end_src
-
-* eshell
-#+begin_src emacs-lisp
-;; eshell config
-(defun new-eshell ()
-  "Open eshell on bottom of screen."
-  (interactive)
-  (when (one-window-on-screen-p)
-    (let* ((lines (window-body-height))
-           (new-window (split-window-vertically (floor (* 0.7 lines)))))
-      (select-window new-window)
-      (eshell "eshell"))))
-
-(defun one-window-on-screen-p ()
-  "Check if there is only one buffer on the screen."
-  (= (length (window-list)) 1))
-#+end_src
-
-* Checks
-** Spelling
-   install instructions from [[https://www.reddit.com/r/emacs/comments/8by3az/how_to_set_up_sell_check_for_emacs_in_windows/][this reddit page]]. User thrillsd instructions using mysys2. 
+** Company
+    Auto-completion
+   - TODO move this to the general section
  #+begin_src emacs-lisp
-   ;; install aspell w/ msys on windows
-   (setq-default ispell-program-name ak/custpath-aspell)
+   (use-package company
+     :hook
+     (after-init . global-company-mode)
+     :bind
+     ;; make company completion work w/ vimkeys
+     (:map company-active-map)
+     ("C-n" . company-select-next-or-abort)
+     ("C-p" . company-select-previous-or-abort))
  #+end_src
 
  #+RESULTS:
- : /usr/local/bin/aspell
 
-** Flycheck
+** Magit
  #+begin_src emacs-lisp
- (use-package flycheck
-   :init  (setq flymake-run-in-place nil) ;; don't save flymake locally
-   :ensure t)
+   (use-package magit
+     :ensure t)
+  
+   (use-package evil-magit
+     :after magit)
+
+   (use-package git-gutter
+     :ensure t
+     :config
+     (global-git-gutter-mode 't)
+     :diminish git-gutter-mode)
  #+end_src
 
-* Which-Key
-#+begin_src emacs-lisp
-(use-package which-key
-  :ensure t
-  :init
-  (setq which-key-separator " ")
-  (setq which-key-prefix-prefix "+")
-  :config
-  (which-key-mode 1))
-#+end_src
- 
+ #+RESULTS:
+
+** Projectile
+ #+begin_src emacs-lisp
+    (use-package projectile
+      :ensure t
+      :init
+      (setq projectile-require-project-root nil)
+      (setq projectile-completion-system 'ivy)
+      :config
+      (projectile-mode 1))
+
+    (use-package counsel-projectile
+     :ensure t
+     :config
+     (counsel-projectile-mode))
+ #+end_src
+
+ #+RESULTS:
+ : t
+
 * Writing
-** Write Room
+** Writeroom
    Write room is a package great for narrowing my focus on writing. It takes the full screen, much like your average "distraction free" writing enviornments. It's also nice to use with my helper function C-c f (f for focus) which toggles the narrowing of a sub tree in case I'm working with an unweildy org file
 #+begin_src emacs-lisp
   (use-package writeroom-mode
@@ -749,10 +691,84 @@
 
 #+RESULTS:
 
-* Key Bindings
-** General
+* Checks
+** Spelling
+   I use aspell as my dictionary.
+   - For windows: install instructions from [[https://www.reddit.com/r/emacs/comments/8by3az/how_to_set_up_sell_check_for_emacs_in_windows/][this reddit page]]. User thrillsd instructions using mysys2.
+   - For Mac: install w/ Brew
  #+begin_src emacs-lisp
-   ;; Custom keybinding
+   (setq-default ispell-program-name ak/custpath-aspell)
+ #+end_src
+
+ #+RESULTS:
+ : /usr/local/bin/aspell
+
+** Flycheck
+   Flycheck is my error checker. I have the flymake-run-in-place to avoid saving flymake files all over the place
+ #+begin_src emacs-lisp
+   (use-package flycheck
+     :init  (setq flymake-run-in-place nil) ;; don't save flymake locally
+     :ensure t)
+ #+end_src
+
+* Shell
+  In emacs, I try to use eshell as much as possible. It does a good job -- especially compared to my options on windows. I'm interested in Elvish, which i might try some time
+  In this block, I use some custom code to make sure the terminal alwasys appears on the bottom of the frame. It doesn't always work how I want it to, so I might change how I interact with it going forward
+#+begin_src emacs-lisp
+  (defun new-eshell ()
+    "Open eshell on bottom of screen."
+    (interactive)
+    (when (one-window-on-screen-p)
+      (let* ((lines (window-body-height))
+	     (new-window (split-window-vertically (floor (* 0.7 lines)))))
+	(select-window new-window)
+	(eshell "eshell"))))
+
+  (defun one-window-on-screen-p ()
+    "Check if there is only one buffer on the screen."
+    (= (length (window-list)) 1))
+#+end_src
+
+* Remote connections
+  Tramp allows me to access remote files. Getting it to work with windows is a little clunky. Follow these steps:
+  - Snippet taken from here https://www.emacswiki.org/emacs/Tramp_on_Windows
+  - create saved session in putty then use the name like shown below
+  - run the following in eshell: "find-file /plink:bort:~/" Need to figure out how to get this to run in counsel-find file or get an easier way to access the vanilla find-file
+#+begin_src emacs-lisp
+  (use-package tramp
+    :ensure t
+    :defer t
+    :init
+     (when (eq window-system 'w32)
+       (setq tramp-default-method "plink")
+       (setenv "PATH" (concat "c:/Program Files/PuTTY/" ";" (getenv "PATH")))))
+#+end_src
+
+* Expand Region
+  when you start on a word you can press `C-=` to expand to sentace/ line. Very helpful for mass grabbing. Very highly rated from what I've read
+#+begin_src emacs-lisp
+(use-package expand-region 
+  :ensure t)
+#+end_src
+
+#+RESULTS:
+
+* Key Bindings
+** Which-Key
+   which-key states which possible key commbinations can be used after a button is input
+ #+begin_src emacs-lisp
+ (use-package which-key
+   :ensure t
+   :init
+   (setq which-key-separator " ")
+   (setq which-key-prefix-prefix "+")
+   :config
+   (which-key-mode 1))
+ #+end_src
+ 
+** General
+   General is my key-binding mangagement package. I like to have all of the keys in one place -- rather than trapped in my use-package. Especially with my general keys -- like w/ space.
+ #+begin_src emacs-lisp
    (use-package general
      :ensure t
      :config (general-evil-setup) ;; let's me use general-*map keys
@@ -973,8 +989,9 @@
 #+RESULTS:
 : hydra-buffer-menu/body
 
-* My Custom Functions
+* Custom Functions
 ** go to scratch
+   I like being able to have somewhere to write ideas or code snippets out quickly, so I made this helper function to get to scratch quickly
  #+begin_src emacs-lisp
  (defun ak/go-to-buffer (buffer)
    "goes to buffer. If buffer does not exist, creates buffer"
@@ -992,7 +1009,7 @@
  : ak/go-to-scratch
 
 ** Alternate buffers
-   Stolen from SPC-TAB spacemacs
+   One of the few things I miss from spacemacs is some of the helper functions. I stole this to easily toggle back and forth between buffers.
  #+begin_src emacs-lisp
    (defun spacemacs/alternate-window (&optional window)
      (interactive)
@@ -1007,23 +1024,24 @@
  #+end_src
 
 ** Insert Bable
+   This quickly generates a text snippet. I might switch this to a yasnippet in the future, but for now this works well.
 #+begin_src emacs-lisp
- (defun ak/insert-bable ()
-   "Insert src_sections for viz in orgmode."
-   (interactive)
-   (insert "#+begin_src "
-           (read-string "Enter Language (R, python, lisp): ")
-           (if (equal (read-string "Return Viz (y/n) ") "y")
-               " :results output graphics :file img.png"
-             ""))
-   (insert "\n \n#+end_src"))
+  (defun ak/insert-bable ()
+    "Insert src_sections for viz in orgmode."
+    (interactive)
+    (insert "#+begin_src "
+	    (read-string "Enter Language (R, python, lisp): ")
+	    (if (equal (read-string "Return Viz (y/n) ") "y")
+		" :results output graphics :file img.png"
+	      ""))
+    (insert "\n \n#+end_src"))
 #+end_src
 
 #+RESULTS:
 : ak-insert-bable
 
 ** Tramp Find File
-   Counsel-find file wasn't letting me go back to ~/, so I made a function to force it
+   Typing the full path to tramp files it tedious and my memory isn't good, so I mde this helper function based on the default tramp-method
  #+begin_src emacs-lisp
    (defun ak/ivy-tramp-find-file ()
      "find-file with Tramp. Ex: '/plink:bort:~/'. See tramp note to setup"
@@ -1036,10 +1054,11 @@
  : ak/ivy-tramp-find-file
 
 ** Find File Home
-   Counsel-find file wasn't letting me go back to ~/, so I made a function to force it
+   I don't alwasys do a good job maintaining my home area, so this is a function which just takes me to where I want to go.
+   TODO Create a hydra with common file locations I'd like to go to like home or tramp
  #+begin_src emacs-lisp
    (defun ak/ivy-home-find-file ()
-     "find-file with Tramp. Ex: '/plink:bort:~/'. See tramp note to setup"
+     "open counsel-find-file in the home directory"
      (interactive)
      (counsel-find-file ak/custpath-home))
  #+end_src
@@ -1051,7 +1070,7 @@
    Wanted to have something for org-journal that behaves like magit buffer when you C-c C-c
  #+begin_src emacs-lisp
    (defun ak/save-close-window ()
-     "find-file with Tramp. Ex: '/plink:bort:~/'. See tramp note to setup"
+     "save, kill buffer, and kill window of focused file"
      (interactive)
      (save-buffer)
      (kill-buffer)
@@ -1062,7 +1081,7 @@
  : ak/save-close-window
 
 ** Focus / unfocus on org bullet
-    Toggle org narrow subtreee / show everything
+    Toggle org narrow subtreee / show everything.
 #+begin_src emacs-lisp
   (defun ak/org-focus-subtree ()
     "Toggle org narrow subtreee / show everything"
@@ -1078,18 +1097,18 @@
 ** Close all gtd files
     Quickly save and close gtd files to not conflict with other computers
 #+begin_src emacs-lisp
-(setq gtd-buffer-list '("inbox.org" "gtd.org" "gtd.org_archive" "notes.org" "notes.org_archive" "phone_inbox.org")) ;; custpath
+  (setq gtd-buffer-list '("inbox.org" "gtd.org" "gtd.org_archive" "notes.org" "notes.org_archive" "phone_inbox.org")) ;; custpath
 
-(defun ak/delete-buffer-list (buffer)
-  "Delete buffer if exists"
-  (when (get-buffer buffer)
-    (kill-buffer buffer)))
+  (defun ak/delete-buffer-list (buffer)
+    "Delete buffer if exists"
+    (when (get-buffer buffer)
+      (kill-buffer buffer)))
 
-(defun ak/save-exit-buffer-list ()
-  "save all buffers in list then close them. Used for keeping gtd from conflicting on multiple machines"
-  (interactive)
-  (save-some-buffers gtd-buffer-list)
-  (mapcar #'ak/delete-buffer-list gtd-buffer-list))
+  (defun ak/save-exit-buffer-list ()
+    "save all buffers in list then close them. Used for keeping gtd from conflicting on multiple machines"
+    (interactive)
+    (save-some-buffers gtd-buffer-list)
+    (mapcar #'ak/delete-buffer-list gtd-buffer-list))
 #+end_src
 
 #+RESULTS:
