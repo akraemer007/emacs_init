@@ -76,12 +76,12 @@
 		   ak/custpath-org-notes "~/emacs/notes/"
 		   ak/custpath-py-default-env "/Users/AndrewKraemer/anaconda3/envs/py37"
 		   ;; ak/custpath-flake8 "~/Users/AndrewKraemer/Anaconda3/Scripts/flake8.exe"
-		   ;; ak/custpath-aspell "~/msys64/mingw64/bin/aspell.exe"
+		   ak/custpath-aspell "/usr/local/bin/aspell"
    )))
  #+end_src
 
  #+RESULTS:
- : /Users/AndrewKraemer/anaconda3/envs/py37
+ : /usr/local/bin/aspell
 
 * Preferences
 ** TODO make this better documented
@@ -866,18 +866,17 @@ down below.
    install instructions from [[https://www.reddit.com/r/emacs/comments/8by3az/how_to_set_up_sell_check_for_emacs_in_windows/][this reddit page]]. User thrillsd instructions using mysys2. 
  #+begin_src emacs-lisp
    ;; install aspell w/ msys on windows
-   (when (eq window-system 'w32)
-     (setq-default ispell-program-name ak/custpath-aspell))
+   (setq-default ispell-program-name ak/custpath-aspell)
  #+end_src
 
  #+RESULTS:
- : C:/msys64/mingw64/bin/aspell.exe
+ : /usr/local/bin/aspell
 
 ** Flycheck
  #+begin_src emacs-lisp
  (use-package flycheck
+   :init  (setq flymake-run-in-place nil) ;; don't save flymake locally
    :ensure t)
- (setq flymake-run-in-place nil) ;; don't save flymake locally
  #+end_src
 
 * Which-Key
