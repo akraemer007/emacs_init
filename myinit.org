@@ -59,7 +59,7 @@
       (setq user-full-name "Andrew Kraemer")
       (setq user-mail-address "andrew.h.kraemer@gmail.com")
 
-      (cond ((eq workstation 'catapult)
+      (cond ((eq window-system 'w32)
 	     (setq ak/custpath-home "c:/Users/akraemer/"
 		   ak/custpath-dropbox-org "c:/Users/akraemer/Dropbox/org/"
 		   ak/custpath-phone-notes "c:/Users/akraemer/Dropbox/org/phone_inbox.org"
@@ -69,7 +69,7 @@
 		   ak/custpath-py-default-env "c:/Users/akraemer/Anaconda3/envs/py37"
 		   ak/custpath-flake8 "c:/Users/akraemer/Anaconda3/Scripts/flake8.exe"
 		   ak/custpath-aspell "c:/msys64/mingw64/bin/aspell.exe"))
-	    ((eq workstation 'personal_macbook)
+	    ((eq window-system 'darwin)
 	     (setq ak/custpath-home "/Users/AndrewKraemer/"
 		   ak/custpath-dropbox-org "/Users/AndrewKraemer/Dropbox/org/"
 		   ak/custpath-phone-notes "/Users/AndrewKraemer/Dropbox/org/phone_inbox.org"
@@ -78,8 +78,7 @@
 		   ak/custpath-org-notes "~/emacs/notes/"
 		   ak/custpath-py-default-env "/Users/AndrewKraemer/anaconda3/envs/py37"
 		   ;; ak/custpath-flake8 "~/Users/AndrewKraemer/Anaconda3/Scripts/flake8.exe"
-		   ak/custpath-aspell "/usr/local/bin/aspell"
-   )))
+		   ak/custpath-aspell "/usr/local/bin/aspell")))
  #+end_src
 
  #+RESULTS:
@@ -1086,40 +1085,40 @@ down below.
 
 *** Windows
 customize to my liking
-** Functions
-*** go to scratch
-  #+begin_src emacs-lisp
-  (defun ak/go-to-buffer (buffer)
-    "goes to buffer. If buffer does not exist, creates buffer"
-    (if (not (get-buffer buffer))
-        (generate-new-buffer buffer))
-    (switch-to-buffer buffer))
+* My Custom Functions
+** go to scratch
+ #+begin_src emacs-lisp
+ (defun ak/go-to-buffer (buffer)
+   "goes to buffer. If buffer does not exist, creates buffer"
+   (if (not (get-buffer buffer))
+       (generate-new-buffer buffer))
+   (switch-to-buffer buffer))
 
-  (defun ak/go-to-scratch ()
-    "runs ak/go-to-buffer for scratch file"
-    (interactive)
-    (ak/go-to-buffer "*buffer*"))
-  #+end_src
+ (defun ak/go-to-scratch ()
+   "runs ak/go-to-buffer for scratch file"
+   (interactive)
+   (ak/go-to-buffer "*buffer*"))
+ #+end_src
 
-  #+RESULTS:
-  : ak/go-to-scratch
+ #+RESULTS:
+ : ak/go-to-scratch
 
-*** Alternate buffers
-    Stolen from SPC-TAB spacemacs
-  #+begin_src emacs-lisp
-    (defun spacemacs/alternate-window (&optional window)
-      (interactive)
-      (let ((current-buffer (window-buffer window)))
-        ;; if no window is found in the windows history, `switch-to-buffer' will
-        ;; default to calling `other-buffer'
-	(switch-to-buffer
-	 (cl-find-if (lambda (buffer)
-		       (not (eq buffer current-buffer)))
-		     (mapcar #'car (window-prev-buffers window)))
-	 nil t)))
-  #+end_src
+** Alternate buffers
+   Stolen from SPC-TAB spacemacs
+ #+begin_src emacs-lisp
+   (defun spacemacs/alternate-window (&optional window)
+     (interactive)
+     (let ((current-buffer (window-buffer window)))
+       ;; if no window is found in the windows history, `switch-to-buffer' will
+       ;; default to calling `other-buffer'
+       (switch-to-buffer
+	(cl-find-if (lambda (buffer)
+		      (not (eq buffer current-buffer)))
+		    (mapcar #'car (window-prev-buffers window)))
+	nil t)))
+ #+end_src
 
-*** Insert Bable
+** Insert Bable
 #+begin_src emacs-lisp
  (defun ak/insert-bable ()
    "Insert src_sections for viz in orgmode."
@@ -1135,46 +1134,46 @@ customize to my liking
 #+RESULTS:
 : ak-insert-bable
 
-*** Tramp Find File
-    Counsel-find file wasn't letting me go back to ~/, so I made a function to force it
-  #+begin_src emacs-lisp
-    (defun ak/ivy-tramp-find-file ()
-      "find-file with Tramp. Ex: '/plink:bort:~/'. See tramp note to setup"
-      (interactive)
-      (let ((tramp-path (concat "/" tramp-default-method ":")))
-	(counsel-find-file tramp-path)))
-  #+end_src
+** Tramp Find File
+   Counsel-find file wasn't letting me go back to ~/, so I made a function to force it
+ #+begin_src emacs-lisp
+   (defun ak/ivy-tramp-find-file ()
+     "find-file with Tramp. Ex: '/plink:bort:~/'. See tramp note to setup"
+     (interactive)
+     (let ((tramp-path (concat "/" tramp-default-method ":")))
+       (counsel-find-file tramp-path)))
+ #+end_src
 
-  #+RESULTS:
-  : ak/ivy-tramp-find-file
+ #+RESULTS:
+ : ak/ivy-tramp-find-file
 
-*** Find File Home
-    Counsel-find file wasn't letting me go back to ~/, so I made a function to force it
-  #+begin_src emacs-lisp
-    (defun ak/ivy-home-find-file ()
-      "find-file with Tramp. Ex: '/plink:bort:~/'. See tramp note to setup"
-      (interactive)
-      (counsel-find-file ak/custpath-home))
-  #+end_src
+** Find File Home
+   Counsel-find file wasn't letting me go back to ~/, so I made a function to force it
+ #+begin_src emacs-lisp
+   (defun ak/ivy-home-find-file ()
+     "find-file with Tramp. Ex: '/plink:bort:~/'. See tramp note to setup"
+     (interactive)
+     (counsel-find-file ak/custpath-home))
+ #+end_src
 
-  #+RESULTS:
-  : ak/ivy-home-find-file
+ #+RESULTS:
+ : ak/ivy-home-find-file
 
-*** Save and close window
-    Wanted to have something for org-journal that behaves like magit buffer when you C-c C-c
-  #+begin_src emacs-lisp
-    (defun ak/save-close-window ()
-      "find-file with Tramp. Ex: '/plink:bort:~/'. See tramp note to setup"
-      (interactive)
-      (save-buffer)
-      (kill-buffer)
-      (delete-window))
-  #+end_src
+** Save and close window
+   Wanted to have something for org-journal that behaves like magit buffer when you C-c C-c
+ #+begin_src emacs-lisp
+   (defun ak/save-close-window ()
+     "find-file with Tramp. Ex: '/plink:bort:~/'. See tramp note to setup"
+     (interactive)
+     (save-buffer)
+     (kill-buffer)
+     (delete-window))
+ #+end_src
 
-  #+RESULTS:
-  : ak/save-close-window
+ #+RESULTS:
+ : ak/save-close-window
 
-*** Focus / unfocus on org bullet
+** Focus / unfocus on org bullet
     Toggle org narrow subtreee / show everything
 #+begin_src emacs-lisp
   (defun ak/org-focus-subtree ()
@@ -1188,7 +1187,7 @@ customize to my liking
 #+RESULTS:
 : ak/org-focus-subtree
 
-*** Close all gtd files
+** Close all gtd files
     Quickly save and close gtd files to not conflict with other computers
 #+begin_src emacs-lisp
 (setq gtd-buffer-list '("inbox.org" "gtd.org" "gtd.org_archive" "notes.org" "notes.org_archive" "phone_inbox.org")) ;; custpath
