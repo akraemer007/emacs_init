@@ -2,6 +2,7 @@
 * Notes
 ** TODO Planned Tweaks
    - [ ] reduce when microsoft. Instead use env names
+   - [ ] reduce start time
    - [ ] Org Blog w/ [[https://ox-hugo.scripter.co/][ox-hugo]]. [[https://www.reddit.com/r/orgmode/comments/gcex8p/creating_a_blog_with_orgmode/][Reddit Post]]
    - [ ] clean up pomodoro in telephone-line
    - [ ] [[https://github.com/bastibe/org-journal][org-journal]]
@@ -48,11 +49,12 @@
    - [[https://blog.aaronbieber.com/2016/09/24/an-agenda-for-life-with-org-mode.html][Aaron Bieber]] the guy who convinced me to try Evil. I steal from his Agenda setup
    - [[https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org][This one]] is beautiful. Found it when investigating mode lines
    - [[https://github.com/noahfrederick/dots/blob/master/emacs/emacs.org][Nox]] has an org set-up in his use-package
+   - [[https://github.com/zzamboni/dot-emacs/blob/master/init.org][zzamboni]] has a great literate config. Lots of it considers writing
 * Setup
 ** Paths
    I use multiple computers. This allows me to update paths globally for each of my machines.
  #+begin_src emacs-lisp
-      (setq workstation 'personal_macbook) ;; options: catapult, personal_macbook
+      (setq workstation 'catapult) ;; options: catapult, personal_macbook
 
       (setq user-full-name "Andrew Kraemer")
       (setq user-mail-address "andrew.h.kraemer@gmail.com")
