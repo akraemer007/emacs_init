@@ -591,16 +591,20 @@
 
 ** Org-Babel
  #+begin_src emacs-lisp
- (org-babel-do-load-languages
- 'org-babel-load-languages
- '((R . t)
-     (python . t)))
- ;; put viz inline by default
- (setq org-startup-with-inline-images t)
+   (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((R . t)
+       (python . t)))
+   ;; put viz inline by default
+   (setq org-startup-with-inline-images t)
 
- (use-package ox-pandoc
-   :ensure t
-   :defer t)
+   (use-package ox-pandoc
+     :ensure t
+     :defer t)
+
+    ;; pulled form my spacemacs for latex
+    ;; (setenv "PATH" (concat (getenv "PATH") ":/sw/bin"))
+    ;; (setq exec-path (append exec-path '("/sw/bin")))
  #+end_src
 
 * Code & Development Tools
@@ -616,26 +620,94 @@
    :ensure t)
  #+end_src
 
-** Python
-   Elpy is the python IDE for emacs. I 
+** Company
+    Auto-completion
+   - TODO move this to the general section
  #+begin_src emacs-lisp
- ;; Python
- (use-package elpy
-   :ensure t
-   :defer t
-   :init
-     (advice-add 'python-mode :before 'elpy-enable)
-     (setq python-shell-interpreter "jupyter"
-	python-shell-interpreter-args "console --simple-prompt"
-	python-shell-prompt-detect-failure-warning nil)
-     (pyvenv-activate ak/custpath-py-default-env)
-   :config
-     (setq elpy-modules (delq 'elpy-module-flymake elpy-modules)) ;; don't use use flymake
-     (add-hook 'elpy-mode-hook 'flycheck-mode) ;; use use flycheck instead
-     (when (eq window-system 'w32)
-       (setq flycheck-python-flake8-executable ak/custpath-flake8))  ;; Need to install flake8 explicitly on windows
- )
+   (use-package company
+     :hook
+     (after-init . global-company-mode)
+     :bind
+     ;; make company completion work w/ vimkeys
+     (:map company-active-map)
+     ("C-n" . company-select-next-or-abort)
+     ("C-p" . company-select-previous-or-abort))
  #+end_src
+
+ #+RESULTS:
+
+** Python
+   Elpy is the python IDE for emacs. I was able to get this working on my windows pc but could not figure out what was going on on my mac
+ #+begin_src emacs-lisp
+   ;; Python
+   (use-package elpy
+     :if (eq window-system 'w32)
+     :ensure t
+     :defer t
+     :init
+       (advice-add 'python-mode :before 'elpy-enable)
+
+       ;; windows setup
+       (when (eq window-system 'w32)
+	 (pyvenv-activate ak/custpath-py-default-env)
+	 (setq python-shell-interpreter "jupyter"
+	   python-shell-interpreter-args "console --simple-prompt"
+	   python-shell-prompt-detect-failure-warning nil))
+       ;; couldn't get this to work on mac
+       ;; (when (eq window-system 'ns)
+       ;;   (pyvenv-activate "~/anaconda3/envs/py37")
+       ;;   (setq python-shell-interpreter-args "console --simple-prompt"
+       ;; 	python-shell-prompt-detect-failure-warning nil))
+       :config
+       (setq elpy-modules (delq 'elpy-module-flymake elpy-modules)) ;; don't use use flymake
+       (add-hook 'elpy-mode-hook 'flycheck-mode) ;; use use flycheck instead
+       (when (eq window-system 'w32)
+	 (setq flycheck-python-flake8-executable ak/custpath-flake8))  ;; Need to install flake8 explicitly on windows
+   )
+ #+end_src
+
+ #+RESULTS:
+ : t
+
+ no idea how any of this works. Stole from [[https://github.com/howardabrams/dot-files/blob/master/emacs-python.org][here]]
+#+begin_src emacs-lisp
+ (use-package jedi
+  :ensure t
+  :config
+  (use-package company-jedi
+    :ensure t
+    :init
+    (add-hook 'python-mode-hook (lambda () (add-to-list 'company-backends 'company-jedi)))
+    (setq company-jedi-python-bin "python"))
+  (add-to-list 'company-backends 'company-jedi))
+#+end_src
+
+#+RESULTS:
+: t
+
+#+begin_src emacs-lisp
+  (use-package anaconda-mode
+    :if (eq window-system 'ns)
+    :ensure t
+    :defer t
+    :bind
+     (:map company-active-map)
+     ("e" . pythonic-activate)
+    :init (add-hook 'python-mode-hook 'anaconda-mode)
+	  (add-hook 'python-mode-hook 'anaconda-eldoc-mode)
+    :config
+      ;; (pythonic-activate "~/anaconda3/envs/py37")
+      (pythonic-activate "~/anaconda3/envs/ml4t") ;; for class
+      (use-package company-anaconda
+	:ensure t
+	:init (add-hook 'python-mode-hook 'anaconda-mode)
+	(eval-after-load "company"
+	  '(add-to-list 'company-backends '(company-anaconda :with company-capf)))))
+
+#+end_src
+
+#+RESULTS:
+: pythonic-activate
 
 ** hy
  #+begin_src emacs-lisp
@@ -667,22 +739,6 @@
        (general-add-hook '(emacs-lisp-mode-hook hy-mode-hook lisp-mode-hook) #'lispyville-mode))
      :config
        (lispyville-set-key-theme '(additional prettify text-objects atom-motions additional-motions commentary slurp/barf-cp additional-wrap))
- #+end_src
-
- #+RESULTS:
-
-** Company
-    Auto-completion
-   - TODO move this to the general section
- #+begin_src emacs-lisp
-   (use-package company
-     :hook
-     (after-init . global-company-mode)
-     :bind
-     ;; make company completion work w/ vimkeys
-     (:map company-active-map)
-     ("C-n" . company-select-next-or-abort)
-     ("C-p" . company-select-previous-or-abort))
  #+end_src
 
  #+RESULTS:
@@ -890,13 +946,15 @@
 	       "wd"  '(delete-window :which-key "delete window")
 	       "wg"  '(golden-ratio :which-key "golden ratio")
 	       "wc"  '(evil-window-delete :which-key "delete window")
-	       ;; "wu"  '(winner-undo :which-key "winner undo")
-	       ;; "wU"  '(winner-redo :which-key "winner redo")
+	       "wu"  '(winner-undo :which-key "winner undo")
+	       "wU"  '(winner-redo :which-key "winner redo")
 	       "ww"  '(writeroom-mode :which-key "writeroom mode")
 	       ;; v for view
 	       "v"   '(:ignore t :which-key "view")
 	       "vc"  '(ivy-push-view :which-key "create view")
 	       "vv"  '(ivy-switch-view :which-key "switch view")
+	       "vs"  '(ak/save-ivy-views :which-key "save views")
+	       "vl"  '(ak/load-ivy-views :which-key "load views")
 	       ;; Org
 	       "o"   '(:ignore t :which-key "org")
 	       "ob"  '(ak/insert-bable :Which-key "insert bable")
@@ -918,6 +976,7 @@
 	       "t"   '(:ignore t :which-key "ui toggle")
 	       "tn"  '(display-line-numbers-mode :which-key "toggle line numbers")
 	       "tl"  '(org-toggle-link-display :which-key "toggle how org links show")
+	       "ti"  '(org-toggle-inline-images :which-key "toggle how org links show")
 	       "tL"  '(visual-line-mode :which-key "toggle line wrap")
 	       "tc"  '(flycheck-mode :which-key "toggle flycheck")
 	       "ts"  '(flyspell-mode :which-key "toggle flyspell")
@@ -1162,6 +1221,9 @@
 
 #+RESULTS:
 : ak/save-exit-buffer-list
+
+** Save Ivy Views
+   I really want it but can't get it to work. Make it so that I can persist views across sessions. Borrowed from [[https://github.com/abo-abo/swiper/issues/1079#issuecomment-310878365][here]]. Found better implmentation [[https://github.com/e-denny/.emacs.d/blob/1383528c6a753a9eeba318aba57bd7564e391026/lisp/ivy-setup.el#L49][here]].
 
 * Epilogue 
   Here we close the let expression from the preface.

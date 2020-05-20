@@ -17,3 +17,5 @@ myinit.el
 /org-journal.cache
 /full_emacs_conf.el
 /.emacs~
+/.todos.md.swp
+/auto-save-list/
