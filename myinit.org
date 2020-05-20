@@ -647,12 +647,14 @@
  #+RESULTS:
 
 ** Python
+   [[https://medium.com/analytics-vidhya/managing-a-python-development-environment-in-emacs-43897fd48c6a][This]] blog looks promising
 *** Elpy
     Elpy is the python IDE for emacs. I was able to get this working on my windows pc but could not figure out what was going on on my mac
+    MAKE SURE TO PIP INSTALL VIRTUAL ENV IN THE ENVIORNMENT YOU WANT TO USE I think that was my issue in bringing this over
   #+begin_src emacs-lisp
     ;; Python
     (use-package elpy
-      :if (eq window-system 'w32)
+      ;; :if (eq window-system 'w32)
       :ensure t
       :defer t
       :init
@@ -665,25 +667,69 @@
 	    python-shell-interpreter-args "console --simple-prompt"
 	    python-shell-prompt-detect-failure-warning nil))
 	;; couldn't get this to work on mac
-	;; (when (eq window-system 'ns)
-	;;   (pyvenv-activate "~/anaconda3/envs/py37")
-	;;   (setq python-shell-interpreter-args "console --simple-prompt"
-	;; 	python-shell-prompt-detect-failure-warning nil))
+	(when (eq window-system 'ns)
+	  (pyvenv-activate "~/anaconda3/envs/ml4t")
+	  (setq python-shell-interpreter "ipython"
+	     python-shell-interpreter-args "--simple-prompt"
+	     python-shell-prompt-detect-failure-warning nil)
+	  (setq elpy-shell-echo-output nil) ;; fixes weird ^G issue
+	  (setq elpy-rpc-virtualenv-path 'current) ;; stops it yelling at me about virt envs
+	  )
 	:config
 	(setq elpy-modules (delq 'elpy-module-flymake elpy-modules)) ;; don't use use flymake
 	(add-hook 'elpy-mode-hook 'flycheck-mode) ;; use use flycheck instead
 	(when (eq window-system 'w32)
 	  (setq flycheck-python-flake8-executable ak/custpath-flake8))  ;; Need to install flake8 explicitly on windows
+	(when (eq window-system 'ns)
+	  (setq flycheck-python-flake8-executable "/Users/AndrewKraemer/anaconda3/bin/flake8"))  ;; Need to install flake8 explicitly on windows
     )
   #+end_src
 
   #+RESULTS:
   : t
+*** formatting
+#+begin_src emacs-lisp
+(use-package blacken
+    :ensure t
+    :hook (python-mode . blacken-mode)
+    :config
+    (setq blacken-line-length '120))
+#+end_src
 
+#+RESULTS:
+| blacken-mode | yasnippet-snippets--fixed-indent | elpy-mode | er/add-python-mode-expansions |
+#+begin_src emacs-lisp :tangle yes
+  ;; create doc strings
+  (use-package py-pyment
+      :disabled
+      :config
+      (setq py-pyment-options '("--output=numpydoc")))
+
+  ;; sort imports
+  (use-package py-isort
+      :disabled
+      :hook (python-mode . py-isort-enable-on-save)
+      :config
+      (setq py-isort-options '("--lines=88" "-m=3" "-tc" "-fgw=0" "-ca")))
+  ;; investigate
+  (use-package py-autoflake
+      :disabled
+      :hook (python-mode . py-autoflake-enable-on-save)
+      :config
+      (setq py-autoflake-options '("--expand-star-imports")))
+    
+  ;; investigate
+  (use-package py-docformatter
+      :disabled
+      :hook (python-mode . py-docformatter-enable-on-save)
+      :config
+      (setq py-docformatter-options '("--wrap-summaries=88" "--pre-summary-newline")))
+#+end_src
 *** anaconda-mode
-  no idea how any of this works. Stole from [[https://github.com/howardabrams/dot-files/blob/master/emacs-python.org][here]]
+  Stopped pursuing b/c send to repl wasn't showing input. no idea how any of this works. Stole from [[https://github.com/howardabrams/dot-files/blob/master/emacs-python.org][here]]
  #+begin_src emacs-lisp
   (use-package jedi
+   :disabled
    :ensure t
    :config
    (use-package company-jedi
@@ -699,6 +745,7 @@
 
  #+begin_src emacs-lisp
    (use-package anaconda-mode
+     :disabled
      :if (eq window-system 'ns)
      :ensure t
      :defer t
