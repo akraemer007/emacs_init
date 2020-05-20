@@ -710,6 +710,8 @@
      :config
        ;; (pythonic-activate "~/anaconda3/envs/py37")
        (pythonic-activate "~/anaconda3/envs/ml4t") ;; for class
+       (setq python-shell-interpreter "ipython")
+       (setq python-shell-interpreter-args "--simple-prompt -i")
        (use-package company-anaconda
 	 :ensure t
 	 :init (add-hook 'python-mode-hook 'anaconda-mode)
