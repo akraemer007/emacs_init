@@ -19,3 +19,4 @@ myinit.el
 /.emacs~
 /.todos.md.swp
 /auto-save-list/
+/anaconda-mode/
