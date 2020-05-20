@@ -43,7 +43,7 @@
    - [ ] org make todotype selection easier
    - [ ] Treemacs (do I need this?) ;; no
    - [ ] Use [[https://github.com/alphapapa/org-super-agenda][org-super-agenda]]
-   - [ ] ace by abo-abo? Probably more than I need
+   - [ ] ace by abo-abo? Probably more than I need right now
 ** Inspiration + links
    - [[https://www.youtube.com/watch?v=49kBWM3RQQ8&list=PL9KxKa8NpFxIcNQa9js7dQQIHc81b0-Xg&index=1][Using Emacs videos]]
    - Originally inspaired by based on [[https://huytd.github.io/emacs-from-scratch.html#orgf713fce][this]] implementation 
@@ -55,6 +55,16 @@
    - [[https://github.com/noahfrederick/dots/blob/master/emacs/emacs.org][Nox]] has an org set-up in his use-package
    - [[https://github.com/zzamboni/dot-emacs/blob/master/init.org][zzamboni]] has a great literate config. Lots of it considers writing
    - [[http://www.howardism.org/Technical/Emacs/orgmode-wordprocessor.html][This]] guy has a really robust emacs blog. He makes his org-mode look AWESOME. I'm not sure it's worth the effort though
+   - I borrowed a lot of ideas from [[https://jamiecollinson.com/blog/my-emacs-config/][this]] one
+    - [ ] w3m
+    - [ ] writegood
+    - [ ] customize org appearance
+    - [ ] proselint
+    - [X] gitgutter
+    - [ ] gittimemachine
+    - [X] rainbow delimiters
+    - [ ] prettify symbols
+    - [ ] get rid of ivy ^
 
 * Performance Optimization
   This section entirely stolen from [[https://github.com/zzamboni/dot-emacs/blob/master/init.org#performance-optimization][here]].
