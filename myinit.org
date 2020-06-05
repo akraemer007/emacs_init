@@ -1,18 +1,15 @@
+#+STARTUP: hidestars
 * Notes
 ** TODO Planned Tweaks
+   - [ ] understand company for python
+   - [ ] Org Blog w/ [[https://ox-hugo.scripter.co/][ox-hugo]]. [[https://www.reddit.com/r/orgmode/comments/gcex8p/creating_a_blog_with_orgmode/][Reddit Post]]
    - [ ] use yasnippet for inserting bable
-   - [ ] use ENTER to follow links
    - [ ] move mode specific hotkeys from general to use-package
    - [ ] blacken for python mode
    - [ ] Remove annoying lisp warning and char number warnings for flycheck
-   - [ ] Move org-files to dropbox ;; just dragging my feet
+   - [ ] Move org-files to dropbox ;; just dragging my feet ;; did note linkup but not gtd
    - [ ] don't delete scratch buffer zzamboni
    - [ ] learn about bookmarks
-   - [ ] improve documentation of this file
-   - [ ] Instead of 'catapult use when microsoft, so I don't need to update my config
-   - [ ] reduce start time [[https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_speed_up_emacs_start/][1]] [[https://blog.d46.us/advanced-emacs-startup/][2]]
-   - [ ] Org Blog w/ [[https://ox-hugo.scripter.co/][ox-hugo]]. [[https://www.reddit.com/r/orgmode/comments/gcex8p/creating_a_blog_with_orgmode/][Reddit Post]]
-   - [ ] LSP instead of elpy
    - [ ] Figure out where & how windows knows where my emacs is
    - [ ] PDF-viewer ;; seems like a drag on windows. doc-viewer let's me at least see the text
    - [ ] hydra for [[https://github.com/abo-abo/hydra/wiki/Emacs][outline]]
@@ -20,6 +17,11 @@
    - [ ] add hooks more elegantly w/ general
    - [ ] babel installs (R)
    - [ ] [[http://www.cachestocaches.com/2017/3/complete-guide-email-emacs-using-mu-and-/][email]]
+   - [ ] explore emacs-jupyter
+   - [X] improve documentation of this file
+   - [X] reduce start time [[https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_speed_up_emacs_start/][1]] [[https://blog.d46.us/advanced-emacs-startup/][2]]
+   - [X] Instead of 'catapult use when microsoft, so I don't need to update my config
+   - [X] use ENTER to follow links -- just use C-c C-o
    - [X] Figure out pomodoro
    - [X] gitgutter
    - [X] [[https://github.com/bastibe/org-journal][org-journal]]
@@ -44,6 +46,7 @@
    - [ ] Treemacs (do I need this?) ;; no
    - [ ] Use [[https://github.com/alphapapa/org-super-agenda][org-super-agenda]]
    - [ ] ace by abo-abo? Probably more than I need right now
+   - [ ] LSP instead of elpy ;; seems like too much of a headache
 ** Inspiration + links
    - [[https://www.youtube.com/watch?v=49kBWM3RQQ8&list=PL9KxKa8NpFxIcNQa9js7dQQIHc81b0-Xg&index=1][Using Emacs videos]]
    - Originally inspaired by based on [[https://huytd.github.io/emacs-from-scratch.html#orgf713fce][this]] implementation 
@@ -218,6 +221,18 @@
  #+end_src
 
  #+RESULTS:
+
+** TODO Unicode
+   When I use special characters in my org files (specifically this one) I get prompted by which character type should be saved. I havent solved this yet and it's what is preventing me from using fun characters for Org
+#+begin_src emacs-lisp
+  (set-selection-coding-system
+    (if (eq system-type 'windows-nt)
+	'utf-16-le  ;; https://rufflewind.com/2014-07-20/pasting-unicode-in-emacs-on-windows
+      'utf-8))
+#+end_src
+
+#+RESULTS:
+: utf-16-le
 
 * UI
 ** Font
@@ -947,7 +962,8 @@
 	       "j" 'evil-next-visual-line
 	       "k" 'evil-previous-visual-line
 	       ;; globally define 
-	       "C-=" 'er/expand-region)
+	       "C-=" 'er/expand-region
+	       "<f5>" 'webjump)
 	     (general-define-key
 	       :states '(normal viusal)
 	       :prefix "g"
@@ -1036,9 +1052,9 @@
 	       ;; Visual Toggles
 	       "t"   '(:ignore t :which-key "ui toggle")
 	       "tn"  '(display-line-numbers-mode :which-key "toggle line numbers")
-	       "tl"  '(org-toggle-link-display :which-key "toggle how org links show")
+	       "tL"  '(org-toggle-link-display :which-key "toggle how org links show")
 	       "ti"  '(org-toggle-inline-images :which-key "toggle how org links show")
-	       "tL"  '(visual-line-mode :which-key "toggle line wrap")
+	       "tl"  '(visual-line-mode :which-key "toggle line wrap")
 	       "tc"  '(flycheck-mode :which-key "toggle flycheck")
 	       "ts"  '(flyspell-mode :which-key "toggle flyspell")
 	       "tj"  '(json-pretty-print-buffer :which-key "toggle json pretty-print")
@@ -1046,6 +1062,10 @@
 	       "c"   '(:ignore t :which-key "code check")
 	       "cn"  '(flycheck-next-error :which-key "next error")
 	       "cp"  '(flycheck-previous-error :which-key "previous error")
+	       ;; Snippets
+	       "s"   '(:ignore t :which-key "code check")
+	       "ss"  '(yas-insert-snippet :which-key "next error")
+	       "sn"  '(yas-new-snippet :which-key "previous error")
 	       ;; Others
 	       "at"  '(new-eshell :which-key "eshell"))
 	     (general-define-key
@@ -1090,8 +1110,11 @@
 		"M-H" 'org-promote-subtree
 		"M-k" 'org-move-subtree-up
 		"M-j" 'org-move-subtree-down
-		"C-c f" 'ak/org-focus-subtree))
- #+end_src
+		"C-c f" 'ak/org-focus-subtree
+		"C--" 'help/insert-em-dash
+		"M--" 'help/insert-en-dash
+		"C-M-y" 'insert-char))
+                #+end_src
 
  #+RESULTS:
  : t
@@ -1283,8 +1306,20 @@
 #+RESULTS:
 : ak/save-exit-buffer-list
 
-** Save Ivy Views
-   I really want it but can't get it to work. Make it so that I can persist views across sessions. Borrowed from [[https://github.com/abo-abo/swiper/issues/1079#issuecomment-310878365][here]]. Found better implmentation [[https://github.com/e-denny/.emacs.d/blob/1383528c6a753a9eeba318aba57bd7564e391026/lisp/ivy-setup.el#L49][here]].
+** Writing shortcuts
+#+begin_src emacs-lisp
+   (defun help/insert-em-dash ()
+    "Inserts an EM-DASH (not a HYPEN, not an N-DASH)"
+    (interactive)
+    (insert "¡X"))
+  (defun help/insert-en-dash ()
+    "Inserts an EN-DASH (not a HYPEN, not an EM-DASH)"
+    (interactive)
+    (insert "¡V"))
+#+end_src
+
+#+RESULTS:
+: help/insert-en-dash
 
 * Epilogue 
   Here we close the let expression from the preface.
