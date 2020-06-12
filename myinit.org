@@ -809,14 +809,16 @@
 *** Racket
     After previously playing around with common-lisp and being somewhat overwhelmed by it -- as it is very old -- I've more recently decided to take on Racket as my default scripting lisp. It has multiple language modes, such as being used to be able to work with the same syntax as [[https://mitpress.mit.edu/sites/default/files/sicp/index.html][SICP]].
   #+begin_src emacs-lisp
-  (use-package racket-mode
-    :ensure t
-    :defer t
-    :init (add-hook 'racket-mode-hook 'lispyville-mode))
+    (use-package racket-mode
+      :ensure t
+      :defer t
+      :init
+	(add-hook 'racket-mode-hook 'lispyville-mode)
+	(if (eq window-system 'w32) (setq racket-program "c:/Program Files/Racket/Racket.exe")))
   #+end_src
 
   #+RESULTS:
-  | lispyville-mode |
+  : c:/Program Files/Racket/Racket.exe
 
 * Writing
 ** Writeroom
@@ -1057,6 +1059,10 @@
 		:prefix "C-c"
 		:keymaps 'org-mode-map
 		"l" 'org-store-link)
+	     ;; C-w & C-d conflicted w/ the racket repl. This allows the standard evil bindings for function properly.
+	     (general-unbind 'racket-repl-mode-map
+		"C-w"
+		"C-d")
 	     (general-define-key
 		:keymaps 'elpy-mode-map
 		"C-c d" 'elpy-send-defun
