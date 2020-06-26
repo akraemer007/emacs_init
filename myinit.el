@@ -369,6 +369,50 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
   ("C-n" . company-select-next-or-abort)
   ("C-p" . company-select-previous-or-abort))
 
+(use-package magit
+  :ensure t)
+
+(use-package evil-magit
+  :after magit)
+
+(use-package git-gutter
+  :ensure t
+  :config
+  (global-git-gutter-mode 't)
+  :diminish git-gutter-mode)
+
+(use-package projectile
+  :ensure t
+  :init
+  (setq projectile-require-project-root nil)
+  (setq projectile-completion-system 'ivy)
+  :config
+  (projectile-mode 1))
+
+(use-package counsel-projectile
+ :ensure t
+ :config
+ (counsel-projectile-mode))
+
+(use-package lisp;; y
+  :disabled
+  :ensure t
+  :defer t
+  :init
+    (general-add-hook '(hy-mode-hook lisp-mode-hook emacs-lisp-mode-hook) #'lispy-mode)
+    ;; (add-hook 'hy-mode-hook #'lispy-mode)
+    ;; (add-hook 'lisp-mode-hook #'lispy-mode)
+    ;; (add-hook 'emacs-lisp-mode-hook #'lispy-mode)
+)
+
+(use-package lispyville
+  :ensure t
+  :defer t
+  :init
+    (general-add-hook '(emacs-lisp-mode-hook hy-mode-hook lisp-mode-hook) #'lispyville-mode))
+  :config
+    (lispyville-set-key-theme '(additional prettify text-objects atom-motions additional-motions commentary slurp/barf-cp additional-wrap))
+
 ;; Python
 (use-package elpy
   :if (eq window-system 'w32)
@@ -424,52 +468,16 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 	'(add-to-list 'company-backends '(company-anaconda :with company-capf)))))
 
 (use-package hy-mode
+  :ensure t
   :defer t
   :init (add-hook 'hy-mode-hook 'lispyville-mode))
 
-(use-package lisp;; y
-  :disabled
+(use-package racket-mode
   :ensure t
   :defer t
   :init
-    (general-add-hook '(hy-mode-hook lisp-mode-hook emacs-lisp-mode-hook) #'lispy-mode)
-    ;; (add-hook 'hy-mode-hook #'lispy-mode)
-    ;; (add-hook 'lisp-mode-hook #'lispy-mode)
-    ;; (add-hook 'emacs-lisp-mode-hook #'lispy-mode)
-)
-
-(use-package lispyville
-  :ensure t
-  :defer t
-  :init
-    (general-add-hook '(emacs-lisp-mode-hook hy-mode-hook lisp-mode-hook) #'lispyville-mode))
-  :config
-    (lispyville-set-key-theme '(additional prettify text-objects atom-motions additional-motions commentary slurp/barf-cp additional-wrap))
-
-(use-package magit
-  :ensure t)
-
-(use-package evil-magit
-  :after magit)
-
-(use-package git-gutter
-  :ensure t
-  :config
-  (global-git-gutter-mode 't)
-  :diminish git-gutter-mode)
-
-(use-package projectile
-  :ensure t
-  :init
-  (setq projectile-require-project-root nil)
-  (setq projectile-completion-system 'ivy)
-  :config
-  (projectile-mode 1))
-
-(use-package counsel-projectile
- :ensure t
- :config
- (counsel-projectile-mode))
+    (add-hook 'racket-mode-hook 'lispyville-mode)
+    (if (eq window-system 'w32) (setq racket-program "c:/Program Files/Racket/Racket.exe")))
 
 (use-package writeroom-mode
   :ensure t)
@@ -617,9 +625,9 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 	    ;; Visual Toggles
 	    "t"   '(:ignore t :which-key "ui toggle")
 	    "tn"  '(display-line-numbers-mode :which-key "toggle line numbers")
-	    "tl"  '(org-toggle-link-display :which-key "toggle how org links show")
+	    "tL"  '(org-toggle-link-display :which-key "toggle how org links show")
 	    "ti"  '(org-toggle-inline-images :which-key "toggle how org links show")
-	    "tL"  '(visual-line-mode :which-key "toggle line wrap")
+	    "tl"  '(visual-line-mode :which-key "toggle line wrap")
 	    "tc"  '(flycheck-mode :which-key "toggle flycheck")
 	    "ts"  '(flyspell-mode :which-key "toggle flyspell")
 	    "tj"  '(json-pretty-print-buffer :which-key "toggle json pretty-print")
@@ -627,6 +635,10 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 	    "c"   '(:ignore t :which-key "code check")
 	    "cn"  '(flycheck-next-error :which-key "next error")
 	    "cp"  '(flycheck-previous-error :which-key "previous error")
+	    ;; Snippets
+	    "s"   '(:ignore t :which-key "code check")
+	    "ss"  '(yas-insert-snippet :which-key "next error")
+	    "sn"  '(yas-new-snippet :which-key "previous error")
 	    ;; Others
 	    "at"  '(new-eshell :which-key "eshell"))
 	  (general-define-key
@@ -655,6 +667,10 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 	     :prefix "C-c"
 	     :keymaps 'org-mode-map
 	     "l" 'org-store-link)
+	  ;; C-w & C-d conflicted w/ the racket repl. This allows the standard evil bindings for function properly.
+	  (general-unbind 'racket-repl-mode-map
+	     "C-w"
+	     "C-d")
 	  (general-define-key
 	     :keymaps 'elpy-mode-map
 	     "C-c d" 'elpy-send-defun
@@ -672,9 +688,9 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 	     "M-k" 'org-move-subtree-up
 	     "M-j" 'org-move-subtree-down
 	     "C-c f" 'ak/org-focus-subtree
-             "C--" 'help/insert-em-dash
-             "M--" 'help/insert-en-dash
-             "C-M-y" 'insert-char))
+	     "C--" 'help/insert-em-dash
+	     "M--" 'help/insert-en-dash
+	     "C-M-y" 'insert-char))
 
 (defhydra hydra-zoom (global-map "<f2>")
  "zoom"
