@@ -225,10 +225,7 @@
 ** TODO Unicode
    When I use special characters in my org files (specifically this one) I get prompted by which character type should be saved. I havent solved this yet and it's what is preventing me from using fun characters for Org
 #+begin_src emacs-lisp
-  (set-selection-coding-system
-    (if (eq system-type 'windows-nt)
-	'utf-16-le  ;; https://rufflewind.com/2014-07-20/pasting-unicode-in-emacs-on-windows
-      'utf-8))
+  (if (eq window-system 'w32) (setq session-save-file-coding-system 'utf-8))
 #+end_src
 
 #+RESULTS:
