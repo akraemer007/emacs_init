@@ -3,6 +3,7 @@
 ** TODO Planned Tweaks
    - [ ] understand company for python
    - [ ] Org Blog w/ [[https://ox-hugo.scripter.co/][ox-hugo]]. [[https://www.reddit.com/r/orgmode/comments/gcex8p/creating_a_blog_with_orgmode/][Reddit Post]]
+     - [[https://timdams.com/][This]] blog does a good job organizing the way I'd like, but I'd like it to have a different home page
    - [ ] use yasnippet for inserting bable
    - [ ] move mode specific hotkeys from general to use-package
    - [ ] blacken for python mode
@@ -180,6 +181,9 @@
 
    ;; Pretty lambda symbol
    (global-prettify-symbols-mode 1)
+   
+   ;; automatically update buffers that have changed under file
+   (global-auto-revert-mode t)
  #+end_src
 
  #+RESULTS:
@@ -1079,7 +1083,21 @@
 		"C-c f" 'ak/org-focus-subtree
 		"C--" 'help/insert-em-dash
 		"M--" 'help/insert-en-dash
-		"C-M-y" 'insert-char))
+		"C-M-y" 'insert-char)
+	     ;; (general-define-key
+	     ;;    :keymaps 'eww-mode-map
+	     ;;     ;; Org-Promote
+	     ;;    "M-l" 'org-do-demote
+	     ;;    "M-h" 'org-do-promote
+	     ;;    "M-L" 'org-demote-subtree
+	     ;;    "M-H" 'org-promote-subtree
+	     ;;    "M-k" 'org-move-subtree-up
+	     ;;    "M-j" 'org-move-subtree-down
+	     ;;    "C-c f" 'ak/org-focus-subtree
+	     ;;    "C--" 'help/insert-em-dash
+	     ;;    "M--" 'help/insert-en-dash
+	     ;;    "C-M-y" 'insert-char)
+	     )
                 #+end_src
 
  #+RESULTS:
