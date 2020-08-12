@@ -38,6 +38,15 @@
 	     ak/custpath-emacsd "~/.emacs.d/"
 	     ak/custpath-org-notes "~/emacs/notes/"
 	     ak/custpath-py-default-env "/Users/AndrewKraemer/anaconda3/envs/py37"
+	     ak/custpath-aspell "/usr/local/bin/aspell"))
+      ((eq window-system 'x)
+       (setq ak/custpath-home "/home/andrew/"
+	     ak/custpath-dropbox-org "/home/andrew/Dropbox/org/"
+	     ak/custpath-phone-notes "/home/andrew/Dropbox/org/phone_inbox.org"
+	     ak/custpath-journal-path "/home/andrew/Dropbox/journal/"
+	     ak/custpath-emacsd "~/.emacs.d/"
+	     ak/custpath-org-notes "~/emacs/notes/"
+	     ak/custpath-py-default-env "/home/andrew/anaconda3/envs/py37"
 	     ak/custpath-aspell "/usr/local/bin/aspell")))
 
 ;;; Code:
@@ -69,6 +78,12 @@
 ;; Pretty lambda symbol
 (global-prettify-symbols-mode 1)
 
+;; automatically update buffers that have changed under file
+(global-auto-revert-mode t)
+
+;; work around for gnu archive not working on linux
+(setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
+
 (when (eq window-system 'w32)
   (setq gc-cons-threshold (* 511 1024 1024))
   (setq gc-cons-percentage 0.5)
@@ -87,10 +102,7 @@
   (setq backup-directory-alist `(("." . ,(concat ak/custpath-emacsd "backups"))))
   (setq confirm-nonexistent-file-or-buffer nil))
 
-(set-selection-coding-system
-  (if (eq system-type 'windows-nt)
-      'utf-16-le  ;; https://rufflewind.com/2014-07-20/pasting-unicode-in-emacs-on-windows
-    'utf-8))
+(if (eq window-system 'w32) (setq session-save-file-coding-system 'utf-8))
 
 ;; (set-face-attribute 'default nil :family "Consolas" :height 110)
 ;; (set-face-attribute 'default nil :family "Hack" :height 105)
@@ -120,6 +132,7 @@
   (load-theme 'sanityinc-tomorrow-eighties t))
 
 (use-package telephone-line
+ :ensure t
  :init (telephone-line-mode 1))
 
 (use-package evil
@@ -373,6 +386,7 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
   :ensure t)
 
 (use-package evil-magit
+  :ensure t
   :after magit)
 
 (use-package git-gutter
@@ -690,7 +704,21 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 	     "C-c f" 'ak/org-focus-subtree
 	     "C--" 'help/insert-em-dash
 	     "M--" 'help/insert-en-dash
-	     "C-M-y" 'insert-char))
+	     "C-M-y" 'insert-char)
+	  ;; (general-define-key
+	  ;;    :keymaps 'eww-mode-map
+	  ;;     ;; Org-Promote
+	  ;;    "M-l" 'org-do-demote
+	  ;;    "M-h" 'org-do-promote
+	  ;;    "M-L" 'org-demote-subtree
+	  ;;    "M-H" 'org-promote-subtree
+	  ;;    "M-k" 'org-move-subtree-up
+	  ;;    "M-j" 'org-move-subtree-down
+	  ;;    "C-c f" 'ak/org-focus-subtree
+	  ;;    "C--" 'help/insert-em-dash
+	  ;;    "M--" 'help/insert-en-dash
+	  ;;    "C-M-y" 'insert-char)
+	  )
 
 (defhydra hydra-zoom (global-map "<f2>")
  "zoom"

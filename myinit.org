@@ -144,6 +144,15 @@
 		ak/custpath-emacsd "~/.emacs.d/"
 		ak/custpath-org-notes "~/emacs/notes/"
 		ak/custpath-py-default-env "/Users/AndrewKraemer/anaconda3/envs/py37"
+		ak/custpath-aspell "/usr/local/bin/aspell"))
+         ((eq window-system 'x)
+	  (setq ak/custpath-home "/home/andrew/"
+		ak/custpath-dropbox-org "/home/andrew/Dropbox/org/"
+		ak/custpath-phone-notes "/home/andrew/Dropbox/org/phone_inbox.org"
+		ak/custpath-journal-path "/home/andrew/Dropbox/journal/"
+		ak/custpath-emacsd "~/.emacs.d/"
+		ak/custpath-org-notes "~/emacs/notes/"
+		ak/custpath-py-default-env "/home/andrew/anaconda3/envs/py37"
 		ak/custpath-aspell "/usr/local/bin/aspell")))
  #+end_src
 
@@ -184,6 +193,9 @@
    
    ;; automatically update buffers that have changed under file
    (global-auto-revert-mode t)
+
+   ;; work around for gnu archive not working on linux
+   (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
  #+end_src
 
  #+RESULTS:
@@ -279,6 +291,7 @@
    TODO try evil mode abbreviation to save on realestate
  #+begin_src emacs-lisp
   (use-package telephone-line
+   :ensure t
    :init (telephone-line-mode 1))
  #+end_src
 
@@ -668,6 +681,7 @@
      :ensure t)
   
    (use-package evil-magit
+     :ensure t
      :after magit)
 
    (use-package git-gutter
