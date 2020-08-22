@@ -296,6 +296,13 @@
  #+end_src
 
  #+RESULTS:
+** Pdf-Tools
+ #+begin_src emacs-lisp
+   (use-package pdf-tools
+    :if (eq window-system '69)
+    :ensure t
+    :init (telephone-line-mode 1))
+ #+end_src
 * Evil
 #+begin_src emacs-lisp
   (use-package evil
