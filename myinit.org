@@ -688,10 +688,12 @@
      :ensure t
      :config
      (global-git-gutter-mode 't)
+     (setq git-gutter:disabled-modes '(org-mode image-mode pdf-view-mode))
      :diminish git-gutter-mode)
  #+end_src
 
  #+RESULTS:
+ : t
 
 ** Projectile
  #+begin_src emacs-lisp
