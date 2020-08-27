@@ -152,7 +152,7 @@
 		ak/custpath-journal-path "/home/andrew/Dropbox/journal/"
 		ak/custpath-emacsd "~/.emacs.d/"
 		ak/custpath-org-notes "~/emacs/notes/"
-		ak/custpath-py-default-env "/home/andrew/anaconda3/envs/py37"
+		ak/custpath-py-default-env "/home/andrew/anaconda3/envs/py38"
 		ak/custpath-aspell "/usr/local/bin/aspell")))
  #+end_src
 
@@ -721,7 +721,7 @@
 
 ** Lispy
  #+begin_src emacs-lisp
-   (use-package lisp;; y
+   (use-package lispy
      :disabled
      :ensure t
      :defer t
@@ -745,78 +745,58 @@
 
 ** Python
 *** Elpy
-    Elpy is the python IDE for emacs. I was able to get this working on my windows pc but could not figure out what was going on on my mac
-  #+begin_src emacs-lisp
-    ;; Python
-    (use-package elpy
-      :if (eq window-system 'w32)
-      :ensure t
-      :defer t
-      :init
-	(advice-add 'python-mode :before 'elpy-enable)
+     Elpy is the python IDE for emacs. I wasable to get this working on my windows pc but could not figure out what was going on on my mac
+     To get this working, first =pip install flake8 jedi black=.
+     Can't get it working with ipython but at least it's interactive.
+   #+begin_src emacs-lisp
+     ;; Python
+     (use-package elpy
+       :if (eq window-system 'w32)
+       :ensure t
+       :defer t
+       :init
+	 (advice-add 'python-mode :before 'elpy-enable)
+	 (pyvenv-activate ak/custpath-py-default-env)
+	   (setq python-shell-interpreter "jupyter"
+	     python-shell-interpreter-args "console --simple-prompt"
+	     python-shell-prompt-detect-failure-warning nil)
+	 :config
+	 (setq elpy-modules (delq 'elpy-module-flymake elpy-modules)) ;; don't use use flymake
+	 (add-hook 'elpy-mode-hook 'flycheck-mode) ;; use use flycheck instead
+	 (when (eq window-system 'w32)
+	   (setq flycheck-python-flake8-executable ak/custpath-flake8))  ;; Need to install flake8 explicitly on windows
+     )
 
-	;; windows setup
-	(when (eq window-system 'w32)
-	  (pyvenv-activate ak/custpath-py-default-env)
-	  (setq python-shell-interpreter "jupyter"
-	    python-shell-interpreter-args "console --simple-prompt"
-	    python-shell-prompt-detect-failure-warning nil))
-	;; couldn't get this to work on mac
-	;; (when (eq window-system 'ns)
-	;;   (pyvenv-activate "~/anaconda3/envs/py37")
-	;;   (setq python-shell-interpreter-args "console --simple-prompt"
-	;; 	python-shell-prompt-detect-failure-warning nil))
-	:config
-	(setq elpy-modules (delq 'elpy-module-flymake elpy-modules)) ;; don't use use flymake
-	(add-hook 'elpy-mode-hook 'flycheck-mode) ;; use use flycheck instead
-	(when (eq window-system 'w32)
-	  (setq flycheck-python-flake8-executable ak/custpath-flake8))  ;; Need to install flake8 explicitly on windows
-    )
-  #+end_src
+     (use-package conda
+       :if (not (eq window-system 'w32))
+       :ensure t
+       :init
+	(setq conda-env-home-directory (expand-file-name "~/anaconda3/") ;; as in previous example; not required
+		 conda-env-subdirectory "envs")
+       (custom-set-variables
+	 '(conda-anaconda-home "/home/andrew/anaconda3/"))
+       :config
+       (conda-env-initialize-interactive-shells)
+       (conda-env-initialize-eshell)
+       (conda-env-autoactivate-mode t)
+       (conda-env-activate "py38"))
 
-  #+RESULTS:
-  : t
+     (use-package elpy
+       :if (eq window-system 'x)
+       :ensure t
+       :defer t
+       :init
+       ;; (setenv "WORKON_HOME" "/home/andrew/anaconda3/envs") ;; don't need since we have conda package
+       (advice-add 'python-mode :before 'elpy-enable)
+       :config
+       (elpy-enable)
+       (setq elpy-modules (delq 'elpy-module-flymake elpy-modules)) ;; don't use use flymake
+       (add-hook 'elpy-mode-hook 'flycheck-mode) ;; use use flycheck instead
+       )
+   #+end_src
 
-*** anaconda-mode
-  no idea how any of this works. Stole from [[https://github.com/howardabrams/dot-files/blob/master/emacs-python.org][here]]
- #+begin_src emacs-lisp
-  (use-package jedi
-   :ensure t
-   :config
-   (use-package company-jedi
-     :ensure t
-     :init
-     (add-hook 'python-mode-hook (lambda () (add-to-list 'company-backends 'company-jedi)))
-     (setq company-jedi-python-bin "python"))
-   (add-to-list 'company-backends 'company-jedi))
- #+end_src
-
- #+RESULTS:
- : t
-
- #+begin_src emacs-lisp
-   (use-package anaconda-mode
-     :if (eq window-system 'ns)
-     :ensure t
-     :defer t
-     :bind
-      (:map company-active-map)
-      ("e" . pythonic-activate)
-     :init (add-hook 'python-mode-hook 'anaconda-mode)
-	   (add-hook 'python-mode-hook 'anaconda-eldoc-mode)
-     :config
-       ;; (pythonic-activate "~/anaconda3/envs/py37")
-       (pythonic-activate "~/anaconda3/envs/ml4t") ;; for class
-       (use-package company-anaconda
-	 :ensure t
-	 :init (add-hook 'python-mode-hook 'anaconda-mode)
-	 (eval-after-load "company"
-	   '(add-to-list 'company-backends '(company-anaconda :with company-capf)))))
-
- #+end_src
-
- #+RESULTS:
- : pythonic-activate
+   #+RESULTS:
+   : t
 
 ** lisps
    I love lisp. I spend too much time farting around with them.
