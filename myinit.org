@@ -301,7 +301,6 @@
    (use-package pdf-tools
     :disabled
     :if (eq window-system x)
-    :ensure t
     :init (telephone-line-mode 1))
  #+end_src
 * Evil
@@ -772,7 +771,6 @@
 
      (use-package conda
        :if (not (eq window-system 'w32))
-       :ensure t
        :init
 	(setq conda-env-home-directory (expand-file-name "~/anaconda3/") ;; as in previous example; not required
 		 conda-env-subdirectory "envs")
