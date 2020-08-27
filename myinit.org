@@ -751,7 +751,7 @@
      To get this working, first =pip install flake8 jedi black=.
      Can't get it working with ipython but at least it's interactive.
    #+begin_src emacs-lisp
-     ;; Python
+     ;; Python windows
      (use-package elpy
        :if (eq window-system 'w32)
        :ensure t
@@ -760,15 +760,15 @@
 	 (advice-add 'python-mode :before 'elpy-enable)
 	 (pyvenv-activate ak/custpath-py-default-env)
        :config
-  
 	 (setq elpy-modules (delq 'elpy-module-flymake elpy-modules)) ;; don't use use flymake
 	 (add-hook 'elpy-mode-hook 'flycheck-mode) ;; use use flycheck instead
 	 (setq flycheck-python-flake8-executable ak/custpath-flake8)  ;; Need to install flake8 explicitly on windows
-         (add-hook 'elpy-mode-hook (lambda ()
-                            (add-hook 'before-save-hook
-                                      'elpy-black-fix-code nil t)))
+	 (add-hook 'elpy-mode-hook (lambda ()
+			    (add-hook 'before-save-hook
+				      'elpy-black-fix-code nil t)))
      )
 
+     ;; python linux
      (use-package conda
        :if (not (eq window-system 'w32))
        :init
@@ -792,10 +792,10 @@
        :config
        (elpy-enable)
        (setq elpy-modules (delq 'elpy-module-flymake elpy-modules)) ;; don't use use flymake
-       (add-hook 'elpy-mode-hook 'flycheck-mode) ;; use use flycheck instead
-       (add-hook 'elpy-mode-hook (lambda ()
-                          (add-hook 'before-save-hook
-                                    'elpy-black-fix-code nil t)))
+       (add-hook 'elpy-mode-hook 'flycheck-mode) ;; use use flycheck instead & flymake
+       (add-hook 'elpy-mode-hook (lambda () ;; format w/ black on save
+			  (add-hook 'before-save-hook
+				    'elpy-black-fix-code nil t)))
        )
    #+end_src
 
