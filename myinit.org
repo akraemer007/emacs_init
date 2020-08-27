@@ -299,7 +299,8 @@
 ** Pdf-Tools
  #+begin_src emacs-lisp
    (use-package pdf-tools
-    :if (eq window-system '69)
+    :disabled
+    :if (eq window-system x)
     :ensure t
     :init (telephone-line-mode 1))
  #+end_src
