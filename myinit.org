@@ -133,7 +133,7 @@
 		ak/custpath-journal-path "c:/Users/akraemer/Dropbox/journal/"
 		ak/custpath-emacsd "c:/emacs/.emacs.d/"
 		ak/custpath-org-notes "c:/emacs/notes/"
-		ak/custpath-py-default-env "c:/Users/akraemer/Anaconda3/envs/py37"
+		ak/custpath-py-default-env "c:/Users/akraemer/Anaconda3/envs/py38"
 		ak/custpath-flake8 "c:/Users/akraemer/Anaconda3/Scripts/flake8.exe"
 		ak/custpath-aspell "c:/msys64/mingw64/bin/aspell.exe"))
 	 ((eq window-system 'ns)
@@ -759,14 +759,14 @@
        :init
 	 (advice-add 'python-mode :before 'elpy-enable)
 	 (pyvenv-activate ak/custpath-py-default-env)
-	   (setq python-shell-interpreter "jupyter"
-	     python-shell-interpreter-args "console --simple-prompt"
-	     python-shell-prompt-detect-failure-warning nil)
-	 :config
+       :config
+  
 	 (setq elpy-modules (delq 'elpy-module-flymake elpy-modules)) ;; don't use use flymake
 	 (add-hook 'elpy-mode-hook 'flycheck-mode) ;; use use flycheck instead
-	 (when (eq window-system 'w32)
-	   (setq flycheck-python-flake8-executable ak/custpath-flake8))  ;; Need to install flake8 explicitly on windows
+	 (setq flycheck-python-flake8-executable ak/custpath-flake8)  ;; Need to install flake8 explicitly on windows
+         (add-hook 'elpy-mode-hook (lambda ()
+                            (add-hook 'before-save-hook
+                                      'elpy-black-fix-code nil t)))
      )
 
      (use-package conda
@@ -793,6 +793,9 @@
        (elpy-enable)
        (setq elpy-modules (delq 'elpy-module-flymake elpy-modules)) ;; don't use use flymake
        (add-hook 'elpy-mode-hook 'flycheck-mode) ;; use use flycheck instead
+       (add-hook 'elpy-mode-hook (lambda ()
+                          (add-hook 'before-save-hook
+                                    'elpy-black-fix-code nil t)))
        )
    #+end_src
 
