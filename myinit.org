@@ -1316,11 +1316,11 @@
    (defun help/insert-em-dash ()
     "Inserts an EM-DASH (not a HYPEN, not an N-DASH)"
     (interactive)
-    (insert "¡X"))
+    (insert "â€”"))
   (defun help/insert-en-dash ()
     "Inserts an EN-DASH (not a HYPEN, not an EM-DASH)"
     (interactive)
-    (insert "¡V"))
+    (insert "â€“"))
 #+end_src
 
 #+RESULTS:
