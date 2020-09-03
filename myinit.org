@@ -870,16 +870,30 @@
   (defun new-eshell ()
     "Open eshell on bottom of screen."
     (interactive)
-    (when (one-window-on-screen-p)
-      (let* ((lines (window-body-height))
+    (let* ((lines (window-body-height))
 	     (new-window (split-window-vertically (floor (* 0.7 lines)))))
 	(select-window new-window)
-	(eshell "eshell"))))
+	(eshell "eshell")))
+
+  ;; will need to figure this out later
+  (defun new-python-shell ()
+    "Open python shell on bottom of screen."
+    (interactive)
+    (let* ((lines (window-body-height))
+	     (new-window (split-window-vertically (floor (* 0.7 lines)))))
+	(select-window new-window)
+	(if (not (get-buffer "*Python*"))
+	    (run-python))
+	(switch-to-buffer "*Python*"
+	  nil t)))
 
   (defun one-window-on-screen-p ()
     "Check if there is only one buffer on the screen."
     (= (length (window-list)) 1))
 #+end_src
+
+#+RESULTS:
+: one-window-on-screen-p
 
 * Remote connections
   Tramp allows me to access remote files. Getting it to work with windows is a little clunky. Follow these steps:
@@ -1038,7 +1052,9 @@
 	       "ss"  '(yas-insert-snippet :which-key "next error")
 	       "sn"  '(yas-new-snippet :which-key "previous error")
 	       ;; Others
-	       "at"  '(new-eshell :which-key "eshell"))
+	       "a"   '(:ignore t :which-key "a shell")
+	       "at"  '(new-eshell :which-key "eshell")
+	       "ap"  '(new-python-shell :which-key "python"))
 	     (general-define-key
 	       :states '(normal visual insert emacs)
 	       :prefix "C-c"
