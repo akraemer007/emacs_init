@@ -110,7 +110,7 @@
   #+end_src
 
   We set =gc-cons-threshold= to its maximum value, to prevent any garbage collection from happening during load time. We also reset this value in the [[Epilogue][Epilogue]].
-
+  
   #+begin_src emacs-lisp
     (setq gc-cons-threshold most-positive-fixnum)
   #+end_src
@@ -190,16 +190,17 @@
 
    ;; Pretty lambda symbol
    (global-prettify-symbols-mode 1)
-   
+
    ;; automatically update buffers that have changed under file
    (global-auto-revert-mode t)
 
-   ;; work around for gnu archive not working on linux
-   (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
+   ;; work around for gnu archive not working on linux ;; though it did break melpa on windows.
+   ;; Commenting out to see how things are impacted
+   ;; (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
+
  #+end_src
 
  #+RESULTS:
- : t
 
     Org mode was being very slow on my windows machine, so I found [[https://www.reddit.com/r/emacs/comments/55ork0/is_emacs_251_noticeably_slower_than_245_on_windows/d8cmm7v/][this]] solution to improve garbage collection.
  #+begin_src emacs-lisp
@@ -238,14 +239,23 @@
 
  #+RESULTS:
 
-** TODO Unicode
+** Unicode
    When I use special characters in my org files (specifically this one) I get prompted by which character type should be saved. I havent solved this yet and it's what is preventing me from using fun characters for Org
 #+begin_src emacs-lisp
-  (if (eq window-system 'w32) (setq session-save-file-coding-system 'utf-8))
+   ;; make windows use utf-8. If I don't do this, images like dashes don't work ;; source: https://web.archive.org/web/20190726142720/https://goyoambrosio.com/2018/06/Dealing-with-utf-8-in-Emacs/
+   (prefer-coding-system 'utf-8)
+   (set-default-coding-systems 'utf-8)
+   (set-terminal-coding-system 'utf-8)
+   (set-keyboard-coding-system 'utf-8)
+   (set-selection-coding-system 'utf-8)
+   (set-file-name-coding-system 'utf-8)
+   (set-clipboard-coding-system 'utf-8)
+   (set-w32-system-coding-system 'utf-8)
+   (set-buffer-file-coding-system 'utf-8) 
+   ;; (if (eq window-system 'w32) (setq session-save-file-coding-system 'utf-8)) comented out as I was testing the other lines above
 #+end_src
 
 #+RESULTS:
-: utf-16-le
 
 * UI
 ** Font
@@ -326,7 +336,13 @@
 
   (use-package evil-numbers
     :ensure t)
+
+  (use-package evil-collection
+    :ensure t)
 #+end_src
+
+#+RESULTS:
+: t
 
 * Window Management
   I do a lot in emacs, and it can be overwhelming to manage all of the different buffers and windows lying about.
@@ -862,6 +878,17 @@
      :init  (setq flymake-run-in-place nil) ;; don't save flymake locally
      :ensure t)
  #+end_src
+
+* Dired
+  Dired is a powerful file management system within emacs. I would like to use it more, but some of it conflicts with with some of the evil keys. I'd like to use evil collection's dired keys.
+  [[https://jonathanabennett.github.io/blog/2019/06/05/file-management-in-emacs-with-dired-mode/][Evil Dired good blog.]]
+  Below makes it so that the dired buffer auto-updates. I'm also now full on the auto update train. Writing conflicts is the enemy.
+#+begin_src emacs-lisp
+  (setq dired-auto-revert-buffer t)
+#+end_src
+
+#+RESULTS:
+: t
 
 * Shell
   In emacs, I try to use eshell as much as possible. It does a good job -- especially compared to my options on windows. I'm interested in Elvish, which i might try some time
