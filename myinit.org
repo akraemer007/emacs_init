@@ -1094,8 +1094,8 @@
 	       "n"  '((lambda () (interactive) (find-file (concat ak/custpath-org-notes "worknotes.org"))) :which-key "open notes")
 	       "N"  '((lambda () (interactive) (find-file (concat ak/custpath-dropbox-org "notes.org"))) :which-key "open notes")
 	       ;; Vim  number increment
-	       "C-="  '(evil-numbers/inc-at-pt :which-key "increment num")
-	       "C--"  '(evil-numbers/dec-at-pt :which-key "decrement num"))
+	       "C-="  '(hydra-numbers/evil-numbers/inc-at-pt :which-key "increment num")
+	       "C--"  '(hydra-numbers/evil-numbers/dec-at-pt :which-key "decrement num"))
 	     ;; org agenda (more options here: https://github.com/Somelauw/evil-org-mode/blob/master/evil-org-agenda.el)
 	     (general-define-key
 		:keymaps 'org-agenda-mode-map
@@ -1181,40 +1181,52 @@
 *** buffers
     This would work on the normal buffer list. I could use something like this to make navigatig the ivy buffers a little easier
 #+begin_src emacs-lisp
-   (defhydra hydra-buffer-menu (:color pink
-			       :hint nil)
-    "
-  ^Mark^             ^Unmark^           ^Actions^          ^Search
-  ^^^^^^^^-----------------------------------------------------------------
-  _m_: mark          _u_: unmark        _x_: execute       _R_: re-isearch
-  _s_: save          _U_: unmark up     _b_: bury          _I_: isearch
-  _d_: delete        ^ ^                _g_: refresh       _O_: multi-occur
-  _D_: delete up     ^ ^                _T_: files only: % -28`Buffer-menu-files-only
-  _~_: modified
-  "
-    ("m" Buffer-menu-mark)
-    ("u" Buffer-menu-unmark)
-    ("U" Buffer-menu-backup-unmark)
-    ("d" Buffer-menu-delete)
-    ("D" Buffer-menu-delete-backwards)
-    ("s" Buffer-menu-save)
-    ("~" Buffer-menu-not-modified)
-    ("x" Buffer-menu-execute)
-    ("b" Buffer-menu-bury)
-    ("g" revert-buffer)
-    ("T" Buffer-menu-toggle-files-only)
-    ("O" Buffer-menu-multi-occur :color blue)
-    ("I" Buffer-menu-isearch-buffers :color blue)
-    ("R" Buffer-menu-isearch-buffers-regexp :color blue)
-    ("c" nil "cancel")
-    ("v" Buffer-menu-select "select" :color blue)
-    ("o" Buffer-menu-other-window "other-window" :color blue)
-    ("q" quit-window "quit" :color blue))
-  ;; (define-key Buffer-menu-mode-map "." 'hydra-buffer-menu/body)
+  ;;  (defhydra hydra-buffer-menu (:color pink
+  ;; 			     :hint nil)
+  ;;   "
+  ;; ^Mark^             ^Unmark^           ^Actions^          ^Search
+  ;; ^^^^^^^^-----------------------------------------------------------------
+  ;; _m_: mark          _u_: unmark        _x_: execute       _R_: re-isearch
+  ;; _s_: save          _U_: unmark up     _b_: bury          _I_: isearch
+  ;; _d_: delete        ^ ^                _g_: refresh       _O_: multi-occur
+  ;; _D_: delete up     ^ ^                _T_: files only: % -28`Buffer-menu-files-only
+  ;; _~_: modified
+  ;; "
+  ;;   ("m" Buffer-menu-mark)
+  ;;   ("u" Buffer-menu-unmark)
+  ;;   ("U" Buffer-menu-backup-unmark)
+  ;;   ("d" Buffer-menu-delete)
+  ;;   ("D" Buffer-menu-delete-backwards)
+  ;;   ("s" Buffer-menu-save)
+  ;;   ("~" Buffer-menu-not-modified)
+  ;;   ("x" Buffer-menu-execute)
+  ;;   ("b" Buffer-menu-bury)
+  ;;   ("g" revert-buffer)
+  ;;   ("T" Buffer-menu-toggle-files-only)
+  ;;   ("O" Buffer-menu-multi-occur :color blue)
+  ;;   ("I" Buffer-menu-isearch-buffers :color blue)
+  ;;   ("R" Buffer-menu-isearch-buffers-regexp :color blue)
+  ;;   ("c" nil "cancel")
+  ;;   ("v" Buffer-menu-select "select" :color blue)
+  ;;   ("o" Buffer-menu-other-window "other-window" :color blue)
+  ;;   ("q" quit-window "quit" :color blue))
+  ;; ;; (define-key Buffer-menu-mode-map "." 'hydra-buffer-menu/body)
 #+end_src
 
 #+RESULTS:
 : hydra-buffer-menu/body
+
+*** evil-number
+    Increase text size. Probably want to change the key binding
+   #+begin_src emacs-lisp
+      (defhydra hydra-numbers ()
+	"numbers"
+	("C-=" evil-numbers/inc-at-pt "increase")
+	("C--" evil-numbers/dec-at-pt "dec"))
+   #+end_src 
+
+#+RESULTS:
+: hydra-numbers/body
 
 * Custom Functions
 ** go to scratch
