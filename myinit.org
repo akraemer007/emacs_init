@@ -110,7 +110,7 @@
   #+end_src
 
   We set =gc-cons-threshold= to its maximum value, to prevent any garbage collection from happening during load time. We also reset this value in the [[Epilogue][Epilogue]].
-
+  
   #+begin_src emacs-lisp
     (setq gc-cons-threshold most-positive-fixnum)
   #+end_src
@@ -121,43 +121,36 @@
 ** Paths
    I use multiple computers. This allows me to update paths globally for each of my machines.
  #+begin_src emacs-lisp
-   (setq workstation 'catapult) ;; options: catapult, personal_macbook
+    (setq user-full-name "Andrew Kraemer")
+    (setq user-mail-address "andrew.h.kraemer@gmail.com")
 
-   (setq user-full-name "Andrew Kraemer")
-   (setq user-mail-address "andrew.h.kraemer@gmail.com")
+    (cond ((string-equal system-name "CAT-4CNZRN2") ;; catapult main computer
+	   (setq ak/context-name "catapult"
+		 ak/custpath-home "c:/Users/akraemer/"
+		 ak/custpath-dropbox "c:/Users/akraemer/Dropbox/"
+		 ak/custpath-emacsd "c:/emacs/.emacs.d/"
+		 ak/custpath-py-default-env "c:/Users/akraemer/Anaconda3/envs/py38"
+		 ak/custpath-flake8 "c:/Users/akraemer/Anaconda3/Scripts/flake8.exe"
+		 ak/custpath-aspell "c:/msys64/mingw64/bin/aspell.exe"))
+	  ((eq window-system 'ns) ;; mac
+	   (setq ak/context-name "personal"
+		 ak/custpath-home "/Users/AndrewKraemer/"
+		 ak/custpath-dropbox "/Users/AndrewKraemer/Dropbox/"
+		 ak/custpath-emacsd "~/.emacs.d/"
+		 ak/custpath-py-default-env "/Users/AndrewKraemer/anaconda3/envs/py37"
+		 ak/custpath-aspell "/usr/local/bin/aspell"))
+	  ((eq window-system 'x) ;; linux
+	   (setq ak/context-name "personal"
+		 ak/custpath-home "/home/andrew/"
+		 ak/custpath-dropbox "/home/andrew/Dropbox/"
+		 ak/custpath-emacsd "~/.emacs.d/"
+		 ak/custpath-py-default-env "/home/andrew/anaconda3/envs/py38"
+		 ak/custpath-aspell "/usr/local/bin/aspell")))
 
-   (cond ((eq window-system 'w32)
-	  (setq ak/custpath-home "c:/Users/akraemer/"
-		ak/custpath-dropbox-org "c:/Users/akraemer/Dropbox/org/"
-		ak/custpath-phone-notes "c:/Users/akraemer/Dropbox/org/phone_inbox.org"
-		ak/custpath-journal-path "c:/Users/akraemer/Dropbox/journal/"
-		ak/custpath-emacsd "c:/emacs/.emacs.d/"
-		ak/custpath-org-notes "c:/emacs/notes/"
-		ak/custpath-py-default-env "c:/Users/akraemer/Anaconda3/envs/py38"
-		ak/custpath-flake8 "c:/Users/akraemer/Anaconda3/Scripts/flake8.exe"
-		ak/custpath-aspell "c:/msys64/mingw64/bin/aspell.exe"))
-	 ((eq window-system 'ns)
-	  (setq ak/custpath-home "/Users/AndrewKraemer/"
-		ak/custpath-dropbox-org "/Users/AndrewKraemer/Dropbox/org/"
-		ak/custpath-phone-notes "/Users/AndrewKraemer/Dropbox/org/phone_inbox.org"
-		ak/custpath-journal-path "/Users/AndrewKraemer/Dropbox/journal/"
-		ak/custpath-emacsd "~/.emacs.d/"
-		ak/custpath-org-notes "~/emacs/notes/"
-		ak/custpath-py-default-env "/Users/AndrewKraemer/anaconda3/envs/py37"
-		ak/custpath-aspell "/usr/local/bin/aspell"))
-         ((eq window-system 'x)
-	  (setq ak/custpath-home "/home/andrew/"
-		ak/custpath-dropbox-org "/home/andrew/Dropbox/org/"
-		ak/custpath-phone-notes "/home/andrew/Dropbox/org/phone_inbox.org"
-		ak/custpath-journal-path "/home/andrew/Dropbox/journal/"
-		ak/custpath-emacsd "~/.emacs.d/"
-		ak/custpath-org-notes "~/emacs/notes/"
-		ak/custpath-py-default-env "/home/andrew/anaconda3/envs/py38"
-		ak/custpath-aspell "/usr/local/bin/aspell")))
+   (setq ak/custpath-journal-path (concat ak/custpath-dropbox "journal/")
+	 ak/custpath-dropbox-org (concat ak/custpath-dropbox "org/")
+	 ak/custpath-org-notes (concat ak/custpath-dropbox-org ak/context-name "/"))
  #+end_src
-
- #+RESULTS:
- : /usr/local/bin/aspell
 
 ** Better Defaults
    TODO document these chunks
@@ -190,16 +183,17 @@
 
    ;; Pretty lambda symbol
    (global-prettify-symbols-mode 1)
-   
+
    ;; automatically update buffers that have changed under file
    (global-auto-revert-mode t)
 
-   ;; work around for gnu archive not working on linux
-   (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
+   ;; work around for gnu archive not working on linux ;; though it did break melpa on windows.
+   ;; Commenting out to see how things are impacted
+   ;; (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
+
  #+end_src
 
  #+RESULTS:
- : t
 
     Org mode was being very slow on my windows machine, so I found [[https://www.reddit.com/r/emacs/comments/55ork0/is_emacs_251_noticeably_slower_than_245_on_windows/d8cmm7v/][this]] solution to improve garbage collection.
  #+begin_src emacs-lisp
@@ -238,14 +232,23 @@
 
  #+RESULTS:
 
-** TODO Unicode
+** Unicode
    When I use special characters in my org files (specifically this one) I get prompted by which character type should be saved. I havent solved this yet and it's what is preventing me from using fun characters for Org
 #+begin_src emacs-lisp
-  (if (eq window-system 'w32) (setq session-save-file-coding-system 'utf-8))
+   ;; make windows use utf-8. If I don't do this, images like dashes don't work ;; source: https://web.archive.org/web/20190726142720/https://goyoambrosio.com/2018/06/Dealing-with-utf-8-in-Emacs/
+   (prefer-coding-system 'utf-8)
+   (set-default-coding-systems 'utf-8)
+   (set-terminal-coding-system 'utf-8)
+   (set-keyboard-coding-system 'utf-8)
+   (set-selection-coding-system 'utf-8)
+   (set-file-name-coding-system 'utf-8)
+   (set-clipboard-coding-system 'utf-8)
+   (set-w32-system-coding-system 'utf-8)
+   (set-buffer-file-coding-system 'utf-8) 
+   ;; (if (eq window-system 'w32) (setq session-save-file-coding-system 'utf-8)) comented out as I was testing the other lines above
 #+end_src
 
 #+RESULTS:
-: utf-16-le
 
 * UI
 ** Font
@@ -307,9 +310,9 @@
 #+begin_src emacs-lisp
   (use-package evil
     :ensure t
-     ;; c-u to scroll up
     :init
-    (setq evil-want-C-u-scroll t)
+    (setq evil-want-C-u-scroll t) ;; c-u to scroll up
+    (setq evil-want-keybinding nil) ;; do this for integration w/ evil collection
     :config
     (evil-mode 1)
     (add-hook 'prog-mode-hook #'turn-on-evil-mode))
@@ -326,7 +329,17 @@
 
   (use-package evil-numbers
     :ensure t)
+
+  (use-package evil-collection
+    :ensure t
+    :after evil
+    :custom (evil-collection-company-use-tng nil) ;; gives errors when uses default of t
+    :config
+    (evil-collection-init))
 #+end_src
+
+#+RESULTS:
+: t
 
 * Window Management
   I do a lot in emacs, and it can be overwhelming to manage all of the different buffers and windows lying about.
@@ -401,9 +414,9 @@
    Define paths and files of where to look for tasks.
   #+begin_src emacs-lisp
     (with-eval-after-load 'org (setq org-agenda-files
-				    `(,ak/custpath-org-notes ,ak/custpath-phone-notes)))
+				    `(,ak/custpath-org-notes ,(concat ak/custpath-dropbox-org "phone_inbox.org"))))
   #+end_src 
-  
+
   I love using habits in org-mode, you need to make sure to call them out to use them, which is what this code snippet does
   #+begin_src emacs-lisp
     (with-eval-after-load 'org
@@ -461,6 +474,7 @@
  #+RESULTS:
  | t | To-do      | entry | (file+headline c:/emacs/notes/gtd.org Inbox) | ** TODO [#%^{priority}] %^{Task Description} | :prepend | t |
  | c | To-do Link | entry | (file+headline c:/emacs/notes/gtd.org Inbox) | ** TODO [#%^{priority}] %A                   |          |   |
+
 ** Org-Agenda / priority
    I use my org agenda extensively. It's the holy grail of task management for me. I use `<SPC> o o` to quickly jump to my agenda. It's where I manage task completion. It's where I kick off my pomodoro timers. I can filter it by tags with `/ <TAB>` 
    This section gets a bit nitty gritty. Look at the [[https://orgmode.org/worg/doc.html][Worg documentation]] for details on these settings.
@@ -580,6 +594,7 @@
     :config
     (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 #+end_src
+
 ** Org-pomodoro
    On good days, I use the pomodoro technique to track time and stay focused. I have my agenda customized to start a pomodoro for a task when I press `p` over a task. I can stop tracking on a task by pressing `O` then clock in with `I`. It's very neat, and I'm still getting the hang of it.
  #+begin_src emacs-lisp
@@ -751,7 +766,7 @@
      To get this working, first =pip install flake8 jedi black=.
      Can't get it working with ipython but at least it's interactive.
    #+begin_src emacs-lisp
-     ;; Python
+     ;; Python windows
      (use-package elpy
        :if (eq window-system 'w32)
        :ensure t
@@ -760,15 +775,15 @@
 	 (advice-add 'python-mode :before 'elpy-enable)
 	 (pyvenv-activate ak/custpath-py-default-env)
        :config
-  
 	 (setq elpy-modules (delq 'elpy-module-flymake elpy-modules)) ;; don't use use flymake
 	 (add-hook 'elpy-mode-hook 'flycheck-mode) ;; use use flycheck instead
 	 (setq flycheck-python-flake8-executable ak/custpath-flake8)  ;; Need to install flake8 explicitly on windows
-         (add-hook 'elpy-mode-hook (lambda ()
-                            (add-hook 'before-save-hook
-                                      'elpy-black-fix-code nil t)))
+	 (add-hook 'elpy-mode-hook (lambda ()
+			    (add-hook 'before-save-hook
+				      'elpy-black-fix-code nil t)))
      )
 
+     ;; python linux
      (use-package conda
        :if (not (eq window-system 'w32))
        :init
@@ -792,10 +807,10 @@
        :config
        (elpy-enable)
        (setq elpy-modules (delq 'elpy-module-flymake elpy-modules)) ;; don't use use flymake
-       (add-hook 'elpy-mode-hook 'flycheck-mode) ;; use use flycheck instead
-       (add-hook 'elpy-mode-hook (lambda ()
-                          (add-hook 'before-save-hook
-                                    'elpy-black-fix-code nil t)))
+       (add-hook 'elpy-mode-hook 'flycheck-mode) ;; use use flycheck instead & flymake
+       (add-hook 'elpy-mode-hook (lambda () ;; format w/ black on save
+			  (add-hook 'before-save-hook
+				    'elpy-black-fix-code nil t)))
        )
    #+end_src
 
@@ -863,6 +878,17 @@
      :ensure t)
  #+end_src
 
+* Dired
+  Dired is a powerful file management system within emacs. I would like to use it more, but some of it conflicts with with some of the evil keys. I'd like to use evil collection's dired keys.
+  [[https://jonathanabennett.github.io/blog/2019/06/05/file-management-in-emacs-with-dired-mode/][Evil Dired good blog.]]
+  Below makes it so that the dired buffer auto-updates. I'm also now full on the auto update train. Writing conflicts is the enemy.
+#+begin_src emacs-lisp
+  (setq dired-auto-revert-buffer t)
+#+end_src
+
+#+RESULTS:
+: t
+
 * Shell
   In emacs, I try to use eshell as much as possible. It does a good job -- especially compared to my options on windows. I'm interested in Elvish, which i might try some time
   In this block, I use some custom code to make sure the terminal alwasys appears on the bottom of the frame. It doesn't always work how I want it to, so I might change how I interact with it going forward
@@ -870,16 +896,30 @@
   (defun new-eshell ()
     "Open eshell on bottom of screen."
     (interactive)
-    (when (one-window-on-screen-p)
-      (let* ((lines (window-body-height))
+    (let* ((lines (window-body-height))
 	     (new-window (split-window-vertically (floor (* 0.7 lines)))))
 	(select-window new-window)
-	(eshell "eshell"))))
+	(eshell "eshell")))
+
+  ;; will need to figure this out later
+  (defun new-python-shell ()
+    "Open python shell on bottom of screen."
+    (interactive)
+    (let* ((lines (window-body-height))
+	     (new-window (split-window-vertically (floor (* 0.7 lines)))))
+	(select-window new-window)
+	(if (not (get-buffer "*Python*"))
+	    (run-python))
+	(switch-to-buffer "*Python*"
+	  nil t)))
 
   (defun one-window-on-screen-p ()
     "Check if there is only one buffer on the screen."
     (= (length (window-list)) 1))
 #+end_src
+
+#+RESULTS:
+: one-window-on-screen-p
 
 * Remote connections
   Tramp allows me to access remote files. Getting it to work with windows is a little clunky. Follow these steps:
@@ -955,6 +995,7 @@
 	       "fs"  '(save-buffer :which-key "save buffer")
 	       "ft"  '(ak/ivy-tramp-find-file :which-key "find tramp files")
 	       "fh"  '(ak/ivy-home-find-file :which-key "find home files")
+	       "fd"  '(ak/ivy-dropbox-find-file :which-key "find dropbox files")
 	       ;;projects
 	       "p"   '(:ignore t :which-key "project")
 	       "pc"  '(:keymap projectile-command-map :which-key "commands")
@@ -1038,7 +1079,9 @@
 	       "ss"  '(yas-insert-snippet :which-key "next error")
 	       "sn"  '(yas-new-snippet :which-key "previous error")
 	       ;; Others
-	       "at"  '(new-eshell :which-key "eshell"))
+	       "a"   '(:ignore t :which-key "a shell")
+	       "at"  '(new-eshell :which-key "eshell")
+	       "ap"  '(new-python-shell :which-key "python"))
 	     (general-define-key
 	       :states '(normal visual insert emacs)
 	       :prefix "C-c"
@@ -1046,10 +1089,10 @@
 	       "c"  '((lambda () (interactive) (find-file (concat ak/custpath-emacsd "myinit.org"))) :which-key "open .emacs")
 	       "o"  '((lambda () (interactive) (find-file (concat ak/custpath-org-notes "gtd.org"))) :which-key "open org")
 	       "n"  '((lambda () (interactive) (find-file (concat ak/custpath-org-notes "worknotes.org"))) :which-key "open notes")
-	       "N"  '((lambda () (interactive) (find-file (concat ak/custpath-dropbox-org "notes.org"))) :which-key "open notes")
+	       "N"  '((lambda () (interactive) (find-file (concat ak/custpath-dropbox-org "personal/notes.org"))) :which-key "open notes")
 	       ;; Vim  number increment
-	       "C-="  '(evil-numbers/inc-at-pt :which-key "increment num")
-	       "C--"  '(evil-numbers/dec-at-pt :which-key "decrement num"))
+	       "C-="  '(hydra-numbers/evil-numbers/inc-at-pt :which-key "increment num")
+	       "C--"  '(hydra-numbers/evil-numbers/dec-at-pt :which-key "decrement num"))
 	     ;; org agenda (more options here: https://github.com/Somelauw/evil-org-mode/blob/master/evil-org-agenda.el)
 	     (general-define-key
 		:keymaps 'org-agenda-mode-map
@@ -1089,19 +1132,6 @@
 		"C--" 'help/insert-em-dash
 		"M--" 'help/insert-en-dash
 		"C-M-y" 'insert-char)
-	     ;; (general-define-key
-	     ;;    :keymaps 'eww-mode-map
-	     ;;     ;; Org-Promote
-	     ;;    "M-l" 'org-do-demote
-	     ;;    "M-h" 'org-do-promote
-	     ;;    "M-L" 'org-demote-subtree
-	     ;;    "M-H" 'org-promote-subtree
-	     ;;    "M-k" 'org-move-subtree-up
-	     ;;    "M-j" 'org-move-subtree-down
-	     ;;    "C-c f" 'ak/org-focus-subtree
-	     ;;    "C--" 'help/insert-em-dash
-	     ;;    "M--" 'help/insert-en-dash
-	     ;;    "C-M-y" 'insert-char)
 	     )
                 #+end_src
 
@@ -1135,40 +1165,52 @@
 *** buffers
     This would work on the normal buffer list. I could use something like this to make navigatig the ivy buffers a little easier
 #+begin_src emacs-lisp
-   (defhydra hydra-buffer-menu (:color pink
-			       :hint nil)
-    "
-  ^Mark^             ^Unmark^           ^Actions^          ^Search
-  ^^^^^^^^-----------------------------------------------------------------
-  _m_: mark          _u_: unmark        _x_: execute       _R_: re-isearch
-  _s_: save          _U_: unmark up     _b_: bury          _I_: isearch
-  _d_: delete        ^ ^                _g_: refresh       _O_: multi-occur
-  _D_: delete up     ^ ^                _T_: files only: % -28`Buffer-menu-files-only
-  _~_: modified
-  "
-    ("m" Buffer-menu-mark)
-    ("u" Buffer-menu-unmark)
-    ("U" Buffer-menu-backup-unmark)
-    ("d" Buffer-menu-delete)
-    ("D" Buffer-menu-delete-backwards)
-    ("s" Buffer-menu-save)
-    ("~" Buffer-menu-not-modified)
-    ("x" Buffer-menu-execute)
-    ("b" Buffer-menu-bury)
-    ("g" revert-buffer)
-    ("T" Buffer-menu-toggle-files-only)
-    ("O" Buffer-menu-multi-occur :color blue)
-    ("I" Buffer-menu-isearch-buffers :color blue)
-    ("R" Buffer-menu-isearch-buffers-regexp :color blue)
-    ("c" nil "cancel")
-    ("v" Buffer-menu-select "select" :color blue)
-    ("o" Buffer-menu-other-window "other-window" :color blue)
-    ("q" quit-window "quit" :color blue))
-  ;; (define-key Buffer-menu-mode-map "." 'hydra-buffer-menu/body)
+  ;;  (defhydra hydra-buffer-menu (:color pink
+  ;; 			     :hint nil)
+  ;;   "
+  ;; ^Mark^             ^Unmark^           ^Actions^          ^Search
+  ;; ^^^^^^^^-----------------------------------------------------------------
+  ;; _m_: mark          _u_: unmark        _x_: execute       _R_: re-isearch
+  ;; _s_: save          _U_: unmark up     _b_: bury          _I_: isearch
+  ;; _d_: delete        ^ ^                _g_: refresh       _O_: multi-occur
+  ;; _D_: delete up     ^ ^                _T_: files only: % -28`Buffer-menu-files-only
+  ;; _~_: modified
+  ;; "
+  ;;   ("m" Buffer-menu-mark)
+  ;;   ("u" Buffer-menu-unmark)
+  ;;   ("U" Buffer-menu-backup-unmark)
+  ;;   ("d" Buffer-menu-delete)
+  ;;   ("D" Buffer-menu-delete-backwards)
+  ;;   ("s" Buffer-menu-save)
+  ;;   ("~" Buffer-menu-not-modified)
+  ;;   ("x" Buffer-menu-execute)
+  ;;   ("b" Buffer-menu-bury)
+  ;;   ("g" revert-buffer)
+  ;;   ("T" Buffer-menu-toggle-files-only)
+  ;;   ("O" Buffer-menu-multi-occur :color blue)
+  ;;   ("I" Buffer-menu-isearch-buffers :color blue)
+  ;;   ("R" Buffer-menu-isearch-buffers-regexp :color blue)
+  ;;   ("c" nil "cancel")
+  ;;   ("v" Buffer-menu-select "select" :color blue)
+  ;;   ("o" Buffer-menu-other-window "other-window" :color blue)
+  ;;   ("q" quit-window "quit" :color blue))
+  ;; ;; (define-key Buffer-menu-mode-map "." 'hydra-buffer-menu/body)
 #+end_src
 
 #+RESULTS:
 : hydra-buffer-menu/body
+
+*** evil-number
+    Increase text size. Probably want to change the key binding
+   #+begin_src emacs-lisp
+      (defhydra hydra-numbers ()
+	"numbers"
+	("C-=" evil-numbers/inc-at-pt "increase")
+	("C--" evil-numbers/dec-at-pt "dec"))
+   #+end_src 
+
+#+RESULTS:
+: hydra-numbers/body
 
 * Custom Functions
 ** go to scratch
@@ -1218,34 +1260,38 @@
     (insert "\n \n#+end_src"))
 #+end_src
 
-#+RESULTS:
-: ak-insert-bable
+** Find File helpers
+   This section has some cheater functions to get me to my favorite directories. I know this isn't the best way to do this. I should make a hydra or find an internal emacs tool for this
+*** Tramp Find File
+    Typing the full path to tramp files it tedious and my memory isn't good, so I mde this helper function based on the default tramp-method
+  #+begin_src emacs-lisp
+    (defun ak/ivy-tramp-find-file ()
+      "find-file with Tramp. Ex: '/plink:bort:~/'. See tramp note to setup"
+      (interactive)
+      (let ((tramp-path (concat "/" tramp-default-method ":")))
+	(counsel-find-file tramp-path)))
+  #+end_src
 
-** Tramp Find File
-   Typing the full path to tramp files it tedious and my memory isn't good, so I mde this helper function based on the default tramp-method
- #+begin_src emacs-lisp
-   (defun ak/ivy-tramp-find-file ()
-     "find-file with Tramp. Ex: '/plink:bort:~/'. See tramp note to setup"
-     (interactive)
-     (let ((tramp-path (concat "/" tramp-default-method ":")))
-       (counsel-find-file tramp-path)))
- #+end_src
+*** Find File Home
+    I don't alwasys do a good job maintaining my home area, so this is a function which just takes me to where I want to go.
+  #+begin_src emacs-lisp
+    (defun ak/ivy-home-find-file ()
+      "open counsel-find-file in the home directory"
+      (interactive)
+      (counsel-find-file ak/custpath-home))
+  #+end_src
 
- #+RESULTS:
- : ak/ivy-tramp-find-file
+*** Find File dropbox
+    Take me to dropbox
+  #+begin_src emacs-lisp
+    (defun ak/ivy-dropbox-find-file ()
+      "open counsel-find-file in the Dropbox directory"
+      (interactive)
+      (counsel-find-file ak/custpath-dropbox))
+  #+end_src
 
-** Find File Home
-   I don't alwasys do a good job maintaining my home area, so this is a function which just takes me to where I want to go.
-   TODO Create a hydra with common file locations I'd like to go to like home or tramp
- #+begin_src emacs-lisp
-   (defun ak/ivy-home-find-file ()
-     "open counsel-find-file in the home directory"
-     (interactive)
-     (counsel-find-file ak/custpath-home))
- #+end_src
-
- #+RESULTS:
- : ak/ivy-home-find-file
+  #+RESULTS:
+  : ak/ivy-dropbox-find-file
 
 ** Save and close window
    Wanted to have something for org-journal that behaves like magit buffer when you C-c C-c
@@ -1300,11 +1346,11 @@
    (defun help/insert-em-dash ()
     "Inserts an EM-DASH (not a HYPEN, not an N-DASH)"
     (interactive)
-    (insert "¡X"))
+    (insert "â€”"))
   (defun help/insert-en-dash ()
     "Inserts an EN-DASH (not a HYPEN, not an EM-DASH)"
     (interactive)
-    (insert "¡V"))
+    (insert "â€“"))
 #+end_src
 
 #+RESULTS:
