@@ -193,8 +193,6 @@
 
  #+end_src
 
- #+RESULTS:
-
     Org mode was being very slow on my windows machine, so I found [[https://www.reddit.com/r/emacs/comments/55ork0/is_emacs_251_noticeably_slower_than_245_on_windows/d8cmm7v/][this]] solution to improve garbage collection.
  #+begin_src emacs-lisp
    (when (eq window-system 'w32)
@@ -243,9 +241,8 @@
    (set-selection-coding-system 'utf-8)
    (set-file-name-coding-system 'utf-8)
    (set-clipboard-coding-system 'utf-8)
-   (set-w32-system-coding-system 'utf-8)
    (set-buffer-file-coding-system 'utf-8) 
-   ;; (if (eq window-system 'w32) (setq session-save-file-coding-system 'utf-8)) comented out as I was testing the other lines above
+   (if (eq window-system 'w32) (set-w32-system-coding-system 'utf-8))
 #+end_src
 
 #+RESULTS:
