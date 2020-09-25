@@ -1001,6 +1001,7 @@
 	       "pf"  '(counsel-projectile-find-file :which-key "find project file")
 	       "pg"  '(projectile-grep :which-key "grep project")
 	       "pk"  '(projectile-kill-buffers :which-key "kill all buffers in project")
+	       "pu"  '(projectile-run-project :which-key "run command for project")
 	       ;; eval
 	       "e"   '(:ignore t :which-key "evaluate")
 	       "ee"  '(eval-last-sexp :which-key "last expression")
