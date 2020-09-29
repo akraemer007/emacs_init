@@ -397,6 +397,10 @@
     (ivy-mode 1))
 
   ;; fuzzy matching for ivy
+  (use-package ivy-hydra
+    :ensure t)
+
+  ;; fuzzy matching for ivy
   (use-package flx
     :ensure t)
 
@@ -982,6 +986,7 @@
 	       :states '(normal visual insert emacs)
 	       :prefix "SPC"
 	       :non-normal-prefix "M-SPC"
+	       "."  '(swiper :which-key "ivy-resume")
 	       "/"  '(swiper :which-key "swiper") ; You'll need counsel package for this ;; consider counsel-git-grep
 	       "\\"  '(counsel-rg :which-key "ripgrep") ; You'll need counsel package for this ;; consider counsel-git-grep
 	       "TAB" '(spacemacs/alternate-window :which-key "alternate buffer")
@@ -1016,6 +1021,7 @@
 	       "bd"  '(kill-this-buffer :which-key "delete buffer")
 	       "bk"  '(evil-delete-buffer :which-key "delete buffer and window")
 	       "bq"  '(ak/save-exit-buffer-list :which-key "quit gtd-files")
+	       "b."  '(ibuffer :which-key "ibuffer")
 	       ;; Window
 	       "w"   '(:ignore t :which-key "window")
 	       "wl"  '(windmove-right :which-key "move right")
