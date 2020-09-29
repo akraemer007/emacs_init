@@ -139,7 +139,7 @@
 		 ak/custpath-emacsd "~/.emacs.d/"
 		 ak/custpath-py-default-env "/Users/AndrewKraemer/anaconda3/envs/py37"
 		 ak/custpath-aspell "/usr/local/bin/aspell"))
-	  ((eq window-system 'x) ;; linux
+	  ((string-equal system-name "andrew-MACH-WX9") ;; linux
 	   (setq ak/context-name "personal"
 		 ak/custpath-home "/home/andrew/"
 		 ak/custpath-dropbox "/home/andrew/Dropbox/"
@@ -189,9 +189,11 @@
 
    ;; work around for gnu archive not working on linux ;; though it did break melpa on windows.
    ;; Commenting out to see how things are impacted
-   ;; (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
+   (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
+   (setq package-check-signature nil)
+#+end_src
 
- #+end_src
+ #+RESULTS:
 
     Org mode was being very slow on my windows machine, so I found [[https://www.reddit.com/r/emacs/comments/55ork0/is_emacs_251_noticeably_slower_than_245_on_windows/d8cmm7v/][this]] solution to improve garbage collection.
  #+begin_src emacs-lisp
@@ -260,13 +262,13 @@
 			      ;; :weight 'bold
 			      ;; :width 'normal
 			      :height 107))
-	 ((eq window-system 'ns)
+	 ((string-equal system-name "andrew-MACH-WX9")
 	  (set-face-attribute 'default nil
 			      :family "Source Code Pro"
 			      :weight 'normal
 			      ;; :weight 'bold
 			      ;; :width 'normal
-			      :height 140)))
+			      :height 110)))
  #+end_src
 
  #+RESULTS:
