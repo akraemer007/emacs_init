@@ -189,8 +189,9 @@
 
    ;; work around for gnu archive not working on linux ;; though it did break melpa on windows.
    ;; Commenting out to see how things are impacted
-   (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
-   (setq package-check-signature nil)
+   (when (string-equal system-name "andrew-MACH-WX9")
+     (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
+     (setq package-check-signature nil))
 #+end_src
 
  #+RESULTS:
@@ -988,7 +989,7 @@
 	       :states '(normal visual insert emacs)
 	       :prefix "SPC"
 	       :non-normal-prefix "M-SPC"
-	       "."  '(swiper :which-key "ivy-resume")
+	       "."  '(ivy-resume :which-key "ivy-resume")
 	       "/"  '(swiper :which-key "swiper") ; You'll need counsel package for this ;; consider counsel-git-grep
 	       "\\"  '(counsel-rg :which-key "ripgrep") ; You'll need counsel package for this ;; consider counsel-git-grep
 	       "TAB" '(spacemacs/alternate-window :which-key "alternate buffer")
