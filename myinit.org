@@ -987,8 +987,9 @@
 	       "k" 'evil-previous-line)
 	     (general-define-key
 	       :states '(normal visual insert emacs)
+	       :keymaps 'override
 	       :prefix "SPC"
-	       :non-normal-prefix "M-SPC"
+	       :non-normal-prefix "C-SPC"
 	       "."  '(ivy-resume :which-key "ivy-resume")
 	       "/"  '(swiper :which-key "swiper") ; You'll need counsel package for this ;; consider counsel-git-grep
 	       "\\"  '(counsel-rg :which-key "ripgrep") ; You'll need counsel package for this ;; consider counsel-git-grep
@@ -1045,7 +1046,7 @@
 	       "wu"  '(winner-undo :which-key "winner undo")
 	       "wU"  '(winner-redo :which-key "winner redo")
 	       "ww"  '(writeroom-mode :which-key "writeroom mode")
-	       "wS"  '(hydra-window-size/body :which-key "increment num")
+	       "wS"  '(hydra-window-size/body :which-key "change size")
 	       ;; v for view
 	       "v"   '(:ignore t :which-key "view")
 	       "vc"  '(ivy-push-view :which-key "create view")
@@ -1101,6 +1102,9 @@
 	       ;; Vim  number increment
 	       "C-="  '(hydra-numbers/evil-numbers/inc-at-pt :which-key "increment num")
 	       "C--"  '(hydra-numbers/evil-numbers/dec-at-pt :which-key "decrement num"))
+	     (general-define-key
+		:keymaps 'motion
+		"." '(hydra-window-size/body :which-key "sizeup"))
 	     ;; org agenda (more options here: https://github.com/Somelauw/evil-org-mode/blob/master/evil-org-agenda.el)
 	     (general-define-key
 		:keymaps 'org-agenda-mode-map
