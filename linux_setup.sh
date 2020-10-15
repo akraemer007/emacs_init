@@ -9,6 +9,9 @@ git config --global user.name "Andrew Kraemer"
 git config --global user.email "kidman007@gmail.com"
 echo 'git installed'
 
+# htop
+sudo apt install htop
+
 # python
 cd ~/Downloads
 sudo apt install libgl1-mesa-glx libegl1-mesa libxrandr2 libxrandr2 libxss1 libxcursor1 libxcomposite1 libasound2 libxi6 libxtst6
@@ -54,6 +57,19 @@ sudo apt-get install emacs
 sudo git clone https://github.com/akraemer007/emacs_init.git
 sudo mv emacs_init .emacs.d
 sudo mkdir .emacs.d/tmp
+
+# video
+sudo add-apt-repository multiverse
+sudo apt install ubuntu-restricted-extras
+
+# pandoc
+# may need to run
+sudo sed -i '/cdrom/d' /etc/apt/sources.list # in case the cd-rom is in the sources list.
+sudo apt-get install pandoc
+
+# latex-tooling
+sudo apt-get install texlive
+# pdftex blah.tex
 
 # elf shell?
 # window setup I like
