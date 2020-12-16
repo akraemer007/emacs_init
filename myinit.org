@@ -69,6 +69,7 @@
     - [X] rainbow delimiters
     - [ ] prettify symbols
     - [ ] get rid of ivy ^
+   - [[https://github.com/daviwil/emacs-from-scratch][emacs from scratch]] is a great and clean config. It had the global space for me which I have been sorely missing
 
 * Performance Optimization
   This section entirely stolen from [[https://github.com/zzamboni/dot-emacs/blob/master/init.org#performance-optimization][here]].
@@ -195,6 +196,7 @@
 #+end_src
 
  #+RESULTS:
+ : NORMAL:-VERS-TLS1.3
 
     Org mode was being very slow on my windows machine, so I found [[https://www.reddit.com/r/emacs/comments/55ork0/is_emacs_251_noticeably_slower_than_245_on_windows/d8cmm7v/][this]] solution to improve garbage collection.
  #+begin_src emacs-lisp
@@ -845,7 +847,7 @@
   #+RESULTS:
   : c:/Program Files/Racket/Racket.exe
 
-* Writing
+* Writing & Reading
 ** Writeroom
    Write room is a package great for narrowing my focus on writing. It takes the full screen, much like your average "distraction free" writing enviornments. It's also nice to use with my helper function C-c f (f for focus) which toggles the narrowing of a sub tree in case I'm working with an unweildy org file
 #+begin_src emacs-lisp
@@ -861,6 +863,25 @@
 #+end_src
 
 #+RESULTS:
+
+** eBooks
+   Read ePub format books in emacs. Neat!
+#+begin_src emacs-lisp
+  (use-package nov
+    :ensure t
+    :defer t
+    :custom (nov-text-width 80)
+    :mode ("\\.epub\\'" . nov-mode))
+
+  ;; windows needs additional configuration instructions here: https://emacs.stackexchange.com/questions/52426/unable-to-run-nov-mode-on-windows
+  ;; this whole thing is a nightmare
+  ;; (when (eq window-system 'w32)
+  ;;   (setq nov-unzip-program "C:\\Users\\akraemer\\Downloads\\unzip.exe")
+  ;;   (setq explicit-shell-file-name "C:\\msys64\\msys2.exe"))
+#+end_src
+
+#+RESULTS:
+: C:\msys64\msys2.exe
 
 * Checks
 ** Spelling
@@ -989,7 +1010,7 @@
 	       :states '(normal visual insert emacs)
 	       :keymaps 'override
 	       :prefix "SPC"
-	       :non-normal-prefix "C-SPC"
+	       :global-prefix "C-SPC"
 	       "."  '(ivy-resume :which-key "ivy-resume")
 	       "/"  '(swiper :which-key "swiper") ; You'll need counsel package for this ;; consider counsel-git-grep
 	       "\\"  '(counsel-rg :which-key "ripgrep") ; You'll need counsel package for this ;; consider counsel-git-grep
