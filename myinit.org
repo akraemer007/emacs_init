@@ -58,7 +58,7 @@
    - [[https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org][This one]] is beautiful. Found it when investigating mode lines
    - [[https://github.com/noahfrederick/dots/blob/master/emacs/emacs.org][Nox]] has an org set-up in his use-package
    - [[https://github.com/zzamboni/dot-emacs/blob/master/init.org][zzamboni]] has a great literate config. Lots of it considers writing
-   - [[http://www.howardism.org/Technical/Emacs/orgmode-wordprocessor.html][This]] guy has a really robust emacs blog. He makes his org-mode look AWESOME. I'm not sure it's worth the effort though
+   - [[http://www.howardism.org/Technical/Emacs/orgmode-wordprocessor.html][This]] guy has a really robust emacs blog. He makes his org-mode look AWESOME. I'm not sure it's worth the effort though. org word processor
    - I borrowed a lot of ideas from [[https://jamiecollinson.com/blog/my-emacs-config/][this]] one
     - [ ] w3m
     - [ ] writegood
@@ -434,7 +434,41 @@
   #+begin_src emacs-lisp
     (setq evil-org-key-theme '(textobjects navigation additional insert todo))
   #+end_src 
+** Org UI
+   I stole this from emacs from scratch. It's not exactly what I want -- at least in windows -- but it is definately a step in the right diretion
+#+begin_src emacs-lisp
+  (defun efs/org-font-setup ()
+   ;; Replace list hyphen with dot
+   (font-lock-add-keywords 'org-mode
+			   '(("^ *\\([-]\\) "
+			      (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
 
+   ;; Set faces for heading levels
+   (dolist (face '((org-level-1 . 1.2)
+		   (org-level-2 . 1.1)
+		   (org-level-3 . 1.05)
+		   (org-level-4 . 1.0)
+		   (org-level-5 . 1.1)
+		   (org-level-6 . 1.1)
+		   (org-level-7 . 1.1)
+		   (org-level-8 . 1.1)))
+     (set-face-attribute (car face) nil :font "Verdana" :weight 'regular :height (cdr face)))
+
+   ;; Ensure that anything that should be fixed-pitch in Org files appears that way
+   (set-face-attribute 'org-block nil    :foreground nil :inherit 'fixed-pitch)
+   (set-face-attribute 'org-table nil    :inherit 'fixed-pitch)
+   (set-face-attribute 'org-formula nil  :inherit 'fixed-pitch)
+   (set-face-attribute 'org-code nil     :inherit '(shadow fixed-pitch))
+   (set-face-attribute 'org-table nil    :inherit '(shadow fixed-pitch))
+   (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
+   (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
+   (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
+   (set-face-attribute 'org-checkbox nil  :inherit 'fixed-pitch))
+
+   ;; (efs/org-font-setup)
+#+end_src
+
+#+RESULTS:
 
 ** Org Tasking
    These are my todo states. They are ordered by priority and, as such, Impact how my org-agenda is displayed
