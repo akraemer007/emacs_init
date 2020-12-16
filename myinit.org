@@ -69,6 +69,7 @@
     - [X] rainbow delimiters
     - [ ] prettify symbols
     - [ ] get rid of ivy ^
+   - [[https://github.com/daviwil/emacs-from-scratch][emacs from scratch]] is a great and clean config. It had the global space for me which I have been sorely missing
 
 * Performance Optimization
   This section entirely stolen from [[https://github.com/zzamboni/dot-emacs/blob/master/init.org#performance-optimization][here]].
