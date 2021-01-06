@@ -58,7 +58,7 @@
    - [[https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org][This one]] is beautiful. Found it when investigating mode lines
    - [[https://github.com/noahfrederick/dots/blob/master/emacs/emacs.org][Nox]] has an org set-up in his use-package
    - [[https://github.com/zzamboni/dot-emacs/blob/master/init.org][zzamboni]] has a great literate config. Lots of it considers writing
-   - [[http://www.howardism.org/Technical/Emacs/orgmode-wordprocessor.html][This]] guy has a really robust emacs blog. He makes his org-mode look AWESOME. I'm not sure it's worth the effort though
+   - [[http://www.howardism.org/Technical/Emacs/orgmode-wordprocessor.html][This]] guy has a really robust emacs blog. He makes his org-mode look AWESOME. I'm not sure it's worth the effort though. org word processor
    - I borrowed a lot of ideas from [[https://jamiecollinson.com/blog/my-emacs-config/][this]] one
     - [ ] w3m
     - [ ] writegood
@@ -150,8 +150,13 @@
 
    (setq ak/custpath-journal-path (concat ak/custpath-dropbox "journal/")
 	 ak/custpath-dropbox-org (concat ak/custpath-dropbox "org/")
-	 ak/custpath-org-notes (concat ak/custpath-dropbox-org ak/context-name "/"))
+	 ak/custpath-org-notes (concat ak/custpath-dropbox-org ak/context-name "/")
+	 ak/custpath-org-personal-loc (concat ak/custpath-dropbox-org "personal/gtd.org")
+	 ak/custpath-org-work-loc (concat ak/custpath-dropbox-org "catapult/gtd.org"))
  #+end_src
+
+ #+RESULTS:
+ : c:/Users/akraemer/Dropbox/org/catapult/gtd.org
 
 ** Better Defaults
    TODO document these chunks
@@ -434,7 +439,63 @@
   #+begin_src emacs-lisp
     (setq evil-org-key-theme '(textobjects navigation additional insert todo))
   #+end_src 
+** Org UI
+   I stole this from emacs from scratch. It's not exactly what I want -- at least in windows -- but it is definately a step in the right diretion
+#+begin_src emacs-lisp
+    (defun efs/org-font-setup ()
+     ;; Replace list hyphen with dot
+     (font-lock-add-keywords 'org-mode
+			     '(("^ *\\([-]\\) "
+				(0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
 
+     ;; Set faces for heading levels
+     (dolist (face '((org-level-1 . 1.2)
+		     (org-level-2 . 1.1)
+		     (org-level-3 . 1.05)
+		     (org-level-4 . 1.0)
+		     (org-level-5 . 1.1)
+		     (org-level-6 . 1.1)
+		     (org-level-7 . 1.1)
+		     (org-level-8 . 1.1)))
+       (set-face-attribute (car face) nil :font "Source Code Pro" :weight 'regular :height (cdr face)))
+
+     ;; Ensure that anything that should be fixed-pitch in Org files appears that way
+     (set-face-attribute 'org-block nil    :foreground nil :inherit 'fixed-pitch)
+     (set-face-attribute 'org-table nil    :inherit 'fixed-pitch)
+     (set-face-attribute 'org-formula nil  :inherit 'fixed-pitch)
+     (set-face-attribute 'org-code nil     :inherit '(shadow fixed-pitch))
+     (set-face-attribute 'org-table nil    :inherit '(shadow fixed-pitch))
+     (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
+     (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
+     (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
+     (set-face-attribute 'org-checkbox nil  :inherit 'fixed-pitch))
+
+     ;; (efs/org-font-setup)
+
+
+  ;; (let* ((variable-tuple (cond ((x-list-fonts "Source Sans Pro") '(:font "Source Sans Pro"))
+  ;; 			     ((x-list-fonts "Lucida Grande")   '(:font "Lucida Grande"))
+  ;; 			     ((x-list-fonts "Verdana")         '(:font "Verdana"))
+  ;; 			     ((x-family-fonts "Sans Serif")    '(:family "Sans Serif"))
+  ;; 			     (nil (warn "Cannot find a Sans Serif Font.  Install Source Sans Pro."))))
+  ;;        ;; (base-font-color     (face-foreground 'default nil 'default))
+  ;;        ;; (headline           `(:inherit default :weight bold :foreground ,base-font-color))
+  ;;        (headline           `(:inherit default :weight bold))
+  ;;        )
+
+  ;;   (custom-theme-set-faces 'user
+  ;; 			  `(org-level-8 ((t (,@headline ,@variable-tuple))))
+  ;; 			  `(org-level-7 ((t (,@headline ,@variable-tuple))))
+  ;; 			  `(org-level-6 ((t (,@headline ,@variable-tuple))))
+  ;; 			  `(org-level-5 ((t (,@headline ,@variable-tuple))))
+  ;; 			  `(org-level-4 ((t (,@headline ,@variable-tuple :height 1.1))))
+  ;; 			  `(org-level-3 ((t (,@headline ,@variable-tuple :height 1.25))))
+  ;; 			  `(org-level-2 ((t (,@headline ,@variable-tuple :height 1.5))))
+  ;; 			  `(org-level-1 ((t (,@headline ,@variable-tuple :height 1.75))))
+  ;; 			  `(org-document-title ((t (,@headline ,@variable-tuple :height 1.5 :underline nil))))))
+#+end_src
+
+#+RESULTS:
 
 ** Org Tasking
    These are my todo states. They are ordered by priority and, as such, Impact how my org-agenda is displayed
@@ -494,6 +555,21 @@
 
  #+RESULTS:
  : next
+ 
+   This is to make my agenda look prettier.
+   TODO does not work automatically
+ #+begin_src emacs-lisp
+   (use-package elegant-agenda-mode
+     :ensure t
+     ;; :hook org-agenda-mode-hook
+     ;; :config (add-hook 'org-agenda-mode-hook)
+     ;; :init (setq elegant-agenda-font "some other font")
+     )
+ #+end_src
+
+ #+RESULTS:
+ : t
+
 
    Non prioritized tasks will be sorted to d, though I usually make sure to priotize all of my tasks w/ my org capture
  #+begin_src emacs-lisp
@@ -552,45 +628,93 @@
    TODO it might be smarter to have the custom commands saved separately for better documentation
  #+begin_src emacs-lisp
    (setq org-agenda-custom-commands
-	 '(("d" "Daily agenda and all TODOs"
+	 '(("d" "Daily agenda and all work TODOs"
 	    ((tags "PRIORITY=\"A\""
 		   ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
-		    (org-agenda-overriding-header "High-priority unfinished tasks:")))
+		    (org-agenda-overriding-header "High-priority unfinished tasks:")
+		    (org-agenda-files `(,ak/custpath-org-work-loc ,(concat ak/custpath-dropbox-org "phone_inbox.org")))))
 	     (agenda ""
 		     ((org-agenda-span 'day)
-		      (org-agenda-overriding-header "ALL normal priority tasks:")))
+		      (org-agenda-overriding-header "ALL normal priority tasks:")
+		      (org-agenda-files `(,ak/custpath-org-work-loc ,(concat ak/custpath-dropbox-org "phone_inbox.org")))))
 	     (tags (or "PRIORITY=\"B\"" "PRIORITY=\"C\"")
 		   ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
-		    (org-agenda-overriding-header "Unfinished tasks:")))
+		    (org-agenda-overriding-header "Unfinished tasks:")
+		    (org-agenda-files `(,ak/custpath-org-work-loc ,(concat ak/custpath-dropbox-org "phone_inbox.org")))))
 	     (alltodo ""
 		      ((org-agenda-skip-function '(or (air-org-skip-subtree-if-habit)
 						      (air-org-skip-subtree-if-priority ?A)
 						      (air-org-skip-subtree-if-priority ?B)
 						      (org-agenda-skip-if nil '(scheduled deadline))))
-		       (org-agenda-overriding-header "Eventually:"))))
+		       (org-agenda-overriding-header "Eventually:")
+		       (org-agenda-files `(,ak/custpath-org-work-loc ,(concat ak/custpath-dropbox-org "phone_inbox.org"))))))
+	    ;; ((org-agenda-compact-blocks t)) ;; removes = breaks
+	    )
+	   ;; Identical to previous but uses different org file
+	   ("D" "Daily agenda and all personal TODOs"
+	    (
+	     (tags "PRIORITY=\"A\""
+		   ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+		    (org-agenda-overriding-header "High-priority unfinished tasks:")
+		    (org-agenda-files `(,ak/custpath-org-personal-loc ,(concat ak/custpath-dropbox-org "phone_inbox.org")))))
+	     (agenda ""
+		     ((org-agenda-span 'day)
+		      (org-agenda-overriding-header "ALL normal priority tasks:")
+		      (org-agenda-files `(,ak/custpath-org-personal-loc ,(concat ak/custpath-dropbox-org "phone_inbox.org")))))
+	     (tags (or "PRIORITY=\"B\"" "PRIORITY=\"C\"")
+		   ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+		    (org-agenda-overriding-header "Unfinished tasks:")
+		    (org-agenda-files `(,ak/custpath-org-personal-loc ,(concat ak/custpath-dropbox-org "phone_inbox.org")))))
+
+	     (alltodo ""
+		      ((org-agenda-skip-function '(or (air-org-skip-subtree-if-habit)
+						      (air-org-skip-subtree-if-priority ?A)
+						      (air-org-skip-subtree-if-priority ?B)
+						      (org-agenda-skip-if nil '(scheduled deadline))))
+		       (org-agenda-overriding-header "Eventually:")
+		       (org-agenda-files `(,ak/custpath-org-personal-loc ,(concat ak/custpath-dropbox-org "phone_inbox.org")))))
+	    )
+	    ;; ((org-agenda-files '("c:/Users/akraemer/Dropbox/org/personal/gtd.org")))
+	    ;; (org-agenda-files `(,ak/custpath-org-personal-loc ,(concat ak/custpath-dropbox-org "phone_inbox.org")))
 	    ;; ((org-agenda-compact-blocks t)) ;; removes = breaks
 	    )
 	   ("r" "Day in review"
 	      todo "DONE"
 	      ;; agenda settings
-	      ((org-agenda-files '("c:/emacs/notes/gtd.org_archive"))
+	      ((org-agenda-files '("c:/Users/akraemer/Dropbox/org/catapult/gtd.org_archive"))
 	       (org-agenda-start-with-log-mode '(ARCHIVE_TIME))
 	       (org-agenda-archives-mode t)
-               (org-agenda-skip-function '(org-agenda-skip-entry-if 'notregexp (ak/org-skip-subtree-if-not-archived-today)))
+	       (org-agenda-skip-function '(org-agenda-skip-entry-if 'notregexp (ak/org-skip-subtree-if-not-archived-today)))
 	       (org-agenda-overriding-header "Day in Review"))
 	      ;; ("~/org/review/day.html") ;; for export
 		   )))
  #+end_src
 
+ #+RESULTS:
+ | d | Daily agenda and all work TODOs     | ((tags PRIORITY="A" ((org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote todo) (quote done)))) (org-agenda-overriding-header High-priority unfinished tasks:) (org-agenda-files (` ((, ak/custpath-org-work-loc) (, (concat ak/custpath-dropbox-org phone_inbox.org))))))) (agenda  ((org-agenda-span (quote day)) (org-agenda-overriding-header ALL normal priority tasks:) (org-agenda-files (` ((, ak/custpath-org-work-loc) (, (concat ak/custpath-dropbox-org phone_inbox.org))))))) (tags (or PRIORITY="B" PRIORITY="C") ((org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote todo) (quote done)))) (org-agenda-overriding-header Unfinished tasks:) (org-agenda-files (` ((, ak/custpath-org-work-loc) (, (concat ak/custpath-dropbox-org phone_inbox.org))))))) (alltodo  ((org-agenda-skip-function (quote (or (air-org-skip-subtree-if-habit) (air-org-skip-subtree-if-priority 65) (air-org-skip-subtree-if-priority 66) (org-agenda-skip-if nil (quote (scheduled deadline)))))) (org-agenda-overriding-header Eventually:) (org-agenda-files (` ((, ak/custpath-org-work-loc) (, (concat ak/custpath-dropbox-org phone_inbox.org))))))))                 |      |                                                                                                                                                                                                                                                                                                                                                     |
+ | D | Daily agenda and all personal TODOs | ((tags PRIORITY="A" ((org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote todo) (quote done)))) (org-agenda-overriding-header High-priority unfinished tasks:) (org-agenda-files (` ((, ak/custpath-org-personal-loc) (, (concat ak/custpath-dropbox-org phone_inbox.org))))))) (agenda  ((org-agenda-span (quote day)) (org-agenda-overriding-header ALL normal priority tasks:) (org-agenda-files (` ((, ak/custpath-org-personal-loc) (, (concat ak/custpath-dropbox-org phone_inbox.org))))))) (tags (or PRIORITY="B" PRIORITY="C") ((org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote todo) (quote done)))) (org-agenda-overriding-header Unfinished tasks:) (org-agenda-files (` ((, ak/custpath-org-personal-loc) (, (concat ak/custpath-dropbox-org phone_inbox.org))))))) (alltodo  ((org-agenda-skip-function (quote (or (air-org-skip-subtree-if-habit) (air-org-skip-subtree-if-priority 65) (air-org-skip-subtree-if-priority 66) (org-agenda-skip-if nil (quote (scheduled deadline)))))) (org-agenda-overriding-header Eventually:) (org-agenda-files (` ((, ak/custpath-org-personal-loc) (, (concat ak/custpath-dropbox-org phone_inbox.org)))))))) |      |                                                                                                                                                                                                                                                                                                                                                     |
+ | r | Day in review                       | todo                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | DONE | ((org-agenda-files (quote (c:/Users/akraemer/Dropbox/org/catapult/gtd.org_archive))) (org-agenda-start-with-log-mode (quote (ARCHIVE_TIME))) (org-agenda-archives-mode t) (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote notregexp) (ak/org-skip-subtree-if-not-archived-today)))) (org-agenda-overriding-header Day in Review)) |
+
    I love this function. It brings the agenda front and center. Thanks [[https://blog.aaronbieber.com/2016/09/24/an-agenda-for-life-with-org-mode.html][Aaron Bieber]].
  #+begin_src emacs-lisp
-   (defun air-pop-to-org-agenda (&optional split)
-     "Visit the org agenda, in the current window or a SPLIT."
+   (defun air-pop-to-org-agenda-work (&optional split)
+     "Visit the org agenda for work, in the current window or a SPLIT."
      (interactive "P")
      (org-agenda nil "d")
      (when (not split)
      (delete-other-windows)))
+     
+
+   (defun air-pop-to-org-agenda-personal (&optional split)
+     "Visit the org agenda for personal, in the current window or a SPLIT."
+     (interactive "P")
+     (org-agenda nil "D")
+     (when (not split)
+     (delete-other-windows)))
  #+end_src
+
+ #+RESULTS:
+ : air-pop-to-org-agenda-personal
 
 ** Org-Bullets
    Org-Bullets makes the bullets in orgmode just a little bit nicer to look at.
@@ -1077,8 +1201,9 @@
 	       ;; Org
 	       "o"   '(:ignore t :which-key "org")
 	       "ob"  '(ak/insert-bable :Which-key "insert bable")
-	       "oo"  '(air-pop-to-org-agenda :which-key "open standard agenda")
-	       "or"  '(org-agenda :which-key "open review agenda")
+	       "oo"  '(air-pop-to-org-agenda-work :which-key "open standard work agenda")
+	       "oO"  '(air-pop-to-org-agenda-personal :which-key "open standard personal agenda")
+	       "oa"  '(org-agenda :which-key "open review agenda")
 	       "oc"  '(org-capture :which-key "org capture")
 	       "oj"  '(org-journal-new-entry :which-key "org journal")
 	       "op"  '(org-pomodoro :which-key "pomodoro start")
@@ -1118,7 +1243,8 @@
 	       ;; Quick open files
 	       "c"  '((lambda () (interactive) (find-file (concat ak/custpath-emacsd "myinit.org"))) :which-key "open .emacs")
 	       "o"  '((lambda () (interactive) (find-file (concat ak/custpath-org-notes "gtd.org"))) :which-key "open org")
-	       "n"  '((lambda () (interactive) (find-file (concat ak/custpath-org-notes "worknotes.org"))) :which-key "open notes")
+	       "O"  '((lambda () (interactive) (find-file (concat ak/custpath-dropbox-org "personal/gtd.org"))) :which-key "open org")
+	       "n"  '((lambda () (interactive) (find-file (concat ak/custpath-org-notes "notes.org"))) :which-key "open notes")
 	       "N"  '((lambda () (interactive) (find-file (concat ak/custpath-dropbox-org "personal/notes.org"))) :which-key "open notes")
 	       ;; Vim  number increment
 	       "C-="  '(hydra-numbers/evil-numbers/inc-at-pt :which-key "increment num")
