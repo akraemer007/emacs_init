@@ -133,8 +133,15 @@
 		 ak/custpath-py-default-env "c:/Users/akraemer/Anaconda3/envs/py38"
 		 ak/custpath-flake8 "c:/Users/akraemer/Anaconda3/Scripts/flake8.exe"
 		 ak/custpath-aspell "c:/msys64/mingw64/bin/aspell.exe"))
-	  ((eq window-system 'ns) ;; mac
+	  ((eq window-system 'ns) ;; macbook
 	   (setq ak/context-name "personal"
+		 ak/custpath-home "/Users/AndrewKraemer/"
+		 ak/custpath-dropbox "/Users/AndrewKraemer/Dropbox/"
+		 ak/custpath-emacsd "~/.emacs.d/"
+		 ak/custpath-py-default-env "/Users/AndrewKraemer/anaconda3/envs/py37"
+		 ak/custpath-aspell "/usr/local/bin/aspell"))
+	  ((eq window-system 'mac) ;; macmini
+	   (setq ak/context-name "catapult"
 		 ak/custpath-home "/Users/AndrewKraemer/"
 		 ak/custpath-dropbox "/Users/AndrewKraemer/Dropbox/"
 		 ak/custpath-emacsd "~/.emacs.d/"
@@ -156,7 +163,7 @@
  #+end_src
 
  #+RESULTS:
- : c:/Users/akraemer/Dropbox/org/catapult/gtd.org
+ : /Users/AndrewKraemer/Dropbox/org/catapult/gtd.org
 
 ** Better Defaults
    TODO document these chunks
@@ -260,23 +267,31 @@
 * UI
 ** Font
   I find that consolas works really well on my windows machine, but Source Code Pro is just a little more nifty. Normal thickness on windows doesn't look great with orgmode on my windows machine, so I have different settings for different computers
+
  #+begin_src emacs-lisp
-   ;; (set-face-attribute 'default nil :family "Consolas" :height 110)
-   ;; (set-face-attribute 'default nil :family "Hack" :height 105)
+	   ;; (set-face-attribute 'default nil :family "Consolas" :height 110)
+	   ;; (set-face-attribute 'default nil :family "Hack" :height 105)
    (cond ((eq window-system 'w32)
-	  (set-face-attribute 'default nil
-			      :family "Source Code Pro"
-			      :weight 'Regular
-			      ;; :weight 'bold
-			      ;; :width 'normal
-			      :height 107))
-	 ((string-equal system-name "andrew-MACH-WX9")
-	  (set-face-attribute 'default nil
-			      :family "Source Code Pro"
-			      :weight 'normal
-			      ;; :weight 'bold
-			      ;; :width 'normal
-			      :height 110)))
+	    (set-face-attribute 'default nil
+				:family "Source Code Pro"
+				:weight 'Regular
+				;; :weight 'bold
+				;; :width 'normal
+				:height 107))
+	 ((string-equal system-name "ANDREWs-Mac-mini.local")
+	    (set-face-attribute 'default nil
+				:family "Source Code Pro"
+				:weight 'Regular
+				;; :weight 'bold
+				;; :width 'normal
+				:height 125))
+	  ((string-equal system-name "andrew-MACH-WX9")
+	    (set-face-attribute 'default nil
+				:family "Source Code Pro"
+				:weight 'normal
+				;; :weight 'bold
+				;; :width 'normal
+				:height 110)))
  #+end_src
 
  #+RESULTS:
