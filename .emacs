@@ -1,7 +1,8 @@
 (setq use-spacemacs nil)   ; or nil 
 
 (cond ((eq window-system 'w32)
-       (setq user-emacs-directory "c:/emacs/.emacs.d/"))
+       (setq user-emacs-directory "c:/emacs/.emacs.d/")
+       (set-language-environment "UTF-8"))
       ((eq window-system 'ns)
        (if use-spacemacs
            (setq user-emacs-directory "~/.spacemacs.d/")
