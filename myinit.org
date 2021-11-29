@@ -250,19 +250,21 @@
 ** Unicode
    When I use special characters in my org files (specifically this one) I get prompted by which character type should be saved. I havent solved this yet and it's what is preventing me from using fun characters for Org
 #+begin_src emacs-lisp
-   ;; make windows use utf-8. If I don't do this, images like dashes don't work ;; source: https://web.archive.org/web/20190726142720/https://goyoambrosio.com/2018/06/Dealing-with-utf-8-in-Emacs/
-   (prefer-coding-system 'utf-8)
-   (set-default-coding-systems 'utf-8)
-   (set-terminal-coding-system 'utf-8)
-   (set-keyboard-coding-system 'utf-8)
-   (set-selection-coding-system 'utf-8)
-   (set-file-name-coding-system 'utf-8)
-   (set-clipboard-coding-system 'utf-8)
-   (set-buffer-file-coding-system 'utf-8) 
-   (if (eq window-system 'w32) (set-w32-system-coding-system 'utf-8))
+  ;; make windows use utf-8. If I don't do this, images like dashes don't work ;; source: https://web.archive.org/web/20190726142720/https://goyoambrosio.com/2018/06/Dealing-with-utf-8-in-Emacs/
+  (set-language-environment "UTF-8")
+  (prefer-coding-system 'utf-8)
+  (set-default-coding-systems 'utf-8)
+  (set-terminal-coding-system 'utf-8)
+  (set-keyboard-coding-system 'utf-8)
+  (set-selection-coding-system 'utf-8)
+  (set-file-name-coding-system 'utf-8)
+  (set-clipboard-coding-system 'utf-8)
+  (set-buffer-file-coding-system 'utf-8) 
+  (if (eq window-system 'w32) (set-w32-system-coding-system 'utf-8))
 #+end_src
 
 #+RESULTS:
+: utf-8
 
 * UI
 ** Font
@@ -446,7 +448,7 @@
     ;; 				`(,ak/custpath-org-notes ,(concat ak/custpath-dropbox-org "phone_inbox.org"))))
 
     ;; new one file system
-    (with-eval-after-load 'org (setq org-agenda-files `(,ak/custpath-dropbox-org)))
+    (with-eval-after-load 'org (setq org-agenda-files (list ak/custpath-dropbox-org)))
   #+end_src 
 
   #+RESULTS:
@@ -456,9 +458,6 @@
   #+begin_src emacs-lisp
     (add-hook 'auto-save-hook 'org-save-all-org-buffers)
   #+end_src 
-
-  #+RESULTS:
-  | org-save-all-org-buffers |
 
   I love using habits in org-mode, you need to make sure to call them out to use them, which is what this code snippet does
   #+begin_src emacs-lisp
@@ -478,7 +477,7 @@
      ;; Replace list hyphen with dot
      (font-lock-add-keywords 'org-mode
 			     '(("^ *\\([-]\\) "
-				(0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "�"))))))
+				(0 (prog1 () (compose-region (match-beginning 1) (match-end 1) ""))))))
 
      ;; Set faces for heading levels
      (dolist (face '((org-level-1 . 1.2)
@@ -882,6 +881,95 @@
     ;; (setq exec-path (append exec-path '("/sw/bin")))
  #+end_src
 
+* RSS
+  bort
+** Elfeed
+#+begin_src emacs-lisp
+  (use-package elfeed
+    :ensure t
+    :config
+    ;; (setq elfeed-show-entry-switch 'display-buffer) ;; TODO what does this do? https://www.reddit.com/r/emacs/comments/hq3r36/elfeed_configuration_to_display_in_next_window/
+    (setq elfeed-db-directory (concat ak/custpath-dropbox-org "RSS"))
+    :bind (:map elfeed-search-mode-map
+		("A" . bjm/elfeed-show-all)
+		("E" . bjm/elfeed-show-emacs)
+		("D" . bjm/elfeed-show-daily)
+		("/" . bjm/elfeed-search-live-filter-space)
+		;; ("o" . ap/elfeed-search-browse-eww)
+		("q" . bjm/elfeed-save-db-and-bury)))
+#+end_src
+
+#+RESULTS:
+: bjm/elfeed-save-db-and-bury
+
+** elfeed-org
+   Use an org file to organise feeds.
+#+begin_src emacs-lisp
+  (use-package elfeed-org
+    :ensure t
+    :config
+    (elfeed-org)
+    (setq rmh-elfeed-org-files (list (concat ak/custpath-dropbox-org "elfeed.org"))))
+#+end_src
+
+** Elfeed helper functions
+*** Filter
+#+begin_src emacs-lisp
+  (defun bjm/elfeed-search-live-filter-space ()
+    "Insert space when running elfeed filter"
+    (interactive)
+    (let ((elfeed-search-filter (concat elfeed-search-filter " ")))
+      (elfeed-search-live-filter)))
+
+#+end_src
+  
+*** Shortcut Functions
+#+begin_src emacs-lisp
+  ;; TODO figure out how to get this working
+  (defun ap/elfeed-search-browse-eww ()
+    "Open selected items in EWW."
+    (interactive)
+    (let ((browse-url-browser-function #'eww-browse-url))
+      (ap/elfeed-search-selected-map #'ap/elfeed-search-browse-entry)))
+
+  (defun bjm/elfeed-show-all ()
+    (interactive)
+    (bookmark-maybe-load-default-file)
+    (bookmark-jump "elfeed-all"))
+  (defun bjm/elfeed-show-emacs ()
+    (interactive)
+    (bookmark-maybe-load-default-file)
+    (bookmark-jump "elfeed-emacs"))
+  (defun bjm/elfeed-show-daily ()
+    (interactive)
+    (bookmark-maybe-load-default-file)
+    (bookmark-jump "elfeed-daily"))
+
+#+end_src
+
+#+RESULTS:
+: bjm/elfeed-show-daily
+
+*** Syncing
+  functions to support syncing .elfeed between machines, since I use dropbox to use emacs in multiple places
+#+begin_src emacs-lisp
+  ;;makes sure elfeed reads index from disk before launching
+  (defun bjm/elfeed-load-db-and-open ()
+    "Wrapper to load the elfeed db from disk before opening"
+    (interactive)
+    (elfeed-db-load)
+    (elfeed-update)
+    (elfeed)
+    (elfeed-search-update--force))
+
+  ;;write to disk when quiting
+  (defun bjm/elfeed-save-db-and-bury ()
+    "Wrapper to save the elfeed db to disk before burying buffer"
+    (interactive)
+    (elfeed-db-save)
+    (quit-window))
+#+end_src
+
 * Code & Development Tools
 ** Yasnippet
  #+begin_src emacs-lisp
@@ -1093,11 +1181,11 @@ I'm taking the plunge into my first true OOP language for my Game Design class. 
 
 *** omnisharp
  #+begin_src emacs-lisp
- (use-package omnisharp
-   :after company
-   :config
-   (add-hook 'csharp-mode-hook 'omnisharp-mode)
-   (add-to-list 'company-backends 'company-omnisharp))
+   ;; (use-package omnisharp
+   ;;   :after company
+   ;;   :config
+   ;;   (add-hook 'csharp-mode-hook 'omnisharp-mode)
+   ;;   (add-to-list 'company-backends 'company-omnisharp))
  #+end_src
 
 ** lisps
@@ -1309,6 +1397,9 @@ I'm taking the plunge into my first true OOP language for my Game Design class. 
 	       "pg"  '(projectile-grep :which-key "grep project")
 	       "pk"  '(projectile-kill-buffers :which-key "kill all buffers in project")
 	       "pu"  '(projectile-run-project :which-key "run command for project")
+	       ;; rss
+	       "r"   '(:ignore t :which-key "rss")
+	       "rr"  '(bjm/elfeed-load-db-and-open :which-key "rss")
 	       ;; eval
 	       "e"   '(:ignore t :which-key "evaluate")
 	       "ee"  '(eval-last-sexp :which-key "last expression")
@@ -1455,17 +1546,17 @@ I'm taking the plunge into my first true OOP language for my Game Design class. 
    #+begin_src emacs-lisp
  (defhydra hydra-zoom (global-map "<f2>")
   "zoom"
-  ("+" text-scale-increase "in")
+  ("=" text-scale-increase "in")
   ("-" text-scale-decrease "out"))
 #+end_src 
 
 *** Winner
     - I'd like to be able to cycle through a number of winner. There are some binding things here that I don't understand yet
 #+begin_src emacs-lisp
- (defhydra hydra-winner (global-map "<f2>")
-  "Winner"
-  ("u" winner-undo "in")
-  ("U" winner-redo "out"))
+  ;; (defhydra hydra-winner (global-map "<f2>")
+  ;;  "Winner"
+  ;;  ("u" winner-undo "in")
+  ;;  ("U" winner-redo "out"))
 #+end_src
 
 #+RESULTS:
@@ -1668,11 +1759,11 @@ I'm taking the plunge into my first true OOP language for my Game Design class. 
    (defun help/insert-em-dash ()
     "Inserts an EM-DASH (not a HYPEN, not an N-DASH)"
     (interactive)
-    (insert "—"))
+    (insert "â"))
   (defun help/insert-en-dash ()
     "Inserts an EN-DASH (not a HYPEN, not an EM-DASH)"
     (interactive)
-    (insert "–"))
+    (insert "â"))
 #+end_src
 
 #+RESULTS:
