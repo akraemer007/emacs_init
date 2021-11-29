@@ -23,9 +23,9 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(conda-anaconda-home "/home/andrew/anaconda3/")
+ '(conda-anaconda-home "/home/andrew/anaconda3/" t)
  '(package-selected-packages
-   '(general which-key expand-region flycheck wc-mode writeroom-mode racket-mode hy-mode anaconda-mode company-jedi jedi elpy lispyville evil-commentary evil-surround yasnippet-snippets use-package telephone-line sound-wav shackle powershell ox-pandoc org-pomodoro org-journal org-download org-bullets magit golden-ratio gnu-elpa-keyring-update git-gutter flx evil-numbers evil doom-themes counsel-projectile)))
+   '(jupyter pyenv-mode conda general which-key expand-region flycheck wc-mode writeroom-mode racket-mode hy-mode anaconda-mode company-jedi jedi elpy lispyville evil-commentary evil-surround yasnippet-snippets use-package telephone-line sound-wav shackle powershell ox-pandoc org-pomodoro org-journal org-download org-bullets magit golden-ratio gnu-elpa-keyring-update git-gutter flx evil-numbers evil doom-themes counsel-projectile)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

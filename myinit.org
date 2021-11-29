@@ -330,34 +330,36 @@
  #+end_src
 * Evil
 #+begin_src emacs-lisp
-  (use-package evil
-    :ensure t
-    :init
-    (setq evil-want-C-u-scroll t) ;; c-u to scroll up
-    (setq evil-want-keybinding nil) ;; do this for integration w/ evil collection
-    :config
-    (evil-mode 1)
-    (add-hook 'prog-mode-hook #'turn-on-evil-mode))
+    (use-package evil
+      :ensure t
+      :init
+      (setq evil-want-C-u-scroll t) ;; c-u to scroll up
+      (setq evil-want-keybinding nil) ;; do this for integration w/ evil collection
+      :config
+      (evil-mode 1)
+      (add-hook 'prog-mode-hook #'turn-on-evil-mode))
 
-  (use-package evil-surround
-    :ensure t
-    :config
-    (global-evil-surround-mode 1))
+    (use-package evil-surround
+      :ensure t
+      :after evil
+      :config
+      (global-evil-surround-mode 1))
 
-  (use-package evil-commentary
-    :ensure t
-    :config
-    (evil-commentary-mode))
+    (use-package evil-commentary
+      :ensure t
+      :after evil
+      :config
+      (evil-commentary-mode))
 
-  (use-package evil-numbers
-    :ensure t)
+    (use-package evil-numbers
+      :ensure t)
 
-  (use-package evil-collection
-    :ensure t
-    :after evil
-    :custom (evil-collection-company-use-tng nil) ;; gives errors when uses default of t
-    :config
-    (evil-collection-init))
+    (use-package evil-collection
+      :ensure t
+      :after evil
+      :custom (evil-collection-company-use-tng nil) ;; gives errors when uses default of t
+      :config
+      (evil-collection-init))
 #+end_src
 
 #+RESULTS:
@@ -444,8 +446,11 @@
     ;; 				`(,ak/custpath-org-notes ,(concat ak/custpath-dropbox-org "phone_inbox.org"))))
 
     ;; new one file system
-    (with-eval-after-load 'org (setq org-agenda-files ak/custpath-dropbox-org))
+    (with-eval-after-load 'org (setq org-agenda-files `(,ak/custpath-dropbox-org)))
   #+end_src 
+
+  #+RESULTS:
+  | /Users/AndrewKraemer/Dropbox/org/ |
 
    Autosave org files. I also use [[https://christiantietze.de/posts/2019/03/sync-emacs-org-files/#fn:simp][this]] in order to automatically reload changes to buffers -- allowing me to easily work on multiple machines.
   #+begin_src emacs-lisp
@@ -654,124 +659,125 @@
    Utilizes Aaron Bieber functions to prevent tasks from appearing multiple times in agenda.
    TODO it might be smarter to have the custom commands saved separately for better documentation
  #+begin_src emacs-lisp
-   (setq org-agenda-custom-commands
-	 '(
-	   ("d" "Daily agenda and all work TODOs"
-	    ((tags "PRIORITY=\"A\""
-		   ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
-		    (org-agenda-overriding-header "High-priority unfinished tasks:")
-		    (org-agenda-files `(,ak/custpath-dropbox-org))))
-	     (agenda ""
-		     ((org-agenda-span 'day)
-		      (org-agenda-overriding-header "ALL normal priority tasks:")
-		      (org-agenda-files `(,ak/custpath-dropbox-org))))
-	     (tags (or "PRIORITY=\"B\"" "PRIORITY=\"C\"")
-		   ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
-		    (org-agenda-overriding-header "Unfinished tasks:")
-		    (org-agenda-files `(,ak/custpath-dropbox-org))))
-	     (alltodo ""
-		      ((org-agenda-skip-function '(or (air-org-skip-subtree-if-habit)
-						      (air-org-skip-subtree-if-priority ?A)
-						      (air-org-skip-subtree-if-priority ?B)
-						      (org-agenda-skip-if nil '(scheduled deadline))))
-		       (org-agenda-overriding-header "Eventually:")
-		       (org-agenda-files `(,ak/custpath-dropbox-org)))))
-	    ;; ((org-agenda-compact-blocks t)) ;; removes = breaks
-	   )
-	   ("D" "Daily agenda and all work TODOs"
-	    ((tags "PRIORITY=\"A\""
-		   ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
-                    (org-agenda-tag-filter-preset '("+Work"))
-		    (org-agenda-overriding-header "High-priority unfinished tasks:")
-		    (org-agenda-files `(,ak/custpath-dropbox-org))))
-	     (agenda ""
-		     ((org-agenda-span 'day)
-                      (org-agenda-tag-filter-preset '("+Work"))
-		      (org-agenda-overriding-header "ALL normal priority tasks:")
-		      (org-agenda-files `(,ak/custpath-dropbox-org))))
-	     (tags (or "PRIORITY=\"B\"" "PRIORITY=\"C\"")
-		   ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
-                    (org-agenda-tag-filter-preset '("+Work"))
-		    (org-agenda-overriding-header "Unfinished tasks:")
-		    (org-agenda-files `(,ak/custpath-dropbox-org))))
-	     (alltodo ""
-		      ((org-agenda-skip-function '(or (air-org-skip-subtree-if-habit)
-						      (air-org-skip-subtree-if-priority ?A)
-						      (air-org-skip-subtree-if-priority ?B)
-						      (org-agenda-skip-if nil '(scheduled deadline))))
-                       (org-agenda-tag-filter-preset '("+Work"))
-		       (org-agenda-overriding-header "Eventually:")
-		       (org-agenda-files `(,ak/custpath-dropbox-org)))))
-	    ;; ((org-agenda-compact-blocks t)) ;; removes = breaks
-	    )
-;; OLD ORG AGENDA WITH SEPARATE FILES
-;;	   ("d" "Daily agenda and all work TODOs"
-;;	    ((tags "PRIORITY=\"A\""
-;;		   ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
-;;		    (org-agenda-overriding-header "High-priority unfinished tasks:")
-;;		    (org-agenda-files `(,ak/custpath-org-work-loc ,(concat ak/custpath-dropbox-org "phone_inbox.org")))))
-;;	     (agenda ""
-;;		     ((org-agenda-span 'day)
-;;		      (org-agenda-overriding-header "ALL normal priority tasks:")
-;;		      (org-agenda-files `(,ak/custpath-org-work-loc ,(concat ak/custpath-dropbox-org "phone_inbox.org")))))
-;;	     (tags (or "PRIORITY=\"B\"" "PRIORITY=\"C\"")
-;;		   ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
-;;		    (org-agenda-overriding-header "Unfinished tasks:")
-;;		    (org-agenda-files `(,ak/custpath-org-work-loc ,(concat ak/custpath-dropbox-org "phone_inbox.org")))))
-;;	     (alltodo ""
-;;		      ((org-agenda-skip-function '(or (air-org-skip-subtree-if-habit)
-;;						      (air-org-skip-subtree-if-priority ?A)
-;;						      (air-org-skip-subtree-if-priority ?B)
-;;						      (org-agenda-skip-if nil '(scheduled deadline))))
-;;		       (org-agenda-overriding-header "Eventually:")
-;;		       (org-agenda-files `(,ak/custpath-org-work-loc ,(concat ak/custpath-dropbox-org "phone_inbox.org"))))))
-;;	    ;; ((org-agenda-compact-blocks t)) ;; removes = breaks
-;;	    )
+      (setq org-agenda-custom-commands
+	    '(
+	      ("d" "Daily agenda and all work TODOs"
+	       ((tags "PRIORITY=\"A\""
+		      ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+		       (org-agenda-overriding-header "High-priority unfinished tasks:")
+		       (org-agenda-files `(,ak/custpath-dropbox-org))))
+		(agenda ""
+			((org-agenda-span 'day)
+			 (org-agenda-overriding-header "ALL normal priority tasks:")
+			 (org-agenda-files `(,ak/custpath-dropbox-org))))
+		(tags (or "PRIORITY=\"B\"" "PRIORITY=\"C\"")
+		      ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+		       (org-agenda-overriding-header "Unfinished tasks:")
+		       (org-agenda-files `(,ak/custpath-dropbox-org))))
+		(alltodo ""
+			 ((org-agenda-skip-function '(or (air-org-skip-subtree-if-habit)
+							 (air-org-skip-subtree-if-priority ?A)
+							 (air-org-skip-subtree-if-priority ?B)
+							 (org-agenda-skip-if nil '(scheduled deadline))))
+			  (org-agenda-overriding-header "Eventually:")
+			  (org-agenda-files `(,ak/custpath-dropbox-org)))))
+	       ;; ((org-agenda-compact-blocks t)) ;; removes = breaks
+	      )
+	      ("D" "Daily agenda and all work TODOs"
+	       ((tags "PRIORITY=\"A\""
+		      ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+		       (org-agenda-tag-filter-preset '("+Work"))
+		       (org-agenda-overriding-header "High-priority unfinished tasks:")
+		       (org-agenda-files `(,ak/custpath-dropbox-org))))
+		(agenda ""
+			((org-agenda-span 'day)
+			 (org-agenda-tag-filter-preset '("+Work"))
+			 (org-agenda-overriding-header "ALL normal priority tasks:")
+			 (org-agenda-files `(,ak/custpath-dropbox-org))))
+		(tags (or "PRIORITY=\"B\"" "PRIORITY=\"C\"")
+		      ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+		       (org-agenda-tag-filter-preset '("+Work"))
+		       (org-agenda-overriding-header "Unfinished tasks:")
+		       (org-agenda-files `(,ak/custpath-dropbox-org))))
+		(alltodo ""
+			 ((org-agenda-skip-function '(or (air-org-skip-subtree-if-habit)
+							 (air-org-skip-subtree-if-priority ?A)
+							 (air-org-skip-subtree-if-priority ?B)
+							 (org-agenda-skip-if nil '(scheduled deadline))))
+			  (org-agenda-tag-filter-preset '("+Work"))
+			  (org-agenda-overriding-header "Eventually:")
+			  (org-agenda-files `(,ak/custpath-dropbox-org)))))
+	       ;; ((org-agenda-compact-blocks t)) ;; removes = breaks
+	       )
+   ;; OLD ORG AGENDA WITH SEPARATE FILES
+   ;;	   ("d" "Daily agenda and all work TODOs"
+   ;;	    ((tags "PRIORITY=\"A\""
+   ;;		   ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+   ;;		    (org-agenda-overriding-header "High-priority unfinished tasks:")
+   ;;		    (org-agenda-files `(,ak/custpath-org-work-loc ,(concat ak/custpath-dropbox-org "phone_inbox.org")))))
+   ;;	     (agenda ""
+   ;;		     ((org-agenda-span 'day)
+   ;;		      (org-agenda-overriding-header "ALL normal priority tasks:")
+   ;;		      (org-agenda-files `(,ak/custpath-org-work-loc ,(concat ak/custpath-dropbox-org "phone_inbox.org")))))
+   ;;	     (tags (or "PRIORITY=\"B\"" "PRIORITY=\"C\"")
+   ;;		   ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+   ;;		    (org-agenda-overriding-header "Unfinished tasks:")
+   ;;		    (org-agenda-files `(,ak/custpath-org-work-loc ,(concat ak/custpath-dropbox-org "phone_inbox.org")))))
+   ;;	     (alltodo ""
+   ;;		      ((org-agenda-skip-function '(or (air-org-skip-subtree-if-habit)
+   ;;						      (air-org-skip-subtree-if-priority ?A)
+   ;;						      (air-org-skip-subtree-if-priority ?B)
+   ;;						      (org-agenda-skip-if nil '(scheduled deadline))))
+   ;;		       (org-agenda-overriding-header "Eventually:")
+   ;;		       (org-agenda-files `(,ak/custpath-org-work-loc ,(concat ak/custpath-dropbox-org "phone_inbox.org"))))))
+   ;;	    ;; ((org-agenda-compact-blocks t)) ;; removes = breaks
+   ;;	    )
 
-;; Identical to previous but uses different org file
-;;	   ("D" "Daily agenda and all personal TODOs"
-;;	    (
-;;	     (tags "PRIORITY=\"A\""
-;;		   ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
-;;		    (org-agenda-overriding-header "High-priority unfinished tasks:")
-;;		    (org-agenda-files `(,ak/custpath-org-personal-loc ,(concat ak/custpath-dropbox-org "phone_inbox.org")))))
-;;	     (agenda ""
-;;		     ((org-agenda-span 'day)
-;;		      (org-agenda-overriding-header "ALL normal priority tasks:")
-;;		      (org-agenda-files `(,ak/custpath-org-personal-loc ,(concat ak/custpath-dropbox-org "phone_inbox.org")))))
-;;	     (tags (or "PRIORITY=\"B\"" "PRIORITY=\"C\"")
-;;		   ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
-;;		    (org-agenda-overriding-header "Unfinished tasks:")
-;;		    (org-agenda-files `(,ak/custpath-org-personal-loc ,(concat ak/custpath-dropbox-org "phone_inbox.org")))))
-;;
-;;	     (alltodo ""
-;;		      ((org-agenda-skip-function '(or (air-org-skip-subtree-if-habit)
-;;						      (air-org-skip-subtree-if-priority ?A)
-;;						      (air-org-skip-subtree-if-priority ?B)
-;;						      (org-agenda-skip-if nil '(scheduled deadline))))
-;;		       (org-agenda-overriding-header "Eventually:")
-;;		       (org-agenda-files `(,ak/custpath-org-personal-loc ,(concat ak/custpath-dropbox-org "phone_inbox.org")))))
-;;	    )
-;;	    ;; ((org-agenda-files '("c:/Users/akraemer/Dropbox/org/personal/gtd.org")))
-;;	    ;; (org-agenda-files `(,ak/custpath-org-personal-loc ,(concat ak/custpath-dropbox-org "phone_inbox.org")))
-;;	    ;; ((org-agenda-compact-blocks t)) ;; removes = breaks
-;;	    )
-	   ("r" "Day in review"
-	      todo "DONE"
-	      ;; agenda settings
-	      ((org-agenda-files '("c:/Users/akraemer/Dropbox/org/catapult/gtd.org_archive"))
-	       (org-agenda-start-with-log-mode '(ARCHIVE_TIME))
-	       (org-agenda-archives-mode t)
-	       (org-agenda-skip-function '(org-agenda-skip-entry-if 'notregexp (ak/org-skip-subtree-if-not-archived-today)))
-	       (org-agenda-overriding-header "Day in Review"))
-	      ;; ("~/org/review/day.html") ;; for export
-		   )))
+   ;; Identical to previous but uses different org file
+   ;;	   ("D" "Daily agenda and all personal TODOs"
+   ;;	    (
+   ;;	     (tags "PRIORITY=\"A\""
+   ;;		   ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+   ;;		    (org-agenda-overriding-header "High-priority unfinished tasks:")
+   ;;		    (org-agenda-files `(,ak/custpath-org-personal-loc ,(concat ak/custpath-dropbox-org "phone_inbox.org")))))
+   ;;	     (agenda ""
+   ;;		     ((org-agenda-span 'day)
+   ;;		      (org-agenda-overriding-header "ALL normal priority tasks:")
+   ;;		      (org-agenda-files `(,ak/custpath-org-personal-loc ,(concat ak/custpath-dropbox-org "phone_inbox.org")))))
+   ;;	     (tags (or "PRIORITY=\"B\"" "PRIORITY=\"C\"")
+   ;;		   ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+   ;;		    (org-agenda-overriding-header "Unfinished tasks:")
+   ;;		    (org-agenda-files `(,ak/custpath-org-personal-loc ,(concat ak/custpath-dropbox-org "phone_inbox.org")))))
+   ;;
+   ;;	     (alltodo ""
+   ;;		      ((org-agenda-skip-function '(or (air-org-skip-subtree-if-habit)
+   ;;						      (air-org-skip-subtree-if-priority ?A)
+   ;;						      (air-org-skip-subtree-if-priority ?B)
+   ;;						      (org-agenda-skip-if nil '(scheduled deadline))))
+   ;;		       (org-agenda-overriding-header "Eventually:")
+   ;;		       (org-agenda-files `(,ak/custpath-org-personal-loc ,(concat ak/custpath-dropbox-org "phone_inbox.org")))))
+   ;;	    )
+   ;;	    ;; ((org-agenda-files '("c:/Users/akraemer/Dropbox/org/personal/gtd.org")))
+   ;;	    ;; (org-agenda-files `(,ak/custpath-org-personal-loc ,(concat ak/custpath-dropbox-org "phone_inbox.org")))
+   ;;	    ;; ((org-agenda-compact-blocks t)) ;; removes = breaks
+   ;;	    )
+	      ;; ("r" "Day in review"
+	      ;;    todo "DONE"
+	      ;;    ;; agenda settings
+	      ;;    ((org-agenda-files '("c:/Users/akraemer/Dropbox/org/catapult/gtd.org_archive"))
+	      ;;     (org-agenda-start-with-log-mode '(ARCHIVE_TIME))
+	      ;;     (org-agenda-archives-mode t)
+	      ;;     (org-agenda-skip-function '(org-agenda-skip-entry-if 'notregexp (ak/org-skip-subtree-if-not-archived-today)))
+	      ;;     (org-agenda-overriding-header "Day in Review"))
+	      ;;    ;; ("~/org/review/day.html") ;; for export
+	      ;; 	   )
+   ))
  #+end_src
 
  #+RESULTS:
- | d | Daily agenda and all work TODOs | ((tags PRIORITY="A" ((org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote todo) (quote done)))) (org-agenda-overriding-header High-priority unfinished tasks:) (org-agenda-files (` ((, ak/custpath-dropbox-org)))))) (agenda  ((org-agenda-span (quote day)) (org-agenda-overriding-header ALL normal priority tasks:) (org-agenda-files (` ((, ak/custpath-dropbox-org)))))) (tags (or PRIORITY="B" PRIORITY="C") ((org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote todo) (quote done)))) (org-agenda-overriding-header Unfinished tasks:) (org-agenda-files (` ((, ak/custpath-dropbox-org)))))) (alltodo  ((org-agenda-skip-function (quote (or (air-org-skip-subtree-if-habit) (air-org-skip-subtree-if-priority 65) (air-org-skip-subtree-if-priority 66) (org-agenda-skip-if nil (quote (scheduled deadline)))))) (org-agenda-overriding-header Eventually:) (org-agenda-files (` ((, ak/custpath-dropbox-org)))))))                                                                                                                                                                                             |      |                                                                                                                                                                                                                                                                                                                                                     |
- | D | Daily agenda and all work TODOs | ((tags PRIORITY="A" ((org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote todo) (quote done)))) (org-agenda-tag-filter-preset (quote (+Work))) (org-agenda-overriding-header High-priority unfinished tasks:) (org-agenda-files (` ((, ak/custpath-dropbox-org)))))) (agenda  ((org-agenda-span (quote day)) (org-agenda-tag-filter-preset (quote (+Work))) (org-agenda-overriding-header ALL normal priority tasks:) (org-agenda-files (` ((, ak/custpath-dropbox-org)))))) (tags (or PRIORITY="B" PRIORITY="C") ((org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote todo) (quote done)))) (org-agenda-tag-filter-preset (quote (+Work))) (org-agenda-overriding-header Unfinished tasks:) (org-agenda-files (` ((, ak/custpath-dropbox-org)))))) (alltodo  ((org-agenda-skip-function (quote (or (air-org-skip-subtree-if-habit) (air-org-skip-subtree-if-priority 65) (air-org-skip-subtree-if-priority 66) (org-agenda-skip-if nil (quote (scheduled deadline)))))) (org-agenda-tag-filter-preset (quote (+Work))) (org-agenda-overriding-header Eventually:) (org-agenda-files (` ((, ak/custpath-dropbox-org))))))) |      |                                                                                                                                                                                                                                                                                                                                                     |
- | r | Day in review                   | todo                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | DONE | ((org-agenda-files (quote (c:/Users/akraemer/Dropbox/org/catapult/gtd.org_archive))) (org-agenda-start-with-log-mode (quote (ARCHIVE_TIME))) (org-agenda-archives-mode t) (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote notregexp) (ak/org-skip-subtree-if-not-archived-today)))) (org-agenda-overriding-header Day in Review)) |
+ | d | Daily agenda and all work TODOs | ((tags PRIORITY="A" ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done)) (org-agenda-overriding-header High-priority unfinished tasks:) (org-agenda-files `(,ak/custpath-dropbox-org)))) (agenda  ((org-agenda-span 'day) (org-agenda-overriding-header ALL normal priority tasks:) (org-agenda-files `(,ak/custpath-dropbox-org)))) (tags (or PRIORITY="B" PRIORITY="C") ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done)) (org-agenda-overriding-header Unfinished tasks:) (org-agenda-files `(,ak/custpath-dropbox-org)))) (alltodo  ((org-agenda-skip-function '(or (air-org-skip-subtree-if-habit) (air-org-skip-subtree-if-priority 65) (air-org-skip-subtree-if-priority 66) (org-agenda-skip-if nil '(scheduled deadline)))) (org-agenda-overriding-header Eventually:) (org-agenda-files `(,ak/custpath-dropbox-org)))))                                                                                                                                                                 |      |                                                                                                                                                                                                                                                                                                                         |
+ | D | Daily agenda and all work TODOs | ((tags PRIORITY="A" ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done)) (org-agenda-tag-filter-preset '(+Work)) (org-agenda-overriding-header High-priority unfinished tasks:) (org-agenda-files `(,ak/custpath-dropbox-org)))) (agenda  ((org-agenda-span 'day) (org-agenda-tag-filter-preset '(+Work)) (org-agenda-overriding-header ALL normal priority tasks:) (org-agenda-files `(,ak/custpath-dropbox-org)))) (tags (or PRIORITY="B" PRIORITY="C") ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done)) (org-agenda-tag-filter-preset '(+Work)) (org-agenda-overriding-header Unfinished tasks:) (org-agenda-files `(,ak/custpath-dropbox-org)))) (alltodo  ((org-agenda-skip-function '(or (air-org-skip-subtree-if-habit) (air-org-skip-subtree-if-priority 65) (air-org-skip-subtree-if-priority 66) (org-agenda-skip-if nil '(scheduled deadline)))) (org-agenda-tag-filter-preset '(+Work)) (org-agenda-overriding-header Eventually:) (org-agenda-files `(,ak/custpath-dropbox-org))))) |      |                                                                                                                                                                                                                                                                                                                         |
+ | r | Day in review                   | todo                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | DONE | ((org-agenda-files '(c:/Users/akraemer/Dropbox/org/catapult/gtd.org_archive)) (org-agenda-start-with-log-mode '(ARCHIVE_TIME)) (org-agenda-archives-mode t) (org-agenda-skip-function '(org-agenda-skip-entry-if 'notregexp (ak/org-skip-subtree-if-not-archived-today))) (org-agenda-overriding-header Day in Review)) |
 
    I love this function. It brings the agenda front and center. Thanks [[https://blog.aaronbieber.com/2016/09/24/an-agenda-for-life-with-org-mode.html][Aaron Bieber]].
  #+begin_src emacs-lisp
@@ -975,55 +981,103 @@
      Can't get it working with ipython but at least it's interactive.
    #+begin_src emacs-lisp
      ;; Python windows
-     (use-package elpy
-       :if (eq window-system 'w32)
-       :ensure t
-       :defer t
-       :init
-	 (advice-add 'python-mode :before 'elpy-enable)
-	 (pyvenv-activate ak/custpath-py-default-env)
-       :config
-	 (setq elpy-modules (delq 'elpy-module-flymake elpy-modules)) ;; don't use use flymake
-	 (add-hook 'elpy-mode-hook 'flycheck-mode) ;; use use flycheck instead
-	 (setq flycheck-python-flake8-executable ak/custpath-flake8)  ;; Need to install flake8 explicitly on windows
-	 (add-hook 'elpy-mode-hook (lambda ()
-			    (add-hook 'before-save-hook
-				      'elpy-black-fix-code nil t)))
-     )
+     ;; (use-package elpy
+     ;;   :if (eq window-system 'w32)
+     ;;   :ensure t
+     ;;   :defer t
+     ;;   :init
+     ;;     (advice-add 'python-mode :before 'elpy-enable)
+     ;;     (pyvenv-activate ak/custpath-py-default-env)
+     ;;   :config
+     ;;     (setq elpy-modules (delq 'elpy-module-flymake elpy-modules)) ;; don't use use flymake
+     ;;     (add-hook 'elpy-mode-hook 'flycheck-mode) ;; use use flycheck instead
+     ;;     (setq flycheck-python-flake8-executable ak/custpath-flake8)  ;; Need to install flake8 explicitly on windows
+     ;;     (add-hook 'elpy-mode-hook (lambda ()
+     ;; 		       (add-hook 'before-save-hook
+     ;; 				 'elpy-black-fix-code nil t)))
+     ;; )
 
-     ;; python linux
-     (use-package conda
-       :if (not (eq window-system 'w32))
-       :init
-	(setq conda-env-home-directory (expand-file-name "~/anaconda3/") ;; as in previous example; not required
-		 conda-env-subdirectory "envs")
-       (custom-set-variables
-	 '(conda-anaconda-home "/home/andrew/anaconda3/"))
-       :config
-       (conda-env-initialize-interactive-shells)
-       (conda-env-initialize-eshell)
-       (conda-env-autoactivate-mode t)
-       (conda-env-activate "py38"))
+     ;; ;; python linux
+     ;; (use-package conda
+     ;;   :if (not (eq window-system 'w32))
+     ;;   :init
+     ;;    (setq conda-env-home-directory (expand-file-name "~/anaconda3/") ;; as in previous example; not required
+     ;; 	    conda-env-subdirectory "envs")
+     ;;   (custom-set-variables
+     ;;     '(conda-anaconda-home "/home/andrew/anaconda3/"))
+     ;;   :config
+     ;;   (conda-env-initialize-interactive-shells)
+     ;;   (conda-env-initialize-eshell)
+     ;;   (conda-env-autoactivate-mode t)
+     ;;   (conda-env-activate "base"))
 
-     (use-package elpy
-       :if (eq window-system 'x)
-       :ensure t
-       :defer t
-       :init
-       ;; (setenv "WORKON_HOME" "/home/andrew/anaconda3/envs") ;; don't need since we have conda package
-       (advice-add 'python-mode :before 'elpy-enable)
-       :config
-       (elpy-enable)
-       (setq elpy-modules (delq 'elpy-module-flymake elpy-modules)) ;; don't use use flymake
-       (add-hook 'elpy-mode-hook 'flycheck-mode) ;; use use flycheck instead & flymake
-       (add-hook 'elpy-mode-hook (lambda () ;; format w/ black on save
-			  (add-hook 'before-save-hook
-				    'elpy-black-fix-code nil t)))
-       )
+     ;; (use-package elpy
+     ;;   :if (eq window-system 'x)
+     ;;   :ensure t
+     ;;   :defer t
+     ;;   :init
+     ;;   ;; (setenv "WORKON_HOME" "/home/andrew/anaconda3/envs") ;; don't need since we have conda package
+     ;;   (advice-add 'python-mode :before 'elpy-enable)
+     ;;   :config
+     ;;   (elpy-enable)
+     ;;   (setq elpy-modules (delq 'elpy-module-flymake elpy-modules)) ;; don't use use flymake
+     ;;   (add-hook 'elpy-mode-hook 'flycheck-mode) ;; use use flycheck instead & flymake
+     ;;   (add-hook 'elpy-mode-hook (lambda () ;; format w/ black on save
+     ;; 		     (add-hook 'before-save-hook
+     ;; 			       'elpy-black-fix-code nil t)))
+     ;;   )
+
+
    #+end_src
 
    #+RESULTS:
-   : t
+
+#+begin_src emacs-lisp
+		;; (use-package elpy
+		;;   :ensure t
+		;;   :defer t
+		;;   :init
+		;;   ;; (setenv "WORKON_HOME" "/home/andrew/opt/anaconda3/envs") ;; don't need since we have conda package
+		;;   (advice-add 'python-mode :before 'elpy-enable)
+		;;   :config
+		;;   (elpy-enable)
+		;;   (setq elpy-modules (delq 'elpy-module-flymake elpy-modules)) ;; don't use use flymake
+		;;   (add-hook 'elpy-mode-hook 'flycheck-mode) ;; use use flycheck instead & flymake
+		;;   (add-hook 'elpy-mode-hook (lambda () ;; format w/ black on save
+		;; 	       (add-hook 'before-save-hook
+		;; 			 'elpy-black-fix-code nil t))))
+
+		;; (use-package conda
+		;;   :defer t
+		;;   :init
+		;;   (setq conda-anaconda-home (expand-file-name "~/opt/anaconda3/envs/py38"))
+		;;   (setq conda-env-home-directory (expand-file-name "~/opt/anaconda3/envs/py38"))
+		;;   :config
+		;;   (conda-env-initialize-interactive-shells)
+		;;   (conda-env-initialize-eshell))
+
+		  ;; (setq conda-anaconda-home (expand-file-name "~/opt/anaconda3/"))
+		  ;; (setq conda-env-home-directory (expand-file-name "~/opt/anaconda3/"))
+	    ;; (setenv "WORKON_HOME" "~/opt/anaconda3/envs")
+
+	      ;; (pyvenv-activate (expand-file-name "~/opt/anaconda3/envs/py38"))
+	  ;; (pyvenv-activate "~/opt/anaconda3/envs/py38")
+	;; (pythonic-activate "~/opt/anaconda3/envs/py38")
+
+  ;; http://rakan.me/emacs/python-dev-with-emacs-and-pyenv/
+      (setq python-shell-completion-native-enable nil) 
+    (setenv "WORKON_HOME" "~/.pyenv/versions/")
+#+end_src
+
+#+RESULTS:
+: ~/.pyenv/versions/
+
+#+begin_src emacs-lisp
+    ;; (defalias 'workon 'py397)
+  (pyenv-mode-set "py397")
+#+end_src
+
+#+RESULTS:
 
 ** C#
 I'm taking the plunge into my first true OOP language for my Game Design class. Much of this code stolen from this [[https://joshwolfe.ca/emacs-csharp-development/][blog]]
