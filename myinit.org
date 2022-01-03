@@ -332,36 +332,38 @@
  #+end_src
 * Evil
 #+begin_src emacs-lisp
-    (use-package evil
-      :ensure t
-      :init
-      (setq evil-want-C-u-scroll t) ;; c-u to scroll up
-      (setq evil-want-keybinding nil) ;; do this for integration w/ evil collection
-      :config
-      (evil-mode 1)
-      (add-hook 'prog-mode-hook #'turn-on-evil-mode))
+  (use-package evil
+    :ensure t
+    :init
+    (setq evil-want-C-u-scroll t) ;; c-u to scroll up
+    (setq evil-want-keybinding nil) ;; do this for integration w/ evil collection
+    :config
+    (evil-mode 1)
+    ;;(add-hook 'evil-local-mode-hook #'turn-on-undo-tree-mode)
+    (add-hook 'prog-mode-hook #'turn-on-evil-mode)
+  )
 
-    (use-package evil-surround
-      :ensure t
-      :after evil
-      :config
-      (global-evil-surround-mode 1))
+  (use-package evil-surround
+    :ensure t
+    :after evil
+    :config
+    (global-evil-surround-mode 1))
 
-    (use-package evil-commentary
-      :ensure t
-      :after evil
-      :config
-      (evil-commentary-mode))
+  (use-package evil-commentary
+    :ensure t
+    :after evil
+    :config
+    (evil-commentary-mode))
 
-    (use-package evil-numbers
-      :ensure t)
+  (use-package evil-numbers
+    :ensure t)
 
-    (use-package evil-collection
-      :ensure t
-      :after evil
-      :custom (evil-collection-company-use-tng nil) ;; gives errors when uses default of t
-      :config
-      (evil-collection-init))
+  (use-package evil-collection
+    :ensure t
+    :after evil
+    :custom (evil-collection-company-use-tng nil) ;; gives errors when uses default of t
+    :config
+    (evil-collection-init))
 #+end_src
 
 #+RESULTS:
@@ -1064,6 +1066,88 @@
 
 ** Python
 *** Elpy
+**** Install Instructions
+     This setup is what I'm using for my M1 Mac. I'm using pyenv to manage my virtual python enviornments -- since it's a lot easier on the emacs side to manage than conda directly.
+***** Pyenv
+      #+begin_example
+      brew install pyenv
+      pyenv virtualenv 3.9.4 py39
+      pyenv activate py39
+
+      python -m pip install --upgrade pip
+
+      pip install numpy pandas
+      pip install -U scikit-learn
+      pip install matplotlib seaborn
+
+      pip install jupyterlab
+      pip install jupyter_client==6.1 
+      pip install flake8 jedi black
+      #+end_example
+
+      TODO: currently today, <2021-11-30 Tue>, the M1 mac can't make python venv with conda. Update this block to use a conda venv. We won't need to install numpy, pandas, jupyterlab, or other default conda packagages.
+
+      I finally got this damn thing working. I was getting an error that it was trying to access a folder in my .emacsd that didn't exist. Normally emacs has no problem going ahead and creating folders and files willy nilly. In this case all of my issues were solved by just creating the following folder ==
+ #+begin_src emacs-lisp
+   ;; http://rakan.me/emacs/python-dev-with-emacs-and-pyenv/
+   ;; (setq python-shell-completion-native-enable nil) 
+   ;; (setenv "WORKON_HOME" "~/.pyenv/versions/")
+   ;; (pyenv-mode-set "py39")
+
+   (use-package python
+     :mode ("\\.py\\'" . python-mode)
+       ;; ("\\.wsgi$" . python-mode)
+     :interpreter ("python3" . python-mode)
+     :init
+     (setq-default indent-tabs-mode nil)
+     :config
+     (setq python-indent-offset 4))
+
+      ;;   (use-package pyenv-mode
+      ;;     :ensure t
+      ;;     :defer t)
+
+	(use-package elpy
+	  :ensure t
+	  :defer t
+	  :init
+	  (setq python-shell-completion-native-enable nil) 
+	  (setenv "WORKON_HOME" "~/.pyenv/versions/")
+	  (pyenv-mode-set "py39")
+	  (elpy-enable)
+	  :config
+	  (advice-add 'python-mode :before 'elpy-enable)
+	  (setq python-shell-enable-font-lock nil) ;; make python shell faster
+	  (setq python-shell-completion-native-enable nil) ;; IDK what this does
+	  (setenv "WORKON_HOME" "~/.pyenv/versions/")	;; choose where to look for enviornments
+	  (pyenv-mode-set "py39") ;; define which virtual enviornment to use
+
+	  (setq elpy-shell-echo-output nil) ; fix for MacOS, see https://github.com/jorgenschaefer/elpy/issues/1550
+	  (setq elpy-rpc-python-command "python3")
+	  (setq elpy-rpc-timeout 2)
+
+	  (setq elpy-modules (delq 'elpy-module-flymake elpy-modules)) ;; don't use use flymake
+
+	  ;;(setq python-shell-interpreter "ipython"
+	  ;;   python-shell-interpreter-args "-i --simple-prompt")
+
+	  (setq python-shell-interpreter "jupyter" ;; use a jupyter shell
+	   python-shell-interpreter-args "console --simple-prompt"
+	   python-shell-prompt-detect-failure-warning nil)
+	  (add-to-list 'python-shell-completion-native-disabled-interpreters
+		    "jupyter")
+
+	  ;; (add-hook 'elpy-mode-hook 'flycheck-mode) ;; use use flycheck instead & flymake
+	  ;; (add-hook 'elpy-mode-hook (lambda () ;; format w/ black on save
+	  ;; 	     (add-hook 'before-save-hook
+	  ;; 		       'elpy-black-fix-code nil t)))
+	  )
+ #+end_src
+
+ #+RESULTS:
+ : ((python3 . python-mode) (hy . hy-mode) (racket . racket-mode) (ruby1.8 . ruby-mode) (ruby1.9 . ruby-mode) (jruby . ruby-mode) (rbx . ruby-mode) (ruby . ruby-mode) (python[0-9.]* . python-mode) (rhino . js-mode) (gjs . js-mode) (nodejs . js-mode) (node . js-mode) (gawk . awk-mode) (nawk . awk-mode) (mawk . awk-mode) (awk . awk-mode) (pike . pike-mode) (\(mini\)?perl5? . perl-mode) (wishx? . tcl-mode) (tcl\(sh\)? . tcl-mode) (expect . tcl-mode) (octave . octave-mode) (scm . scheme-mode) ([acjkwz]sh . sh-mode) (r?bash2? . sh-mode) (dash . sh-mode) (mksh . sh-mode) (\(dt\|pd\|w\)ksh . sh-mode) (es . sh-mode) (i?tcsh . sh-mode) (oash . sh-mode) (rc . sh-mode) (rpm . sh-mode) (sh5? . sh-mode) (tail . text-mode) (more . text-mode) (less . text-mode) (pg . text-mode) (make . makefile-gmake-mode) (guile . scheme-mode) (clisp . lisp-mode) (emacs . emacs-lisp-mode))
+
+*** Elpy -- Previous setup -- NOT WORKING
      Elpy is the python IDE for emacs. I wasable to get this working on my windows pc but could not figure out what was going on on my mac
      To get this working, first =pip install flake8 jedi black=.
      Can't get it working with ipython but at least it's interactive.
@@ -1152,20 +1236,10 @@
 	  ;; (pyvenv-activate "~/opt/anaconda3/envs/py38")
 	;; (pythonic-activate "~/opt/anaconda3/envs/py38")
 
-  ;; http://rakan.me/emacs/python-dev-with-emacs-and-pyenv/
-      (setq python-shell-completion-native-enable nil) 
-    (setenv "WORKON_HOME" "~/.pyenv/versions/")
 #+end_src
 
 #+RESULTS:
 : ~/.pyenv/versions/
-
-#+begin_src emacs-lisp
-    ;; (defalias 'workon 'py397)
-  (pyenv-mode-set "py397")
-#+end_src
-
-#+RESULTS:
 
 ** C#
 I'm taking the plunge into my first true OOP language for my Game Design class. Much of this code stolen from this [[https://joshwolfe.ca/emacs-csharp-development/][blog]]
@@ -1353,188 +1427,193 @@ I'm taking the plunge into my first true OOP language for my Game Design class. 
  #+begin_src emacs-lisp
    (use-package general
      :ensure t
+     :init
+     ;; (setq evil-undo-system 'undo-tree) ;; fixes undo breaking. Research these settings more: https://github.com/sirn/dotfiles/blob/cdc36f826ef331e0d5c370d57663d4829552aa06/etc/emacs/packages/editor-evil.el
+     ;; (setq evil-want-integration +1)
+     ;; (setq evil-want-keybinding nil)
+     ;; (setq evil-mode-line-format nil)
      :config (general-evil-setup) ;; let's me use general-*map keys
-	     (general-nvmap
-	       ;; replaces C-c with ,
-	       "," (general-simulate-key "C-c"))
-	     (general-define-key
-	       :states '(normal visual)
-	       ;; use visual line movement w/ j/k
-	       "j" 'evil-next-visual-line
-	       "k" 'evil-previous-visual-line
-	       ;; globally define 
-	       "C-=" 'er/expand-region
-	       "<f5>" 'webjump)
-	     (general-define-key
-	       :states '(normal viusal)
-	       :prefix "g"
-	       ;; bind gj and gk
-	       "j" 'evil-next-line
-	       "k" 'evil-previous-line)
-	     (general-define-key
-	       :states '(normal visual insert emacs)
-	       :keymaps 'override
-	       :prefix "SPC"
-	       :global-prefix "C-SPC"
-	       "."  '(ivy-resume :which-key "ivy-resume")
-	       "/"  '(swiper :which-key "swiper") ; You'll need counsel package for this ;; consider counsel-git-grep
-	       "\\"  '(counsel-rg :which-key "ripgrep") ; You'll need counsel package for this ;; consider counsel-git-grep
-	       "TAB" '(spacemacs/alternate-window :which-key "alternate buffer")
-	       "SPC" '(counsel-M-x :which-key "M-x")
-	       "f"   '(:ignore t :which-key "files")
-	       "ff"  '(counsel-find-file :which-key "find files")
-	       "fr"  '(counsel-recentf :which-key "recent files")
-	       "fs"  '(save-buffer :which-key "save buffer")
-	       "ft"  '(ak/ivy-tramp-find-file :which-key "find tramp files")
-	       "fh"  '(ak/ivy-home-find-file :which-key "find home files")
-	       "fd"  '(ak/ivy-dropbox-find-file :which-key "find dropbox files")
-	       ;;projects
-	       "p"   '(:ignore t :which-key "project")
-	       "pc"  '(:keymap projectile-command-map :which-key "commands")
-	       "pp"  '(projectile-switch-project :which-key "switch project")
-	       "pb"  '(counsel-projectile-switch-to-buffer :which-key "find project file")
-	       "pf"  '(counsel-projectile-find-file :which-key "find project file")
-	       "pg"  '(projectile-grep :which-key "grep project")
-	       "pk"  '(projectile-kill-buffers :which-key "kill all buffers in project")
-	       "pu"  '(projectile-run-project :which-key "run command for project")
-	       ;; rss
-	       "r"   '(:ignore t :which-key "rss")
-	       "rr"  '(bjm/elfeed-load-db-and-open :which-key "rss")
-	       ;; eval
-	       "e"   '(:ignore t :which-key "evaluate")
-	       "ee"  '(eval-last-sexp :which-key "last expression")
-	       "eE"  '(eval-expression :which-key "expression")
-	       "eb"  '(eval-buffer :which-key "buffer")
-	       "er"  '(eval-region :which-key "region")
-	       ;; Buffers
-	       "b"   '(:ignore t :which-key "buffers")
-	       "bb"  '(ivy-switch-buffer :which-key "buffers list")
-	       "bs"  '(ak/go-to-scratch :which-key "open scratch")
-	       "bn"  '(switch-to-next-buffer :which-key "next buffer")
-	       "bp"  '(switch-to-prev-buffer :which-key "prev buffer")
-	       "bd"  '(kill-this-buffer :which-key "delete buffer")
-	       "bk"  '(evil-delete-buffer :which-key "delete buffer and window")
-	       "bq"  '(ak/save-exit-buffer-list :which-key "quit gtd-files")
-	       "b."  '(ibuffer :which-key "ibuffer")
-	       ;; Window
-	       "w"   '(:ignore t :which-key "window")
-	       "wl"  '(windmove-right :which-key "move right")
-	       "wh"  '(windmove-left :which-key "move left")
-	       "wk"  '(windmove-up :which-key "move up")
-	       "wj"  '(windmove-down :which-key "move bottom")
-	       "wL"  '(evil-window-move-far-right :which-key "shift window right")
-	       "wH"  '(evil-window-move-far-left :which-key "shift window left")
-	       "wK"  '(evil-window-move-very-top :which-key "shift window up")
-	       "wJ"  '(evil-window-move-very-bottom :which-key "shift window bottom")
-	       "wv"  '(split-window-right :which-key "split right")
-	       "ws"  '(split-window-below :which-key "split bottom")
-	       "wo"  '(delete-other-windows :which-key "delete other windows")
-	       "wd"  '(delete-window :which-key "delete window")
-	       "wg"  '(golden-ratio :which-key "golden ratio")
-	       "wc"  '(evil-window-delete :which-key "delete window")
-	       "wu"  '(winner-undo :which-key "winner undo")
-	       "wU"  '(winner-redo :which-key "winner redo")
-	       "ww"  '(writeroom-mode :which-key "writeroom mode")
-	       "wS"  '(hydra-window-size/body :which-key "change size")
-	       ;; v for view
-	       "v"   '(:ignore t :which-key "view")
-	       "vc"  '(ivy-push-view :which-key "create view")
-	       "vv"  '(ivy-switch-view :which-key "switch view")
-	       "vs"  '(ak/save-ivy-views :which-key "save views")
-	       "vl"  '(ak/load-ivy-views :which-key "load views")
-	       ;; Org
-	       "o"   '(:ignore t :which-key "org")
-	       "ob"  '(ak/insert-bable :Which-key "insert bable")
-	       "oo"  '(air-pop-to-org-agenda-work :which-key "open standard work agenda")
-	       "oO"  '(air-pop-to-org-agenda-personal :which-key "open standard personal agenda")
-	       "oa"  '(org-agenda :which-key "open review agenda")
-	       "oc"  '(org-capture :which-key "org capture")
-	       "oj"  '(org-journal-new-entry :which-key "org journal")
-	       "op"  '(org-pomodoro :which-key "pomodoro start")
-	       "oP"  '(org-clock-out :which-key "pomodoro stop")
-	       ;; git
-	       "g"   '(:ignore t :which-key "git")
-	       "gs"  '(magit-status :which-key "magit status")
-	       "ga"  '(magit-stage :which-key "magit add")
-	       "gd"  '(magit-dispatch :which-key "magit dispatch")
-	       "gi"  '(magit-gitignore :which-key "magit gitignore")
-	       "gn"  '(git-gutter:next-hunk :which-key "next hunk")
-	       "gp"  '(git-gutter:previous-hunk :which-key "prev hunk")
-	       ;; Visual Toggles
-	       "t"   '(:ignore t :which-key "ui toggle")
-	       "tn"  '(display-line-numbers-mode :which-key "toggle line numbers")
-	       "tL"  '(org-toggle-link-display :which-key "toggle how org links show")
-	       "ti"  '(org-toggle-inline-images :which-key "toggle how org links show")
-	       "tl"  '(visual-line-mode :which-key "toggle line wrap")
-	       "tc"  '(flycheck-mode :which-key "toggle flycheck")
-	       "ts"  '(flyspell-mode :which-key "toggle flyspell")
-	       "tj"  '(json-pretty-print-buffer :which-key "toggle json pretty-print")
-	       ;; Flycheck
-	       "c"   '(:ignore t :which-key "code check")
-	       "cn"  '(flycheck-next-error :which-key "next error")
-	       "cp"  '(flycheck-previous-error :which-key "previous error")
-	       ;; Snippets
-	       "s"   '(:ignore t :which-key "code check")
-	       "ss"  '(yas-insert-snippet :which-key "next error")
-	       "sn"  '(yas-new-snippet :which-key "previous error")
-	       ;; Others
-	       "a"   '(:ignore t :which-key "a shell")
-	       "at"  '(new-eshell :which-key "eshell")
-	       "ap"  '(new-python-shell :which-key "python"))
-	     (general-define-key
-	       :states '(normal visual insert emacs)
-	       :prefix "C-c"
-	       ;; Quick open files
-	       "c"  '((lambda () (interactive) (find-file (concat ak/custpath-emacsd "myinit.org"))) :which-key "open .emacs")
-	       "o"  '((lambda () (interactive) (find-file (concat ak/custpath-dropbox-org "gtd.org"))) :which-key "open org")
-	       "n"  '((lambda () (interactive) (find-file (concat ak/custpath-dropbox-org "catapult/notes.org"))) :which-key "open notes")
-	       "N"  '((lambda () (interactive) (find-file (concat ak/custpath-dropbox-org "personal/notes.org"))) :which-key "open notes")
-	       ;; Vim  number increment
-	       "C-="  '(hydra-numbers/evil-numbers/inc-at-pt :which-key "increment num")
-	       "C--"  '(hydra-numbers/evil-numbers/dec-at-pt :which-key "decrement num"))
-	     (general-define-key
-		:keymaps 'motion
-		"." '(hydra-window-size/body :which-key "sizeup"))
-	     ;; org agenda (more options here: https://github.com/Somelauw/evil-org-mode/blob/master/evil-org-agenda.el)
-	     (general-define-key
-		:keymaps 'org-agenda-mode-map
-		"j" 'org-agenda-next-line
-		"k" 'org-agenda-previous-line
-		"u" 'org-agenda-undo
-		"n" 'org-agenda-capture
-		"p" 'org-pomodoro
-		"C" 'org-agenda-clock-in)
-	     ;; Org C-c links
-	     (general-define-key
-		:states '(normal)
-		:prefix "C-c"
-		:keymaps 'org-mode-map
-		"l" 'org-store-link)
-	     ;; C-w & C-d conflicted w/ the racket repl. This allows the standard evil bindings for function properly.
-	     (general-unbind 'racket-repl-mode-map
-		"C-w"
-		"C-d")
-	     (general-define-key
-		:keymaps 'elpy-mode-map
-		"C-c d" 'elpy-send-defun
-		"C-c C-a" 'elpy-goto-assignment)
-	     (general-define-key
-		:keymaps 'org-journal-mode-map
-		"C-c C-c" 'ak/save-close-window)
-	     (general-define-key
-		:keymaps 'org-mode-map
-		 ;; Org-Promote
-		"M-l" 'org-do-demote
-		"M-h" 'org-do-promote
-		"M-L" 'org-demote-subtree
-		"M-H" 'org-promote-subtree
-		"M-k" 'org-move-subtree-up
-		"M-j" 'org-move-subtree-down
-		"C-c f" 'ak/org-focus-subtree
-		"C--" 'help/insert-em-dash
-		"M--" 'help/insert-en-dash
-		"C-M-y" 'insert-char)
-	     )
+             (general-nvmap
+               ;; replaces C-c with ,
+               "," (general-simulate-key "C-c"))
+             (general-define-key
+               :states '(normal visual)
+               ;; use visual line movement w/ j/k
+               "j" 'evil-next-visual-line
+               "k" 'evil-previous-visual-line
+               ;; globally define 
+               "C-=" 'er/expand-region
+               "<f5>" 'webjump)
+             (general-define-key
+               :states '(normal viusal)
+               :prefix "g"
+               ;; bind gj and gk
+               "j" 'evil-next-line
+               "k" 'evil-previous-line)
+             (general-define-key
+               :states '(normal visual insert emacs)
+               :keymaps 'override
+               :prefix "SPC"
+               :global-prefix "C-SPC"
+               "."  '(ivy-resume :which-key "ivy-resume")
+               "/"  '(swiper :which-key "swiper") ; You'll need counsel package for this ;; consider counsel-git-grep
+               "\\"  '(counsel-rg :which-key "ripgrep") ; You'll need counsel package for this ;; consider counsel-git-grep
+               "TAB" '(spacemacs/alternate-window :which-key "alternate buffer")
+               "SPC" '(counsel-M-x :which-key "M-x")
+               "f"   '(:ignore t :which-key "files")
+               "ff"  '(counsel-find-file :which-key "find files")
+               "fr"  '(counsel-recentf :which-key "recent files")
+               "fs"  '(save-buffer :which-key "save buffer")
+               "ft"  '(ak/ivy-tramp-find-file :which-key "find tramp files")
+               "fh"  '(ak/ivy-home-find-file :which-key "find home files")
+               "fd"  '(ak/ivy-dropbox-find-file :which-key "find dropbox files")
+               ;;projects
+               "p"   '(:ignore t :which-key "project")
+               "pc"  '(:keymap projectile-command-map :which-key "commands")
+               "pp"  '(projectile-switch-project :which-key "switch project")
+               "pb"  '(counsel-projectile-switch-to-buffer :which-key "find project file")
+               "pf"  '(counsel-projectile-find-file :which-key "find project file")
+               "pg"  '(projectile-grep :which-key "grep project")
+               "pk"  '(projectile-kill-buffers :which-key "kill all buffers in project")
+               "pu"  '(projectile-run-project :which-key "run command for project")
+               ;; rss
+               "r"   '(:ignore t :which-key "rss")
+               "rr"  '(bjm/elfeed-load-db-and-open :which-key "rss")
+               ;; eval
+               "e"   '(:ignore t :which-key "evaluate")
+               "ee"  '(eval-last-sexp :which-key "last expression")
+               "eE"  '(eval-expression :which-key "expression")
+               "eb"  '(eval-buffer :which-key "buffer")
+               "er"  '(eval-region :which-key "region")
+               ;; Buffers
+               "b"   '(:ignore t :which-key "buffers")
+               "bb"  '(ivy-switch-buffer :which-key "buffers list")
+               "bs"  '(ak/go-to-scratch :which-key "open scratch")
+               "bn"  '(switch-to-next-buffer :which-key "next buffer")
+               "bp"  '(switch-to-prev-buffer :which-key "prev buffer")
+               "bd"  '(kill-this-buffer :which-key "delete buffer")
+               "bk"  '(evil-delete-buffer :which-key "delete buffer and window")
+               "bq"  '(ak/save-exit-buffer-list :which-key "quit gtd-files")
+               "b."  '(ibuffer :which-key "ibuffer")
+               ;; Window
+               "w"   '(:ignore t :which-key "window")
+               "wl"  '(windmove-right :which-key "move right")
+               "wh"  '(windmove-left :which-key "move left")
+               "wk"  '(windmove-up :which-key "move up")
+               "wj"  '(windmove-down :which-key "move bottom")
+               "wL"  '(evil-window-move-far-right :which-key "shift window right")
+               "wH"  '(evil-window-move-far-left :which-key "shift window left")
+               "wK"  '(evil-window-move-very-top :which-key "shift window up")
+               "wJ"  '(evil-window-move-very-bottom :which-key "shift window bottom")
+               "wv"  '(split-window-right :which-key "split right")
+               "ws"  '(split-window-below :which-key "split bottom")
+               "wo"  '(delete-other-windows :which-key "delete other windows")
+               "wd"  '(delete-window :which-key "delete window")
+               "wg"  '(golden-ratio :which-key "golden ratio")
+               "wc"  '(evil-window-delete :which-key "delete window")
+               "wu"  '(winner-undo :which-key "winner undo")
+               "wU"  '(winner-redo :which-key "winner redo")
+               "ww"  '(writeroom-mode :which-key "writeroom mode")
+               "wS"  '(hydra-window-size/body :which-key "change size")
+               ;; v for view
+               "v"   '(:ignore t :which-key "view")
+               "vc"  '(ivy-push-view :which-key "create view")
+               "vv"  '(ivy-switch-view :which-key "switch view")
+               "vs"  '(ak/save-ivy-views :which-key "save views")
+               "vl"  '(ak/load-ivy-views :which-key "load views")
+               ;; Org
+               "o"   '(:ignore t :which-key "org")
+               "ob"  '(ak/insert-bable :Which-key "insert bable")
+               "oo"  '(air-pop-to-org-agenda-work :which-key "open standard work agenda")
+               "oO"  '(air-pop-to-org-agenda-personal :which-key "open standard personal agenda")
+               "oa"  '(org-agenda :which-key "open review agenda")
+               "oc"  '(org-capture :which-key "org capture")
+               "oj"  '(org-journal-new-entry :which-key "org journal")
+               "op"  '(org-pomodoro :which-key "pomodoro start")
+               "oP"  '(org-clock-out :which-key "pomodoro stop")
+               ;; git
+               "g"   '(:ignore t :which-key "git")
+               "gs"  '(magit-status :which-key "magit status")
+               "ga"  '(magit-stage :which-key "magit add")
+               "gd"  '(magit-dispatch :which-key "magit dispatch")
+               "gi"  '(magit-gitignore :which-key "magit gitignore")
+               "gn"  '(git-gutter:next-hunk :which-key "next hunk")
+               "gp"  '(git-gutter:previous-hunk :which-key "prev hunk")
+               ;; Visual Toggles
+               "t"   '(:ignore t :which-key "ui toggle")
+               "tn"  '(display-line-numbers-mode :which-key "toggle line numbers")
+               "tL"  '(org-toggle-link-display :which-key "toggle how org links show")
+               "ti"  '(org-toggle-inline-images :which-key "toggle how org links show")
+               "tl"  '(visual-line-mode :which-key "toggle line wrap")
+               "tc"  '(flycheck-mode :which-key "toggle flycheck")
+               "ts"  '(flyspell-mode :which-key "toggle flyspell")
+               "tj"  '(json-pretty-print-buffer :which-key "toggle json pretty-print")
+               ;; Flycheck
+               "c"   '(:ignore t :which-key "code check")
+               "cn"  '(flycheck-next-error :which-key "next error")
+               "cp"  '(flycheck-previous-error :which-key "previous error")
+               ;; Snippets
+               "s"   '(:ignore t :which-key "code check")
+               "ss"  '(yas-insert-snippet :which-key "next error")
+               "sn"  '(yas-new-snippet :which-key "previous error")
+               ;; Others
+               "a"   '(:ignore t :which-key "a shell")
+               "at"  '(new-eshell :which-key "eshell")
+               "ap"  '(new-python-shell :which-key "python"))
+             (general-define-key
+               :states '(normal visual insert emacs)
+               :prefix "C-c"
+               ;; Quick open files
+               "c"  '((lambda () (interactive) (find-file (concat ak/custpath-emacsd "myinit.org"))) :which-key "open .emacs")
+               "o"  '((lambda () (interactive) (find-file (concat ak/custpath-dropbox-org "gtd.org"))) :which-key "open org")
+               "n"  '((lambda () (interactive) (find-file (concat ak/custpath-dropbox-org "catapult/notes.org"))) :which-key "open notes")
+               "N"  '((lambda () (interactive) (find-file (concat ak/custpath-dropbox-org "personal/notes.org"))) :which-key "open notes")
+               ;; Vim  number increment
+               "C-="  '(hydra-numbers/evil-numbers/inc-at-pt :which-key "increment num")
+               "C--"  '(hydra-numbers/evil-numbers/dec-at-pt :which-key "decrement num"))
+             (general-define-key
+                :keymaps 'motion
+                "." '(hydra-window-size/body :which-key "sizeup"))
+             ;; org agenda (more options here: https://github.com/Somelauw/evil-org-mode/blob/master/evil-org-agenda.el)
+             (general-define-key
+                :keymaps 'org-agenda-mode-map
+                "j" 'org-agenda-next-line
+                "k" 'org-agenda-previous-line
+                "u" 'org-agenda-undo
+                "n" 'org-agenda-capture
+                "p" 'org-pomodoro
+                "C" 'org-agenda-clock-in)
+             ;; Org C-c links
+             (general-define-key
+                :states '(normal)
+                :prefix "C-c"
+                :keymaps 'org-mode-map
+                "l" 'org-store-link)
+             ;; C-w & C-d conflicted w/ the racket repl. This allows the standard evil bindings for function properly.
+             (general-unbind 'racket-repl-mode-map
+                "C-w"
+                "C-d")
+             (general-define-key
+                :keymaps 'elpy-mode-map
+                "C-c d" 'elpy-send-defun
+                "C-c C-a" 'elpy-goto-assignment)
+             (general-define-key
+                :keymaps 'org-journal-mode-map
+                "C-c C-c" 'ak/save-close-window)
+             (general-define-key
+                :keymaps 'org-mode-map
+                 ;; Org-Promote
+                "M-l" 'org-do-demote
+                "M-h" 'org-do-promote
+                "M-L" 'org-demote-subtree
+                "M-H" 'org-promote-subtree
+                "M-k" 'org-move-subtree-up
+                "M-j" 'org-move-subtree-down
+                "C-c f" 'ak/org-focus-subtree
+                "C--" 'help/insert-em-dash
+                "M--" 'help/insert-en-dash
+                "C-M-y" 'insert-char)
+             )
                 #+end_src
 
  #+RESULTS:
