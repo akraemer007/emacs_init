@@ -606,9 +606,12 @@
 
    Non prioritized tasks will be sorted to d, though I usually make sure to priotize all of my tasks w/ my org capture
  #+begin_src emacs-lisp
-   (setq org-lowest-priority ?D)
-   (setq org-default-priority ?D)
+   (setq org-lowest-priority ?E)
+   (setq org-default-priority ?E)
  #+end_src
+
+ #+RESULTS:
+ : 69
 
    Customize the order in which tasks appear in the agenda
  #+begin_src emacs-lisp
@@ -661,55 +664,64 @@
    TODO it might be smarter to have the custom commands saved separately for better documentation
  #+begin_src emacs-lisp
       (setq org-agenda-custom-commands
-	    '(
-	      ("d" "Daily agenda and all work TODOs"
-	       ((tags "PRIORITY=\"A\""
-		      ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
-		       (org-agenda-overriding-header "High-priority unfinished tasks:")
-		       (org-agenda-files `(,ak/custpath-dropbox-org))))
-		(agenda ""
-			((org-agenda-span 'day)
-			 (org-agenda-overriding-header "ALL normal priority tasks:")
-			 (org-agenda-files `(,ak/custpath-dropbox-org))))
-		(tags (or "PRIORITY=\"B\"" "PRIORITY=\"C\"")
-		      ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
-		       (org-agenda-overriding-header "Unfinished tasks:")
-		       (org-agenda-files `(,ak/custpath-dropbox-org))))
-		(alltodo ""
-			 ((org-agenda-skip-function '(or (air-org-skip-subtree-if-habit)
-							 (air-org-skip-subtree-if-priority ?A)
-							 (air-org-skip-subtree-if-priority ?B)
-							 (org-agenda-skip-if nil '(scheduled deadline))))
-			  (org-agenda-overriding-header "Eventually:")
-			  (org-agenda-files `(,ak/custpath-dropbox-org)))))
-	       ;; ((org-agenda-compact-blocks t)) ;; removes = breaks
-	      )
-	      ("D" "Daily agenda and all work TODOs"
-	       ((tags "PRIORITY=\"A\""
-		      ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
-		       (org-agenda-tag-filter-preset '("+Work"))
-		       (org-agenda-overriding-header "High-priority unfinished tasks:")
-		       (org-agenda-files `(,ak/custpath-dropbox-org))))
-		(agenda ""
-			((org-agenda-span 'day)
-			 (org-agenda-tag-filter-preset '("+Work"))
-			 (org-agenda-overriding-header "ALL normal priority tasks:")
-			 (org-agenda-files `(,ak/custpath-dropbox-org))))
-		(tags (or "PRIORITY=\"B\"" "PRIORITY=\"C\"")
-		      ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
-		       (org-agenda-tag-filter-preset '("+Work"))
-		       (org-agenda-overriding-header "Unfinished tasks:")
-		       (org-agenda-files `(,ak/custpath-dropbox-org))))
-		(alltodo ""
-			 ((org-agenda-skip-function '(or (air-org-skip-subtree-if-habit)
-							 (air-org-skip-subtree-if-priority ?A)
-							 (air-org-skip-subtree-if-priority ?B)
-							 (org-agenda-skip-if nil '(scheduled deadline))))
-			  (org-agenda-tag-filter-preset '("+Work"))
-			  (org-agenda-overriding-header "Eventually:")
-			  (org-agenda-files `(,ak/custpath-dropbox-org)))))
-	       ;; ((org-agenda-compact-blocks t)) ;; removes = breaks
-	       )
+            '(
+              ("d" "Daily agenda and all work TODOs"
+               ((tags "PRIORITY=\"A\""
+                      ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+                       (org-agenda-overriding-header "High-priority tasks:")
+                       (org-agenda-files `(,ak/custpath-dropbox-org))))
+                (agenda ""
+                        ((org-agenda-span 'day)
+                         (org-agenda-overriding-header "ALL normal priority tasks:")
+                         (org-agenda-files `(,ak/custpath-dropbox-org))))
+                (tags "PRIORITY=\"B\""
+                      ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+                       (org-agenda-overriding-header "Medium-priority tasks:")
+                       (org-agenda-files `(,ak/custpath-dropbox-org))))
+                (tags "PRIORITY=\"C\""
+                      ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+                       (org-agenda-overriding-header "Eventually tasks:")
+                       (org-agenda-files `(,ak/custpath-dropbox-org))))
+                (tags "PRIORITY=\"D\""
+                      ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+                       (org-agenda-overriding-header "Personal tasks:")
+                       (org-agenda-files `(,ak/custpath-dropbox-org))))
+                ;;(alltodo ""
+                ;;	 ((org-agenda-skip-function '(or (air-org-skip-subtree-if-habit)
+                ;;					 (air-org-skip-subtree-if-priority ?A)
+                ;;					 (air-org-skip-subtree-if-priority ?B)
+                ;;					 (org-agenda-skip-if nil '(scheduled deadline))))
+                ;;	  (org-agenda-overriding-header "Eventually:")
+                ;;	  (org-agenda-files `(,ak/custpath-dropbox-org))))
+               )
+               ;; ((org-agenda-compact-blocks t)) ;; removes = breaks
+              )
+              ("D" "Daily agenda and all work TODOs"
+               ((tags "PRIORITY=\"A\""
+                      ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+                       (org-agenda-tag-filter-preset '("+Work"))
+                       (org-agenda-overriding-header "High-priority unfinished tasks:")
+                       (org-agenda-files `(,ak/custpath-dropbox-org))))
+                (agenda ""
+                        ((org-agenda-span 'day)
+                         (org-agenda-tag-filter-preset '("+Work"))
+                         (org-agenda-overriding-header "ALL normal priority tasks:")
+                         (org-agenda-files `(,ak/custpath-dropbox-org))))
+                (tags (or "PRIORITY=\"B\"" "PRIORITY=\"C\"")
+                      ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+                       (org-agenda-tag-filter-preset '("+Work"))
+                       (org-agenda-overriding-header "Unfinished tasks:")
+                       (org-agenda-files `(,ak/custpath-dropbox-org))))
+                (alltodo ""
+                         ((org-agenda-skip-function '(or (air-org-skip-subtree-if-habit)
+                                                         (air-org-skip-subtree-if-priority ?A)
+                                                         (air-org-skip-subtree-if-priority ?B)
+                                                         (org-agenda-skip-if nil '(scheduled deadline))))
+                          (org-agenda-tag-filter-preset '("+Work"))
+                          (org-agenda-overriding-header "Eventually:")
+                          (org-agenda-files `(,ak/custpath-dropbox-org)))))
+               ;; ((org-agenda-compact-blocks t)) ;; removes = breaks
+               )
    ;; OLD ORG AGENDA WITH SEPARATE FILES
    ;;	   ("d" "Daily agenda and all work TODOs"
    ;;	    ((tags "PRIORITY=\"A\""
@@ -762,23 +774,22 @@
    ;;	    ;; (org-agenda-files `(,ak/custpath-org-personal-loc ,(concat ak/custpath-dropbox-org "phone_inbox.org")))
    ;;	    ;; ((org-agenda-compact-blocks t)) ;; removes = breaks
    ;;	    )
-	      ;; ("r" "Day in review"
-	      ;;    todo "DONE"
-	      ;;    ;; agenda settings
-	      ;;    ((org-agenda-files '("c:/Users/akraemer/Dropbox/org/catapult/gtd.org_archive"))
-	      ;;     (org-agenda-start-with-log-mode '(ARCHIVE_TIME))
-	      ;;     (org-agenda-archives-mode t)
-	      ;;     (org-agenda-skip-function '(org-agenda-skip-entry-if 'notregexp (ak/org-skip-subtree-if-not-archived-today)))
-	      ;;     (org-agenda-overriding-header "Day in Review"))
-	      ;;    ;; ("~/org/review/day.html") ;; for export
-	      ;; 	   )
+              ;; ("r" "Day in review"
+              ;;    todo "DONE"
+              ;;    ;; agenda settings
+              ;;    ((org-agenda-files '("c:/Users/akraemer/Dropbox/org/catapult/gtd.org_archive"))
+              ;;     (org-agenda-start-with-log-mode '(ARCHIVE_TIME))
+              ;;     (org-agenda-archives-mode t)
+              ;;     (org-agenda-skip-function '(org-agenda-skip-entry-if 'notregexp (ak/org-skip-subtree-if-not-archived-today)))
+              ;;     (org-agenda-overriding-header "Day in Review"))
+              ;;    ;; ("~/org/review/day.html") ;; for export
+              ;; 	   )
    ))
  #+end_src
 
  #+RESULTS:
- | d | Daily agenda and all work TODOs | ((tags PRIORITY="A" ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done)) (org-agenda-overriding-header High-priority unfinished tasks:) (org-agenda-files `(,ak/custpath-dropbox-org)))) (agenda  ((org-agenda-span 'day) (org-agenda-overriding-header ALL normal priority tasks:) (org-agenda-files `(,ak/custpath-dropbox-org)))) (tags (or PRIORITY="B" PRIORITY="C") ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done)) (org-agenda-overriding-header Unfinished tasks:) (org-agenda-files `(,ak/custpath-dropbox-org)))) (alltodo  ((org-agenda-skip-function '(or (air-org-skip-subtree-if-habit) (air-org-skip-subtree-if-priority 65) (air-org-skip-subtree-if-priority 66) (org-agenda-skip-if nil '(scheduled deadline)))) (org-agenda-overriding-header Eventually:) (org-agenda-files `(,ak/custpath-dropbox-org)))))                                                                                                                                                                 |      |                                                                                                                                                                                                                                                                                                                         |
- | D | Daily agenda and all work TODOs | ((tags PRIORITY="A" ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done)) (org-agenda-tag-filter-preset '(+Work)) (org-agenda-overriding-header High-priority unfinished tasks:) (org-agenda-files `(,ak/custpath-dropbox-org)))) (agenda  ((org-agenda-span 'day) (org-agenda-tag-filter-preset '(+Work)) (org-agenda-overriding-header ALL normal priority tasks:) (org-agenda-files `(,ak/custpath-dropbox-org)))) (tags (or PRIORITY="B" PRIORITY="C") ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done)) (org-agenda-tag-filter-preset '(+Work)) (org-agenda-overriding-header Unfinished tasks:) (org-agenda-files `(,ak/custpath-dropbox-org)))) (alltodo  ((org-agenda-skip-function '(or (air-org-skip-subtree-if-habit) (air-org-skip-subtree-if-priority 65) (air-org-skip-subtree-if-priority 66) (org-agenda-skip-if nil '(scheduled deadline)))) (org-agenda-tag-filter-preset '(+Work)) (org-agenda-overriding-header Eventually:) (org-agenda-files `(,ak/custpath-dropbox-org))))) |      |                                                                                                                                                                                                                                                                                                                         |
- | r | Day in review                   | todo                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | DONE | ((org-agenda-files '(c:/Users/akraemer/Dropbox/org/catapult/gtd.org_archive)) (org-agenda-start-with-log-mode '(ARCHIVE_TIME)) (org-agenda-archives-mode t) (org-agenda-skip-function '(org-agenda-skip-entry-if 'notregexp (ak/org-skip-subtree-if-not-archived-today))) (org-agenda-overriding-header Day in Review)) |
+ | d | Daily agenda and all work TODOs | ((tags PRIORITY="A" ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done)) (org-agenda-overriding-header High-priority tasks:) (org-agenda-files `(,ak/custpath-dropbox-org)))) (agenda  ((org-agenda-span 'day) (org-agenda-overriding-header ALL normal priority tasks:) (org-agenda-files `(,ak/custpath-dropbox-org)))) (tags PRIORITY="B" ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done)) (org-agenda-overriding-header Medium-priority tasks:) (org-agenda-files `(,ak/custpath-dropbox-org)))) (tags PRIORITY="C" ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done)) (org-agenda-overriding-header Eventually tasks:) (org-agenda-files `(,ak/custpath-dropbox-org)))) (tags PRIORITY="D" ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done)) (org-agenda-overriding-header Personal tasks:) (org-agenda-files `(,ak/custpath-dropbox-org)))))                                                                                                            |
+ | D | Daily agenda and all work TODOs | ((tags PRIORITY="A" ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done)) (org-agenda-tag-filter-preset '(+Work)) (org-agenda-overriding-header High-priority unfinished tasks:) (org-agenda-files `(,ak/custpath-dropbox-org)))) (agenda  ((org-agenda-span 'day) (org-agenda-tag-filter-preset '(+Work)) (org-agenda-overriding-header ALL normal priority tasks:) (org-agenda-files `(,ak/custpath-dropbox-org)))) (tags (or PRIORITY="B" PRIORITY="C") ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done)) (org-agenda-tag-filter-preset '(+Work)) (org-agenda-overriding-header Unfinished tasks:) (org-agenda-files `(,ak/custpath-dropbox-org)))) (alltodo  ((org-agenda-skip-function '(or (air-org-skip-subtree-if-habit) (air-org-skip-subtree-if-priority 65) (air-org-skip-subtree-if-priority 66) (org-agenda-skip-if nil '(scheduled deadline)))) (org-agenda-tag-filter-preset '(+Work)) (org-agenda-overriding-header Eventually:) (org-agenda-files `(,ak/custpath-dropbox-org))))) |
 
    I love this function. It brings the agenda front and center. Thanks [[https://blog.aaronbieber.com/2016/09/24/an-agenda-for-life-with-org-mode.html][Aaron Bieber]].
  #+begin_src emacs-lisp
