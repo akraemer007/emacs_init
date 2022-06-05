@@ -266,6 +266,17 @@
 #+RESULTS:
 : utf-8
 
+* Package Installation
+** Quelpa
+   This allows me to install packages directly from github. I originally got it to download ob-racket so I could use racket in babel
+#+begin_src emacs-lisp
+  (use-package quelpa
+    :ensure t
+  )
+#+end_src
+
+#+RESULTS:
+
 * UI
 ** Font
   I find that consolas works really well on my windows machine, but Source Code Pro is just a little more nifty. Normal thickness on windows doesn't look great with orgmode on my windows machine, so I have different settings for different computers
@@ -286,7 +297,7 @@
 				:weight 'Regular
 				;; :weight 'bold
 				;; :width 'normal
-				:height 125))
+				:height 128))
 	  ((string-equal system-name "andrew-MACH-WX9")
 	    (set-face-attribute 'default nil
 				:family "Source Code Pro"
@@ -339,7 +350,7 @@
     (setq evil-want-keybinding nil) ;; do this for integration w/ evil collection
     :config
     (evil-mode 1)
-    ;;(add-hook 'evil-local-mode-hook #'turn-on-undo-tree-mode)
+    ;; (add-hook 'evil-local-mode-hook #'turn-on-undo-tree-mode)
     (add-hook 'prog-mode-hook #'turn-on-evil-mode)
   )
 
@@ -364,6 +375,16 @@
     :custom (evil-collection-company-use-tng nil) ;; gives errors when uses default of t
     :config
     (evil-collection-init))
+
+  (use-package undo-tree
+    ;;something wonky happened with undo/redo with evil and an update, so I need to add undo tree
+    ;;details: https://www.reddit.com/r/emacs/comments/n1pibp/installed_evil_on_emacs_for_windows_redo_not/
+    :ensure t
+    :after evil
+    :diminish
+    :config
+    (evil-set-undo-system 'undo-tree)
+    (global-undo-tree-mode 1))
 #+end_src
 
 #+RESULTS:
@@ -853,12 +874,20 @@
 #+RESULTS:
 
 ** Org-download
+    Download screenshots into org. [[Https://zzamboni.org/post/how-to-insert-screenshots-in-org-documents-on-macos/][Source]].
  #+begin_src emacs-lisp
-(use-package org-download
-  :ensure t
-  :config
-  ;; add support to dired
-  (add-hook 'dired-mode-hook 'org-download-enable))
+   (use-package org-download
+     :after org
+     :defer nil
+     :custom
+     (org-download-method 'directory)
+     (org-download-image-dir "images")
+     (org-download-heading-lvl nil)
+     (org-download-timestamp "%Y%m%d-%H%M%S_")
+     (org-image-actual-width 300)
+     (org-download-screenshot-method "/usr/local/bin/pngpaste %s")
+     :config
+     (require 'org-download))
  #+end_src
  
  #+RESULTS:
@@ -879,19 +908,20 @@
 ** Org-Babel
  #+begin_src emacs-lisp
    (org-babel-do-load-languages
-   'org-babel-load-languages
-   '((R . t)
-       (python . t)))
-   ;; put viz inline by default
-   (setq org-startup-with-inline-images t)
+    'org-babel-load-languages
+    '((R . t)
+      (python . t)
+      (racket . t)))
+    ;; put viz inline by default
+    (setq org-startup-with-inline-images t)
 
-   (use-package ox-pandoc
-     :ensure t
-     :defer t)
+    (use-package ox-pandoc
+      :ensure t
+      :defer t)
 
-    ;; pulled form my spacemacs for latex
-    ;; (setenv "PATH" (concat (getenv "PATH") ":/sw/bin"))
-    ;; (setq exec-path (append exec-path '("/sw/bin")))
+     ;; pulled form my spacemacs for latex
+     ;; (setenv "PATH" (concat (getenv "PATH") ":/sw/bin"))
+     ;; (setq exec-path (append exec-path '("/sw/bin")))
  #+end_src
 
 * RSS
@@ -1016,8 +1046,9 @@
  #+begin_src emacs-lisp
    (use-package magit
      :ensure t)
-  
+
    (use-package evil-magit
+     :disabled
      :ensure t
      :after magit)
 
@@ -1295,7 +1326,21 @@ I'm taking the plunge into my first true OOP language for my Game Design class. 
   #+end_src
 
   #+RESULTS:
-  : c:/Program Files/Racket/Racket.exe
+
+  Install the ob-racket package from github
+  
+#+begin_src emacs-lisp
+  (quelpa '(ob-racket :fetcher github :repo "DEADB17/ob-racket"))
+
+  (use-package ob-racket
+    :after org
+    :pin manual
+    :config
+    (append '((racket . t)) org-babel-load-languages))
+#+end_src
+
+#+RESULTS:
+: t
 
 * Writing & Reading
 ** Writeroom
@@ -1623,9 +1668,9 @@ I'm taking the plunge into my first true OOP language for my Game Design class. 
                 "C-c f" 'ak/org-focus-subtree
                 "C--" 'help/insert-em-dash
                 "M--" 'help/insert-en-dash
-                "C-M-y" 'insert-char)
+                "C-M-y" 'org-download-clipboard)
              )
-                #+end_src
+#+end_src
 
  #+RESULTS:
  : t
@@ -1756,7 +1801,7 @@ I'm taking the plunge into my first true OOP language for my Game Design class. 
     "Insert src_sections for viz in orgmode."
     (interactive)
     (insert "#+begin_src "
-	    (read-string "Enter Language (R, python, lisp): ")
+	    (read-string "Enter Language (R, python, racket, lisp): ")
 	    (if (equal (read-string "Return Viz (y/n) ") "y")
 		" :results output graphics :file img.png"
 	      ""))
