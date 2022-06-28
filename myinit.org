@@ -134,14 +134,14 @@
 		 ak/custpath-flake8 "c:/Users/akraemer/Anaconda3/Scripts/flake8.exe"
 		 ak/custpath-aspell "c:/msys64/mingw64/bin/aspell.exe"))
 	  ((eq window-system 'ns) ;; macbook
-	   (setq ak/context-name "personal"
-		 ak/custpath-home "/Users/AndrewKraemer/"
-		 ak/custpath-dropbox "/Users/AndrewKraemer/Dropbox/"
+	   (setq ak/context-name "work"
+		 ak/custpath-home "/Users/akraemer/"
+		 ak/custpath-dropbox "/Users/akraemer/Dropbox/"
 		 ak/custpath-emacsd "~/.emacs.d/"
-		 ak/custpath-py-default-env "/Users/AndrewKraemer/anaconda3/envs/py37"
+		 ak/custpath-py-default-env "/Users/akraemer/anaconda3/envs/py37"
 		 ak/custpath-aspell "/usr/local/bin/aspell"))
 	  ((eq window-system 'mac) ;; macmini
-	   (setq ak/context-name "catapult"
+	   (setq ak/context-name "work"
 		 ak/custpath-home "/Users/AndrewKraemer/"
 		 ak/custpath-dropbox "/Users/AndrewKraemer/Dropbox/"
 		 ak/custpath-emacsd "~/.emacs.d/"
@@ -569,7 +569,7 @@
     (defvar my/org-meeting-template "** Meeting about %^{something}
       SCHEDULED: %<%Y-%m-%d %H:%M>
       ,*Attendees:*
-      - [X] Nick Anderson
+      - [X] Andrew Kraemer
       - [ ] %?
       ,*Agenda:*
       -
@@ -593,8 +593,8 @@
  #+end_src
 
  #+RESULTS:
- | t | To-do      | entry | (file+headline c:/Users/akraemer/Dropbox/org/gtd.org Inbox) | ** TODO [#%^{priority}] %^{Task Description} | :prepend | t |
- | c | To-do Link | entry | (file+headline c:/Users/akraemer/Dropbox/org/gtd.org Inbox) | ** TODO [#%^{priority}] %A                   |          |   |
+ | t | To-do      | entry | (file+headline /Users/akraemer/Dropbox/org/gtd.org Inbox) | ** TODO [#%^{priority}] %^{Task Description} | :prepend | t |
+ | c | To-do Link | entry | (file+headline /Users/akraemer/Dropbox/org/gtd.org Inbox) | ** TODO [#%^{priority}] %A                   |          |   |
 
 ** Org-Agenda / priority
    I use my org agenda extensively. It's the holy grail of task management for me. I use `<SPC> o o` to quickly jump to my agenda. It's where I manage task completion. It's where I kick off my pomodoro timers. I can filter it by tags with `/ <TAB>` 
@@ -911,7 +911,8 @@
     'org-babel-load-languages
     '((R . t)
       (python . t)
-      (racket . t)))
+      ;; (racket . t)
+     ))
     ;; put viz inline by default
     (setq org-startup-with-inline-images t)
 
@@ -1113,8 +1114,16 @@
 ***** Pyenv
       #+begin_example
       brew install pyenv
+      brew install pyenv-virtualenv
+      pyenv install 3.9.4
       pyenv virtualenv 3.9.4 py39
       pyenv activate py39
+
+      put this in .zshrc:
+      if command -v pyenv 1>/dev/null 2>&1; then
+        eval "$(pyenv init -)"
+        eval "$(pyenv virtualenv-init -)"
+      fi
 
       python -m pip install --upgrade pip
 
@@ -1330,13 +1339,13 @@ I'm taking the plunge into my first true OOP language for my Game Design class. 
   Install the ob-racket package from github
   
 #+begin_src emacs-lisp
-  (quelpa '(ob-racket :fetcher github :repo "DEADB17/ob-racket"))
+  ;; (quelpa '(ob-racket :fetcher github :repo "DEADB17/ob-racket"))
 
-  (use-package ob-racket
-    :after org
-    :pin manual
-    :config
-    (append '((racket . t)) org-babel-load-languages))
+  ;; (use-package ob-racket
+  ;;   :after org
+  ;;   :pin manual
+  ;;   :config
+  ;;   (append '((racket . t)) org-babel-load-languages))
 #+end_src
 
 #+RESULTS:
