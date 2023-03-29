@@ -1631,7 +1631,7 @@ I'm taking the plunge into my first true OOP language for my Game Design class. 
                ;; Quick open files
                "c"  '((lambda () (interactive) (find-file (concat ak/custpath-emacsd "myinit.org"))) :which-key "open .emacs")
                "o"  '((lambda () (interactive) (find-file (concat ak/custpath-dropbox-org "gtd.org"))) :which-key "open org")
-               "n"  '((lambda () (interactive) (find-file (concat ak/custpath-dropbox-org "catapult/notes.org"))) :which-key "open notes")
+               "n"  '((lambda () (interactive) (find-file (concat ak/custpath-dropbox-org "personal/notes.org"))) :which-key "open notes")
                "N"  '((lambda () (interactive) (find-file (concat ak/custpath-dropbox-org "personal/notes.org"))) :which-key "open notes")
                ;; Vim  number increment
                "C-="  '(hydra-numbers/evil-numbers/inc-at-pt :which-key "increment num")
