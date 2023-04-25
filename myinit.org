@@ -135,10 +135,10 @@
 		 ak/custpath-aspell "c:/msys64/mingw64/bin/aspell.exe"))
 	  ((eq window-system 'ns) ;; macbook
 	   (setq ak/context-name "work"
-		 ak/custpath-home "/Users/akraemer/"
-		 ak/custpath-dropbox "/Users/akraemer/Dropbox/"
+		 ak/custpath-home "/Users/andrew.kraemer/"
+		 ak/custpath-dropbox "/Users/andrew.kraemer/Dropbox/"
 		 ak/custpath-emacsd "~/.emacs.d/"
-		 ak/custpath-py-default-env "/Users/akraemer/anaconda3/envs/py37"
+		 ak/custpath-py-default-env "/Users/andrew.kraemer/anaconda3/envs/myenv"
 		 ak/custpath-aspell "/usr/local/bin/aspell"))
 	  ((eq window-system 'mac) ;; macmini
 	   (setq ak/context-name "work"
@@ -1158,41 +1158,41 @@
       ;;     :ensure t
       ;;     :defer t)
 
-	(use-package elpy
-	  :ensure t
-	  :defer t
-	  :init
-	  (setq python-shell-completion-native-enable nil) 
-	  (setenv "WORKON_HOME" "~/.pyenv/versions/")
-	  (pyenv-mode-set "py39")
-	  (elpy-enable)
-	  :config
-	  (advice-add 'python-mode :before 'elpy-enable)
-	  (setq python-shell-enable-font-lock nil) ;; make python shell faster
-	  (setq python-shell-completion-native-enable nil) ;; IDK what this does
-	  (setenv "WORKON_HOME" "~/.pyenv/versions/")	;; choose where to look for enviornments
-	  (pyenv-mode-set "py39") ;; define which virtual enviornment to use
+	;; (use-package elpy
+	;;   :ensure t
+	;;   :defer t
+	;;   :init
+	;;   (setq python-shell-completion-native-enable nil) 
+	;;   (setenv "WORKON_HOME" "~/.pyenv/versions/")
+	;;   (pyenv-mode-set "py39")
+	;;   (elpy-enable)
+	;;   :config
+	;;   (advice-add 'python-mode :before 'elpy-enable)
+	;;   (setq python-shell-enable-font-lock nil) ;; make python shell faster
+	;;   (setq python-shell-completion-native-enable nil) ;; IDK what this does
+	;;   (setenv "WORKON_HOME" "~/.pyenv/versions/")	;; choose where to look for enviornments
+	;;   (pyenv-mode-set "py39") ;; define which virtual enviornment to use
 
-	  (setq elpy-shell-echo-output nil) ; fix for MacOS, see https://github.com/jorgenschaefer/elpy/issues/1550
-	  (setq elpy-rpc-python-command "python3")
-	  (setq elpy-rpc-timeout 2)
+	;;   (setq elpy-shell-echo-output nil) ; fix for MacOS, see https://github.com/jorgenschaefer/elpy/issues/1550
+	;;   (setq elpy-rpc-python-command "python3")
+	;;   (setq elpy-rpc-timeout 2)
 
-	  (setq elpy-modules (delq 'elpy-module-flymake elpy-modules)) ;; don't use use flymake
+	;;   (setq elpy-modules (delq 'elpy-module-flymake elpy-modules)) ;; don't use use flymake
 
-	  ;;(setq python-shell-interpreter "ipython"
-	  ;;   python-shell-interpreter-args "-i --simple-prompt")
+	;;   ;;(setq python-shell-interpreter "ipython"
+	;;   ;;   python-shell-interpreter-args "-i --simple-prompt")
 
-	  (setq python-shell-interpreter "jupyter" ;; use a jupyter shell
-	   python-shell-interpreter-args "console --simple-prompt"
-	   python-shell-prompt-detect-failure-warning nil)
-	  (add-to-list 'python-shell-completion-native-disabled-interpreters
-		    "jupyter")
+	;;   (setq python-shell-interpreter "jupyter" ;; use a jupyter shell
+	;;    python-shell-interpreter-args "console --simple-prompt"
+	;;    python-shell-prompt-detect-failure-warning nil)
+	;;   (add-to-list 'python-shell-completion-native-disabled-interpreters
+	;; 	    "jupyter")
 
-	  ;; (add-hook 'elpy-mode-hook 'flycheck-mode) ;; use use flycheck instead & flymake
-	  ;; (add-hook 'elpy-mode-hook (lambda () ;; format w/ black on save
-	  ;; 	     (add-hook 'before-save-hook
-	  ;; 		       'elpy-black-fix-code nil t)))
-	  )
+	;;   ;; (add-hook 'elpy-mode-hook 'flycheck-mode) ;; use use flycheck instead & flymake
+	;;   ;; (add-hook 'elpy-mode-hook (lambda () ;; format w/ black on save
+	;;   ;; 	     (add-hook 'before-save-hook
+	;;   ;; 		       'elpy-black-fix-code nil t)))
+	;;   )
  #+end_src
 
  #+RESULTS:
@@ -1658,10 +1658,10 @@ I'm taking the plunge into my first true OOP language for my Game Design class. 
              (general-unbind 'racket-repl-mode-map
                 "C-w"
                 "C-d")
-             (general-define-key
-                :keymaps 'elpy-mode-map
-                "C-c d" 'elpy-send-defun
-                "C-c C-a" 'elpy-goto-assignment)
+             ;; (general-define-key
+             ;;    :keymaps 'elpy-mode-map
+             ;;    "C-c d" 'elpy-send-defun
+             ;;    "C-c C-a" 'elpy-goto-assignment)
              (general-define-key
                 :keymaps 'org-journal-mode-map
                 "C-c C-c" 'ak/save-close-window)
