@@ -566,35 +566,43 @@
 
   Org caputure templates allow you to quickly create tasks following a structure. I like to make sure all tasks have a priority & go to my inbox. I have this large meeting template, but i don't use it currently. I still am working on a way of better capturing one-off notes related to a project.
   #+begin_src emacs-lisp
-    (defvar my/org-meeting-template "** Meeting about %^{something}
-      SCHEDULED: %<%Y-%m-%d %H:%M>
-      ,*Attendees:*
-      - [X] Andrew Kraemer
-      - [ ] %?
-      ,*Agenda:*
-      -
-      -
-      ,*Notes:*
-      ")
+    (defvar my/org-meeting-template "** %<%Y-%m-%d %H:%M> %^{client/general} %^{meeting topic}
+,*** Attendees:
+,**** %?
+,*** Goals:
+,**** 
+,*** Discussion:
+,**** 
+,*** Action Items:
+,**** 
+")
+
+    (defvar ak/org-new-client-template "** %^{client_name}                                             :%\\1:
+,*** Notes-%\\1
+,**** General-Notes-%\\1
+,*** Tasks-%\\1
+")
 
     (setq org-capture-templates
-	`(;; Note the backtick here, it's required so that the defvar based tempaltes will work!
-	  ;;http://comments.gmane.org/gmane.emacs.orgmode/106890
+        `(;; Note the backtick here, it's required so that the defvar based tempaltes will work!
+          ;;http://comments.gmane.org/gmane.emacs.orgmode/106890 # deadlink
 
-	  ("t" "To-do" entry (file+headline ,(concat ak/custpath-dropbox-org "gtd.org") "Inbox")
-	    "** TODO [#%^{priority}] %^{Task Description}" :prepend t)
-	  ("c" "To-do Link" entry (file+headline ,(concat ak/custpath-dropbox-org "gtd.org") "Inbox")
-	    "** TODO [#%^{priority}] %A \n:PROPERTIES:\n:Created: %U\n:Source: %a\n:END:\n%?"
-	    :prepend t)
-	  ("m" "Meeting" entry (file+headline ,(concat ak/custpath-org-notes "meetings.org") "Meeting Notes")
-	   ,my/org-meeting-template)
+          ("t" "To-do" entry (file+headline ,(concat ak/custpath-dropbox-org "gtd.org") "Inbox")
+            "** TODO [#%^{priority}] %^{Task Description}" :prepend t)
+          ("c" "To-do Link" entry (file+headline ,(concat ak/custpath-dropbox-org "gtd.org") "Inbox")
+            "** TODO [#%^{priority}] %A \n:PROPERTIES:\n:Created: %U\n:Source: %a\n:END:\n%?"
+            :prepend t)
+          ("m" "Meeting" entry (file+headline ,(concat ak/custpath-dropbox-org "gtd.org") "MeetingNotesInbox")
+           ,my/org-meeting-template :prepend t)
+          ("n" "New Client" entry (file+headline ,(concat ak/custpath-dropbox-org "gtd.org") "Notes-Databricks")
+           ,ak/org-new-client-template)
     ))
 
  #+end_src
 
  #+RESULTS:
- | t | To-do      | entry | (file+headline /Users/akraemer/Dropbox/org/gtd.org Inbox) | ** TODO [#%^{priority}] %^{Task Description} | :prepend | t |
- | c | To-do Link | entry | (file+headline /Users/akraemer/Dropbox/org/gtd.org Inbox) | ** TODO [#%^{priority}] %A                   |          |   |
+ | t | To-do      | entry | (file+headline /Users/andrew.kraemer/Dropbox/org/gtd.org Inbox) | ** TODO [#%^{priority}] %^{Task Description} | :prepend | t |
+ | c | To-do Link | entry | (file+headline /Users/andrew.kraemer/Dropbox/org/gtd.org Inbox) | ** TODO [#%^{priority}] %A                   |          |   |
 
 ** Org-Agenda / priority
    I use my org agenda extensively. It's the holy grail of task management for me. I use `<SPC> o o` to quickly jump to my agenda. It's where I manage task completion. It's where I kick off my pomodoro timers. I can filter it by tags with `/ <TAB>` 
@@ -924,7 +932,7 @@
      ;; (setenv "PATH" (concat (getenv "PATH") ":/sw/bin"))
      ;; (setq exec-path (append exec-path '("/sw/bin")))
  #+end_src
-
+ 
 * RSS
   bort
 ** Elfeed
